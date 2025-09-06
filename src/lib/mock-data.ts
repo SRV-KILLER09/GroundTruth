@@ -32,7 +32,7 @@ export const mockDisasterUpdates: DisasterUpdate[] = [
     disasterType: 'Fire',
     location: { latitude: 28.6139, longitude: 77.2090, name: "New Delhi" },
     message: "GAIL pipeline near the river exploded after damage from the recent floods. Huge fire, authorities need to be alerted immediately!",
-    mediaUrl: "https://images.unsplash.com/photo-1599389814529-575f0a130097?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    mediaUrl: "https://images.unsplash.com/photo-1599389814529-575f0a130097?q=80&w=600&h=400&auto=format&fit=crop",
     history: ["Pipeline exploded an hour ago.", "Smoke is visible from miles away.", "The area has been evacuated."],
     replies: [
         { author: "Admin", message: "The problem has been reported to the concerned authorities and actions have been taken accordingly. Please stay clear of the area.", timestamp: "2024-07-23T14:15:00Z" }
