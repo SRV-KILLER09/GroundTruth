@@ -28,8 +28,10 @@ export function UpdateCard({ update }: UpdateCardProps) {
         </Avatar>
         <div className="grid gap-1">
           <p className="font-semibold">{update.user.name}</p>
-          <p className="text-sm text-muted-foreground">
-            {new Date(update.timestamp).toLocaleDateString()}
+          <p className="text-sm text-muted-foreground flex items-center">
+            <span>{new Date(update.timestamp).toLocaleDateString()}</span>
+            <span className="mx-1.5">·</span>
+            <span className="truncate">{update.location.name}</span>
           </p>
         </div>
       </CardHeader>
@@ -48,13 +50,10 @@ export function UpdateCard({ update }: UpdateCardProps) {
           </div>
         )}
       </CardContent>
-      <CardFooter className="flex justify-between bg-muted/50 p-4 text-sm text-muted-foreground">
+      <CardFooter className="flex justify-start bg-muted/50 p-4 text-sm text-muted-foreground">
         <div className="flex items-center">
             {icon}
             <span className="ml-1.5">{update.disasterType}</span>
-        </div>
-        <div className="truncate">
-            {update.location.name}
         </div>
       </CardFooter>
     </Card>
