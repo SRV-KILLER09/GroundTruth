@@ -27,6 +27,12 @@ export default function LandingPage() {
             Features
           </Link>
           <Link
+            href="#developers"
+            className="text-sm font-medium hover:underline underline-offset-4 text-red-400"
+          >
+            Developers
+          </Link>
+          <Link
             href="#contact"
             className="text-sm font-medium hover:underline underline-offset-4 text-red-400"
           >
@@ -133,6 +139,35 @@ export default function LandingPage() {
             />
           </div>
         </section>
+
+        {/* Meet the Developers Section */}
+        <section id="developers" className="w-full py-12 md:py-24 lg:py-32 bg-gray-900/50">
+          <div className="container px-4 md:px-6">
+            <div className="flex flex-col items-center justify-center space-y-4 text-center">
+              <div className="inline-block rounded-lg bg-red-900 px-3 py-1 text-sm text-red-300">Our Team</div>
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-white drop-shadow-lg">Meet the Developers</h2>
+              <p className="max-w-[900px] text-red-300 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                The passionate minds behind ResQTech, dedicated to using technology for good.
+              </p>
+            </div>
+            <div className="mx-auto grid max-w-5xl grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 items-center gap-6 lg:gap-10 pt-12">
+              {['VARDAAN', 'SIMRAN', 'ADITI', 'SHAMBHAVI', 'PULKIT', 'SARANSH'].map((name, index) => (
+                <div key={name} className="flex flex-col items-center text-center gap-2">
+                  <Image
+                    src={`https://picsum.photos/seed/${name}/200`}
+                    alt={`Developer ${name}`}
+                    width={120}
+                    height={120}
+                    className="rounded-full border-4 border-red-800 object-cover"
+                    data-ai-hint="person portrait"
+                  />
+                  <h3 className="text-lg font-bold text-white mt-2">{name}</h3>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
       </main>
 
       {/* Footer */}
