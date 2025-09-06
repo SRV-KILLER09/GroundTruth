@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from '@/contexts/AuthContext';
 
 export const metadata: Metadata = {
-  title: 'ResQTech',
+  title: 'TitanicX',
   description: 'Community-driven disaster updates',
 };
 

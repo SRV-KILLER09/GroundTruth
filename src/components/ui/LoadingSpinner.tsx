@@ -60,7 +60,7 @@ export const LoadingSpinner = () => {
         </div>
       </div>
        <p className="mt-4 text-lg font-headline text-primary-foreground animate-pulse">
-        Loading ResQTech...
+        Loading TitanicX...
       </p>
     </div>
   );

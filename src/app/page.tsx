@@ -11,7 +11,7 @@ export default function LandingPage() {
       <header className="sticky top-0 z-50 px-4 lg:px-6 h-14 flex items-center bg-black/80 backdrop-blur-sm border-b border-red-900">
         <Link href="#" className="flex items-center justify-center">
           <Mountain className="h-6 w-6 text-red-500" />
-          <span className="sr-only">ResQTech</span>
+          <span className="sr-only">TitanicX</span>
         </Link>
         <nav className="ml-auto hidden lg:flex gap-4 sm:gap-6">
           <Link
@@ -89,7 +89,7 @@ export default function LandingPage() {
                 <div className="inline-block rounded-lg bg-red-900 px-3 py-1 text-sm text-red-200">Our Mission</div>
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-white drop-shadow-lg [text-shadow:_0_2px_4px_rgb(0_0_0_/_50%)]">Strength in Unity</h2>
                 <p className="max-w-[900px] text-red-200 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                  In the face of adversity, information and coordination are our most powerful tools. ResQTech is dedicated to bridging the gap between affected communities, rescue teams, and authorities, ensuring a swift, efficient, and unified response to natural disasters.
+                  In the face of adversity, information and coordination are our most powerful tools. TitanicX is dedicated to bridging the gap between affected communities, rescue teams, and authorities, ensuring a swift, efficient, and unified response to natural disasters.
                 </p>
               </div>
             </div>
@@ -147,7 +147,7 @@ export default function LandingPage() {
               <div className="inline-block rounded-lg bg-red-900 px-3 py-1 text-sm text-red-200">Our Team</div>
               <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-white drop-shadow-lg [text-shadow:_0_2px_4px_rgb(0_0_0_/_50%)]">Meet the Developers</h2>
               <p className="max-w-[900px] text-red-200 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                The passionate minds behind ResQTech, dedicated to using technology for good.
+                The passionate minds behind TitanicX, dedicated to using technology for good.
               </p>
             </div>
             <div className="mx-auto grid max-w-5xl grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 items-center gap-6 lg:gap-10 pt-12">
@@ -172,7 +172,7 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer id="contact" className="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t border-red-900 bg-gray-900/50">
-        <p className="text-xs text-red-300">&copy; 2024 ResQTech. All rights reserved.</p>
+        <p className="text-xs text-red-300">&copy; 2024 TitanicX. All rights reserved.</p>
         <nav className="sm:ml-auto flex gap-4 sm:gap-6">
           <Link href="#" className="text-xs hover:underline underline-offset-4 text-red-200">
             Terms of Service

@@ -64,7 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       router.push("/dashboard");
       toast({
-          title: "Welcome to ResQTech",
+          title: "Welcome to TitanicX",
       });
     } catch (error: any) {
       toast({
@@ -83,7 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await signInWithEmailAndPassword(auth, email, password);
       router.push("/dashboard");
        toast({
-          title: "Welcome to ResQTech",
+          title: "Welcome to TitanicX",
       });
     } catch (error: any) {
       toast({
