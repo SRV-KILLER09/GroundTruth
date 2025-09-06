@@ -25,6 +25,19 @@ export type DisasterUpdate = {
 };
 
 export const mockDisasterUpdates: DisasterUpdate[] = [
+    {
+    id: 5,
+    user: { name: "Anonymous", avatarUrl: "https://picsum.photos/id/404/40/40" },
+    timestamp: "2024-07-23T14:00:00Z",
+    disasterType: 'Fire',
+    location: { latitude: 28.6139, longitude: 77.2090, name: "New Delhi" },
+    message: "GAIL pipeline near the river exploded after damage from the recent floods. Huge fire, authorities need to be alerted immediately!",
+    mediaUrl: "https://images.unsplash.com/photo-1599389814529-575f0a130097?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    history: ["Pipeline exploded an hour ago.", "Smoke is visible from miles away.", "The area has been evacuated."],
+    replies: [
+        { author: "Admin", message: "The problem has been reported to the concerned authorities and actions have been taken accordingly. Please stay clear of the area.", timestamp: "2024-07-23T14:15:00Z" }
+    ],
+  },
   {
     id: 1,
     user: { name: "Priya", avatarUrl: "https://picsum.photos/id/237/40/40" },
@@ -49,6 +62,19 @@ export const mockDisasterUpdates: DisasterUpdate[] = [
     history: ["Minor cracks reported in some older buildings.", "No tsunami warning has been issued.", "Officials advise checking for structural damages."],
     replies: [
       { author: "Admin", message: "Our seismology team has confirmed the magnitude. No major damages reported yet. Please report any structural concerns to the city helpline.", timestamp: "2024-07-29T09:45:00Z" }
+    ],
+  },
+  {
+    id: 6,
+    user: { name: "Aisha", avatarUrl: "https://picsum.photos/id/1027/40/40" },
+    timestamp: "2024-07-28T22:00:00Z",
+    disasterType: 'Landslide',
+    location: { latitude: 31.1048, longitude: 77.1734, name: "Shimla, HP" },
+    message: "Landslide on the main highway has blocked the road to the city. We are stranded.",
+    mediaUrl: "https://images.unsplash.com/photo-1567654007013-3d64876fe8dd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxmbG9vZGluZ3xlbnwwfHx8fDE3NTcxNjg4MjV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+    history: ["The road is completely blocked with debris.", "No alternate routes are open.", "Heavy rains are continuing."],
+    replies: [
+      { author: "Admin", message: "Road clearance crews are being dispatched. Please stay in a safe location away from the slide area. We will post updates as they come.", timestamp: "2024-07-28T22:15:00Z" }
     ],
   },
   {
@@ -77,4 +103,17 @@ export const mockDisasterUpdates: DisasterUpdate[] = [
         { author: "Admin", message: "This is a severe weather event. Please follow all evacuation orders and tune into local news for the latest updates on shelters and safety measures.", timestamp: "2024-07-28T18:30:00Z" }
     ],
   },
+  {
+    id: 7,
+    user: { name: "Sameer", avatarUrl: "https://picsum.photos/id/1005/40/40" },
+    timestamp: "2024-07-27T11:45:00Z",
+    disasterType: 'Power Outage',
+    location: { latitude: 26.9124, longitude: 75.7873, name: "Jaipur, RJ" },
+    message: "Power has been out for over 12 hours in our area after the dust storm. Any update on restoration?",
+    mediaUrl: "https://images.unsplash.com/photo-1580258956422-834c81d739b8?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    history: ["The entire neighborhood is dark.", "Phones are running out of battery.", "No official communication from the power company yet."],
+    replies: [
+        { author: "Admin", message: "Crews are working to restore power. Estimated time for restoration is 8 PM tonight. We apologize for the inconvenience.", timestamp: "2024-07-27T12:00:00Z" }
+    ],
+  }
 ];
