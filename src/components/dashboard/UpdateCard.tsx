@@ -2,7 +2,6 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
 import type { DisasterUpdate } from "@/lib/mock-data";
-import { formatDistanceToNow } from "date-fns";
 import { Flame, Droplets, Zap, Wind } from 'lucide-react';
 
 interface UpdateCardProps {
@@ -27,7 +26,7 @@ export function UpdateCard({ update }: UpdateCardProps) {
         <div className="grid gap-1">
           <p className="font-semibold">{update.user.name}</p>
           <p className="text-sm text-muted-foreground">
-            {formatDistanceToNow(new Date(update.timestamp), { addSuffix: true })}
+            {new Date(update.timestamp).toLocaleDateString()}
           </p>
         </div>
       </CardHeader>
