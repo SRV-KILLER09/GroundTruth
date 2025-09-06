@@ -13,10 +13,10 @@ interface DisasterMapProps {
 }
 
 const locationToPosition: Record<string, { top: string; left: string }> = {
-  "Los Angeles, CA": { top: "55%", left: "12%" },
-  "San Francisco, CA": { top: "42%", left: "7%" },
-  "Lake Tahoe Area": { top: "35%", left: "9%" },
-  "Miami, FL": { top: "80%", left: "75%" },
+  "Mumbai, MH": { top: "58%", left: "45%" },
+  "Chennai, TN": { top: "72%", left: "52%" },
+  "Kolkata, WB": { top: "52%", left: "62%" },
+  "Goa": { top: "66%", left: "46%" },
 };
 
 const disasterTypeToColor: Record<DisasterUpdate['disasterType'], string> = {
