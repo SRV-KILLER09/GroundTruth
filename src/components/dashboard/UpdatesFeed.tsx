@@ -2,12 +2,13 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Flame, Droplets, Zap, Wind, AlertTriangle, MapPin, Loader2 } from 'lucide-react';
+import { PlusCircle, Flame, Droplets, Zap, Wind, AlertTriangle, MapPin, Loader2, Search } from 'lucide-react';
 import { UpdateCard } from './UpdateCard';
 import type { DisasterUpdate } from '@/lib/mock-data';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { SubmitUpdateForm } from './SubmitUpdateForm';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 
 interface UpdatesFeedProps {
@@ -19,7 +20,7 @@ interface UpdatesFeedProps {
 
 const disasterTypes = ['All', 'Flood', 'Earthquake', 'Fire', 'Hurricane'] as const;
 type DisasterType = typeof disasterTypes[number];
-type SortOrder = 'recent' | 'city' | 'closest';
+type SortOrder = 'recent' | 'closest';
 
 // Haversine formula to calculate distance between two lat/lng points
 const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
@@ -40,6 +41,7 @@ export function UpdatesFeed({ allUpdates, filteredUpdates, setFilteredUpdates, s
     const [sortOrder, setSortOrder] = React.useState<SortOrder>('recent');
     const [userLocation, setUserLocation] = React.useState<{latitude: number, longitude: number} | null>(null);
     const [isLocating, setIsLocating] = React.useState(false);
+    const [citySearch, setCitySearch] = React.useState("");
     const { toast } = useToast();
 
     const handleSortChange = (value: SortOrder) => {
@@ -88,9 +90,7 @@ export function UpdatesFeed({ allUpdates, filteredUpdates, setFilteredUpdates, s
 
     const sortedUpdates = React.useMemo(() => {
         let sorted = [...allUpdates];
-        if (sortOrder === 'city') {
-            sorted.sort((a, b) => a.location.name.localeCompare(b.location.name));
-        } else if (sortOrder === 'closest' && userLocation) {
+        if (sortOrder === 'closest' && userLocation) {
             sorted.sort((a, b) => {
                 const distA = getDistance(userLocation.latitude, userLocation.longitude, a.location.latitude, a.location.longitude);
                 const distB = getDistance(userLocation.latitude, userLocation.longitude, b.location.latitude, b.location.longitude);
@@ -103,20 +103,27 @@ export function UpdatesFeed({ allUpdates, filteredUpdates, setFilteredUpdates, s
     }, [allUpdates, sortOrder, userLocation]);
 
 
-    const handleFilter = (type: DisasterType) => {
-        setActiveFilter(type);
-        if (type === 'All') {
-            setFilteredUpdates(sortedUpdates);
-        } else {
-            const newFilteredUpdates = sortedUpdates.filter(u => u.disasterType === type);
-            setFilteredUpdates(newFilteredUpdates);
+    const applyFilters = React.useCallback(() => {
+        let updatesToFilter = [...sortedUpdates];
+        
+        // Filter by disaster type
+        if (activeFilter !== 'All') {
+            updatesToFilter = updatesToFilter.filter(u => u.disasterType === activeFilter);
         }
-    }
+
+        // Filter by city search
+        if (citySearch.trim() !== "") {
+            updatesToFilter = updatesToFilter.filter(u => 
+                u.location.name.toLowerCase().includes(citySearch.toLowerCase())
+            );
+        }
+
+        setFilteredUpdates(updatesToFilter);
+    }, [sortedUpdates, activeFilter, citySearch, setFilteredUpdates]);
     
     React.useEffect(() => {
-        handleFilter(activeFilter);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [allUpdates, sortedUpdates]);
+        applyFilters();
+    }, [allUpdates, sortedUpdates, activeFilter, citySearch, applyFilters]);
 
     const addUpdate = (newUpdate: Omit<DisasterUpdate, 'id' | 'timestamp'>) => {
         const updateToAdd: DisasterUpdate = {
@@ -128,6 +135,7 @@ export function UpdatesFeed({ allUpdates, filteredUpdates, setFilteredUpdates, s
         setUpdates(newUpdates);
         setSortOrder('recent'); // Reset sort to show new update first
         setActiveFilter('All');
+        setCitySearch('');
         setIsSheetOpen(false);
     }
     
@@ -155,7 +163,6 @@ export function UpdatesFeed({ allUpdates, filteredUpdates, setFilteredUpdates, s
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="recent">Most Recent</SelectItem>
-                            <SelectItem value="city">By City</SelectItem>
                             <SelectItem value="closest">
                                 <div className="flex items-center">
                                     {isLocating && sortOrder !== 'closest' ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <MapPin className="mr-2 h-4 w-4" />}
@@ -183,21 +190,33 @@ export function UpdatesFeed({ allUpdates, filteredUpdates, setFilteredUpdates, s
                     </Sheet>
                 </div>
             </div>
-            <div className="flex space-x-2 mb-4 overflow-x-auto pb-2">
-                {allFilterTypes.map(type => (
-                    <Button 
-                        key={type}
-                        variant={activeFilter === type ? 'default' : 'outline'}
-                        onClick={() => handleFilter(type as DisasterType)}
-                        className="capitalize shrink-0"
-                    >
-                        {
-                            //@ts-ignore
-                            disasterIcons[type] ? disasterIcons[type] : (type !== 'All' ? <AlertTriangle className="mr-2 h-4 w-4" /> : null)
-                        }
-                        {type}
-                    </Button>
-                ))}
+            <div className="flex flex-col sm:flex-row gap-2 mb-4">
+                <div className="flex space-x-2 overflow-x-auto pb-2 sm:pb-0">
+                    {allFilterTypes.map(type => (
+                        <Button 
+                            key={type}
+                            variant={activeFilter === type ? 'default' : 'outline'}
+                            onClick={() => setActiveFilter(type as DisasterType)}
+                            className="capitalize shrink-0"
+                        >
+                            {
+                                //@ts-ignore
+                                disasterIcons[type] ? disasterIcons[type] : (type !== 'All' ? <AlertTriangle className="mr-2 h-4 w-4" /> : null)
+                            }
+                            {type}
+                        </Button>
+                    ))}
+                </div>
+                <div className="relative sm:ml-auto sm:w-auto w-full">
+                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
+                        type="search"
+                        placeholder="Search by city..."
+                        className="pl-8 sm:w-64"
+                        value={citySearch}
+                        onChange={(e) => setCitySearch(e.target.value)}
+                    />
+                </div>
             </div>
             <div className="space-y-4">
                 {filteredUpdates.length > 0 ? (
@@ -206,7 +225,7 @@ export function UpdatesFeed({ allUpdates, filteredUpdates, setFilteredUpdates, s
                     ))
                 ) : (
                     <div className="text-center text-muted-foreground py-10">
-                        <p>No updates found for this category.</p>
+                        <p>No updates found for the selected filters.</p>
                     </div>
                 )}
             </div>
