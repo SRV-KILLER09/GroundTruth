@@ -22,7 +22,7 @@ export default function Header() {
       <Link href="/" className="flex items-center gap-2">
         <Mountain className="h-6 w-6 text-primary" />
         <span className="text-xl font-bold font-headline tracking-tighter text-foreground">
-          GroundTruth
+          ResQTech
         </span>
       </Link>
       {user && (
