@@ -30,9 +30,9 @@ export default function Header() {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-10 w-10 rounded-full">
               <Avatar className="h-10 w-10">
-                <AvatarImage src={`https://picsum.photos/seed/${user.email}/40/40`} alt={user.username} />
+                <AvatarImage src={`https://picsum.photos/seed/${user.email}/40/40`} alt={user.displayName || ''} />
                 <AvatarFallback>
-                  {user.username?.charAt(0).toUpperCase()}
+                  {user.displayName?.charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
             </Button>
@@ -40,7 +40,7 @@ export default function Header() {
           <DropdownMenuContent className="w-56" align="end" forceMount>
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">{user.username}</p>
+                <p className="text-sm font-medium leading-none">{user.displayName}</p>
                 <p className="text-xs leading-none text-muted-foreground">
                   {user.email}
                 </p>

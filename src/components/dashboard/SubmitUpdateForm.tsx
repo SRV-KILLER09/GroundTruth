@@ -91,7 +91,14 @@ export function SubmitUpdateForm({ onSubmit }: SubmitUpdateFormProps) {
 
 
   function handleFormSubmit(values: FormValues) {
-    if (!user) return;
+    if (!user || !user.displayName) {
+        toast({
+            variant: "destructive",
+            title: "Authentication Error",
+            description: "You must be logged in to submit an update.",
+        });
+        return;
+    };
     
     if(values.latitude === undefined || values.longitude === undefined){
         toast({
@@ -106,7 +113,7 @@ export function SubmitUpdateForm({ onSubmit }: SubmitUpdateFormProps) {
 
     const newUpdate = {
         user: {
-            name: user.username,
+            name: user.displayName,
             avatarUrl: `https://picsum.photos/seed/${user.email}/40/40`
         },
         disasterType: disasterType as any, // We'll allow custom strings

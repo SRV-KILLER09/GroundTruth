@@ -3,16 +3,21 @@
 import type { ReactNode } from "react";
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { onAuthStateChanged, User as FirebaseUser, Auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import { useToast } from "@/hooks/use-toast";
 
 interface User {
-  username: string;
-  email: string;
+  uid: string;
+  displayName: string | null;
+  email: string | null;
 }
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
-  login: (user: User) => void;
+  login: (email: string, password: string) => Promise<void>;
+  signup: (email: string, password: string, username: string) => Promise<void>;
   logout: () => void;
   loading: boolean;
 }
@@ -23,36 +28,82 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const { toast } = useToast();
 
   useEffect(() => {
-    try {
-      const storedUser = localStorage.getItem("verdant_user");
-      if (storedUser) {
-        setUser(JSON.parse(storedUser));
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        setUser({
+          uid: firebaseUser.uid,
+          displayName: firebaseUser.displayName,
+          email: firebaseUser.email,
+        });
+      } else {
+        setUser(null);
       }
-    } catch (error) {
-      console.error("Failed to parse user from localStorage", error);
-      localStorage.removeItem("verdant_user");
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const signup = async (email: string, password: string, username: string) => {
+    setLoading(true);
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      await updateProfile(userCredential.user, { displayName: username });
+      setUser({
+        uid: userCredential.user.uid,
+        displayName: username,
+        email: userCredential.user.email,
+      });
+       router.push("/");
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Sign Up Error",
+        description: error.message,
+      });
     } finally {
       setLoading(false);
     }
-  }, []);
-
-  const login = (userData: User) => {
-    localStorage.setItem("verdant_user", JSON.stringify(userData));
-    setUser(userData);
-    router.push("/");
   };
 
-  const logout = () => {
-    localStorage.removeItem("verdant_user");
-    setUser(null);
-    router.push("/login");
+  const login = async (email: string, password: string) => {
+    setLoading(true);
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      router.push("/");
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Login Error",
+        description: error.message,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const logout = async () => {
+    setLoading(true);
+    try {
+        await signOut(auth);
+        router.push("/login");
+    } catch (error: any) {
+        toast({
+            variant: "destructive",
+            title: "Logout Error",
+            description: error.message,
+        });
+    } finally {
+        setLoading(false);
+    }
   };
 
   return (
     <AuthContext.Provider
-      value={{ user, isAuthenticated: !!user, login, logout, loading }}
+      value={{ user, isAuthenticated: !!user, login, signup, logout, loading }}
     >
       {children}
     </AuthContext.Provider>

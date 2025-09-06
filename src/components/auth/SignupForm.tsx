@@ -17,6 +17,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import { Mountain } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
   username: z.string().min(2, { message: "Username must be at least 2 characters." }),
@@ -25,7 +26,7 @@ const formSchema = z.object({
 });
 
 export function SignupForm() {
-  const { login } = useAuth();
+  const { signup } = useAuth();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -35,9 +36,8 @@ export function SignupForm() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Simulate signup and login
-    login({ username: values.username, email: values.email });
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    await signup(values.email, values.password, values.username);
   }
 
   return (
@@ -92,8 +92,8 @@ export function SignupForm() {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full">
-              Sign Up
+            <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting ? "Signing up..." : "Sign Up"}
             </Button>
           </form>
         </Form>
