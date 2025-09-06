@@ -56,7 +56,7 @@ export function UpdatesFeed({ allUpdates, filteredUpdates, setFilteredUpdates, s
     };
 
     return (
-        <div className="flex flex-col h-full max-h-[calc(100vh-10rem)] md:max-h-full">
+        <div className="flex flex-col h-full">
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-headline font-bold">Community Updates</h2>
                  <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
@@ -90,19 +90,17 @@ export function UpdatesFeed({ allUpdates, filteredUpdates, setFilteredUpdates, s
                     </Button>
                 ))}
             </div>
-            <ScrollArea className="flex-1 -mr-6 pr-6">
-                <div className="space-y-4">
-                    {filteredUpdates.length > 0 ? (
-                        filteredUpdates.map(update => (
-                            <UpdateCard key={update.id} update={update} />
-                        ))
-                    ) : (
-                        <div className="text-center text-muted-foreground py-10">
-                            <p>No updates found for this category.</p>
-                        </div>
-                    )}
-                </div>
-            </ScrollArea>
+            <div className="space-y-4">
+                {filteredUpdates.length > 0 ? (
+                    filteredUpdates.map(update => (
+                        <UpdateCard key={update.id} update={update} />
+                    ))
+                ) : (
+                    <div className="text-center text-muted-foreground py-10">
+                        <p>No updates found for this category.</p>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }
