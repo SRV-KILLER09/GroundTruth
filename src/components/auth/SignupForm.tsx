@@ -45,7 +45,7 @@ export function SignupForm() {
       <CardHeader className="text-center">
         <div className="flex justify-center items-center mb-4">
             <Mountain className="h-8 w-8 text-primary" />
-            <h1 className="text-2xl font-headline ml-2">Verdant Sentinel</h1>
+            <h1 className="text-2xl font-headline ml-2">GroundTruth</h1>
         </div>
         <CardTitle className="text-2xl font-headline">Create an Account</CardTitle>
         <CardDescription>Join our community to share and receive disaster updates.</CardDescription>

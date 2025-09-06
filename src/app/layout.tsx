@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from '@/contexts/AuthContext';
 
 export const metadata: Metadata = {
-  title: 'Verdant Sentinel',
+  title: 'GroundTruth',
   description: 'Community-driven disaster updates',
 };
 
