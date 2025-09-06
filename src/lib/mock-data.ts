@@ -24,7 +24,7 @@ export const mockDisasterUpdates: DisasterUpdate[] = [
     disasterType: 'Flood',
     location: { latitude: 19.0760, longitude: 72.8777, name: "Mumbai, MH" },
     message: "Major flooding in downtown Mumbai after monsoon rains. Streets are completely submerged.",
-    mediaUrl: "https://picsum.photos/seed/flood1/600/400",
+    mediaUrl: "https://picsum.photos/seed/flooded-city/600/400",
     updates: ["Water levels rising rapidly near Marine Drive.", "Evacuation orders issued for low-lying areas.", "Power outages reported in several neighborhoods."],
   },
   {
@@ -34,6 +34,7 @@ export const mockDisasterUpdates: DisasterUpdate[] = [
     disasterType: 'Earthquake',
     location: { latitude: 13.0827, longitude: 80.2707, name: "Chennai, TN" },
     message: "4.5 magnitude earthquake just hit. Light shaking felt across the city.",
+    mediaUrl: "https://picsum.photos/seed/earthquake-damage/600/400",
     updates: ["Minor cracks reported in some older buildings.", "No tsunami warning has been issued.", "Officials advise checking for structural damages."],
   },
   {
@@ -43,7 +44,7 @@ export const mockDisasterUpdates: DisasterUpdate[] = [
     disasterType: 'Fire',
     location: { latitude: 22.5726, longitude: 88.3639, name: "Kolkata, WB" },
     message: "Large fire at a warehouse near the port. Smoke is heavy in the region.",
-    mediaUrl: "https://picsum.photos/seed/fire1/600/400",
+    mediaUrl: "https://picsum.photos/seed/forest-fire/600/400",
     updates: ["Air quality is poor. Stay indoors.", "Nearby roads are closed.", "Firefighters are on the scene working to control the blaze."],
   },
     {
@@ -53,7 +54,7 @@ export const mockDisasterUpdates: DisasterUpdate[] = [
     disasterType: 'Hurricane',
     location: { latitude: 15.2993, longitude: 74.1240, name: "Goa" },
     message: "Cyclone making landfall. Strong winds and storm surge expected.",
-    mediaUrl: "https://picsum.photos/seed/hurricane1/600/400",
+    mediaUrl: "https://picsum.photos/seed/hurricane-storm/600/400",
     updates: ["Mandatory evacuations for coastal areas.", "Shelters are open at local schools and community centers.", "Expect widespread power outages."],
   },
 ];
