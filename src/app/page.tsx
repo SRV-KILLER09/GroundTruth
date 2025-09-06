@@ -1,8 +1,9 @@
 
 import { Button } from "@/components/ui/button";
-import { Mountain, LifeBuoy, Users, Zap, ShieldCheck } from "lucide-react";
+import { Mountain, LifeBuoy, Users, Zap, ShieldCheck, Menu } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 export default function LandingPage() {
   return (
@@ -42,7 +43,35 @@ export default function LandingPage() {
             <Link href="/login">Login</Link>
           </Button>
         </nav>
-        {/* Mobile Menu Trigger can be added here if needed */}
+        <div className="ml-auto lg:hidden">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <Menu className="h-6 w-6 text-red-400" />
+                <span className="sr-only">Toggle navigation menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="bg-black/90 border-red-900 text-red-300">
+              <nav className="grid gap-6 text-lg font-medium mt-10">
+                <Link href="#about" className="hover:underline underline-offset-4">
+                  About Us
+                </Link>
+                <Link href="#features" className="hover:underline underline-offset-4">
+                  Features
+                </Link>
+                <Link href="#developers" className="hover:underline underline-offset-4">
+                  Developers
+                </Link>
+                <Link href="#contact" className="hover:underline underline-offset-4">
+                  Contact
+                </Link>
+                <Button asChild variant="outline" className="border-red-500 text-red-400 hover:bg-red-500 hover:text-black mt-4">
+                  <Link href="/login">Login</Link>
+                </Button>
+              </nav>
+            </SheetContent>
+          </Sheet>
+        </div>
       </header>
 
       <main className="flex-1">
@@ -54,7 +83,7 @@ export default function LandingPage() {
             alt="Hero Background"
             fill
             className="object-cover"
-            data-ai-hint="disaster relief team"
+            data-ai-hint="disaster relief"
           />
           <div className="container px-4 md:px-6 relative z-20">
             <div className="grid gap-6">
@@ -82,7 +111,7 @@ export default function LandingPage() {
               height={600}
               alt="Mission Image"
               className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center sm:w-full"
-              data-ai-hint="helping hand community"
+              data-ai-hint="helping hand"
             />
             <div className="flex flex-col justify-center space-y-4 text-center lg:text-left">
               <div className="space-y-2">
@@ -135,7 +164,7 @@ export default function LandingPage() {
               height={600}
               alt="Feature Image"
               className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center sm:w-full"
-              data-ai-hint="emergency response team"
+              data-ai-hint="emergency response"
             />
           </div>
         </section>
@@ -150,8 +179,8 @@ export default function LandingPage() {
                 The passionate minds behind TitanicX, dedicated to using technology for good.
               </p>
             </div>
-            <div className="mx-auto grid max-w-5xl grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 items-center gap-6 lg:gap-10 pt-12">
-              {['VARDAAN', 'SIMRAN', 'ADITI', 'SHAMBHAVI', 'PULKIT', 'SARANSH'].map((name, index) => (
+            <div className="mx-auto grid max-w-5xl grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 items-start gap-6 lg:gap-10 pt-12">
+              {['VARDAAN', 'SIMRAN', 'ADITI', 'SHAMBHAVI', 'PULKIT', 'SARANSH'].map((name) => (
                 <div key={name} className="flex flex-col items-center text-center gap-2">
                   <Image
                     src={`https://picsum.photos/seed/${name}/200`}
@@ -185,3 +214,5 @@ export default function LandingPage() {
     </div>
   );
 }
+
+    
