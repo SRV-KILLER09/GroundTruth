@@ -2,12 +2,13 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
 import type { DisasterUpdate, DisasterUpdateReply } from "@/lib/mock-data";
-import { Flame, Droplets, Zap, Wind, AlertTriangle, MessageSquare, ShieldCheck } from 'lucide-react';
+import { Flame, Droplets, Zap, Wind, AlertTriangle, MessageSquare, ShieldCheck, Siren } from 'lucide-react';
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
+import { AdminDispatchDialog } from "./AdminDispatchDialog";
 
 interface UpdateCardProps {
   update: DisasterUpdate;
@@ -26,6 +27,7 @@ const DefaultIcon = <AlertTriangle className="h-4 w-4 text-muted-foreground" />;
 export function UpdateCard({ update, onReply }: UpdateCardProps) {
   const { user } = useAuth();
   const [replyText, setReplyText] = useState("");
+  const [isDispatching, setIsDispatching] = useState(false);
 
   // Simple admin check for prototyping purposes
   const isAdmin = user?.email === 'admin@resqtech.com';
@@ -44,6 +46,7 @@ export function UpdateCard({ update, onReply }: UpdateCardProps) {
 
   const icon = disasterIcons[update.disasterType] || DefaultIcon;
   return (
+    <>
     <Card className="overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
       <CardHeader className="flex flex-row items-center gap-3 space-y-0 p-4">
         <Avatar>
@@ -58,6 +61,12 @@ export function UpdateCard({ update, onReply }: UpdateCardProps) {
             <span className="truncate">{update.location.name}</span>
           </p>
         </div>
+        {isAdmin && (
+            <Button variant="outline" size="sm" className="ml-auto" onClick={() => setIsDispatching(true)}>
+                <Siren className="mr-2 h-4 w-4" />
+                Dispatch Alert
+            </Button>
+        )}
       </CardHeader>
       <CardContent className="p-4 pt-0">
         <p className="mb-4 text-foreground/90">{update.message}</p>
@@ -114,5 +123,11 @@ export function UpdateCard({ update, onReply }: UpdateCardProps) {
         </div>
       </CardFooter>
     </Card>
+    <AdminDispatchDialog 
+        update={update}
+        isOpen={isDispatching}
+        onOpenChange={setIsDispatching}
+    />
+    </>
   );
 }
