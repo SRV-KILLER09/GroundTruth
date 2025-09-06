@@ -52,12 +52,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(userCredential.user, { displayName: username });
-      setUser({
-        uid: userCredential.user.uid,
-        displayName: username,
-        email: userCredential.user.email,
-      });
-       router.push("/");
+      // Refresh the user to get the updated profile information
+      const refreshedUser = auth.currentUser;
+      if (refreshedUser) {
+        setUser({
+          uid: refreshedUser.uid,
+          displayName: refreshedUser.displayName,
+          email: refreshedUser.email,
+        });
+      }
+      router.push("/");
     } catch (error: any) {
       toast({
         variant: "destructive",

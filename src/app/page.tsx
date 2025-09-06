@@ -7,6 +7,7 @@ import Header from "@/components/dashboard/Header";
 import { UpdatesFeed } from "@/components/dashboard/UpdatesFeed";
 import { Skeleton } from "@/components/ui/skeleton";
 import { mockDisasterUpdates, DisasterUpdate } from "@/lib/mock-data";
+import { EmergencyContacts } from "@/components/dashboard/EmergencyContacts";
 
 export default function Home() {
   const { isAuthenticated, loading } = useAuth();
@@ -54,6 +55,7 @@ export default function Home() {
       <Header />
       <main className="flex-1 p-4 md:p-6">
         <div className="w-full max-w-4xl mx-auto">
+            <EmergencyContacts />
             <UpdatesFeed 
                 allUpdates={updates} 
                 filteredUpdates={filteredUpdates} 
