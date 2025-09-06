@@ -16,29 +16,29 @@ export default function LandingPage() {
         <nav className="ml-auto hidden lg:flex gap-4 sm:gap-6">
           <Link
             href="#about"
-            className="text-sm font-medium hover:underline underline-offset-4 text-red-400"
+            className="text-sm font-medium hover:underline underline-offset-4 text-red-300"
           >
             About Us
           </Link>
           <Link
             href="#features"
-            className="text-sm font-medium hover:underline underline-offset-4 text-red-400"
+            className="text-sm font-medium hover:underline underline-offset-4 text-red-300"
           >
             Features
           </Link>
           <Link
             href="#developers"
-            className="text-sm font-medium hover:underline underline-offset-4 text-red-400"
+            className="text-sm font-medium hover:underline underline-offset-4 text-red-300"
           >
             Developers
           </Link>
           <Link
             href="#contact"
-            className="text-sm font-medium hover:underline underline-offset-4 text-red-400"
+            className="text-sm font-medium hover:underline underline-offset-4 text-red-300"
           >
             Contact
           </Link>
-          <Button asChild variant="outline" className="border-red-500 text-red-500 hover:bg-red-500 hover:text-black">
+          <Button asChild variant="outline" className="border-red-500 text-red-400 hover:bg-red-500 hover:text-black">
             <Link href="/login">Login</Link>
           </Button>
         </nav>
@@ -58,14 +58,14 @@ export default function LandingPage() {
           />
           <div className="container px-4 md:px-6 relative z-20">
             <div className="grid gap-6">
-              <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none text-white drop-shadow-xl">
+              <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none text-white drop-shadow-xl [text-shadow:_0_2px_4px_rgb(0_0_0_/_50%)]">
                 Coordinating Rescue. Saving Lives.
               </h1>
               <p className="max-w-[600px] text-red-200 md:text-xl mx-auto drop-shadow-lg">
                 Your lifeline in times of crisis. Real-time updates, resource coordination, and community support when it matters most.
               </p>
               <div className="flex justify-center">
-                <Button asChild size="lg" className="bg-red-600 text-white hover:bg-red-700">
+                <Button asChild size="lg" className="bg-red-500 text-white hover:bg-red-600">
                   <Link href="/signup">Join the Network</Link>
                 </Button>
               </div>
@@ -86,9 +86,9 @@ export default function LandingPage() {
             />
             <div className="flex flex-col justify-center space-y-4 text-center lg:text-left">
               <div className="space-y-2">
-                <div className="inline-block rounded-lg bg-red-900 px-3 py-1 text-sm text-red-300">Our Mission</div>
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-white drop-shadow-lg">Strength in Unity</h2>
-                <p className="max-w-[900px] text-red-300 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                <div className="inline-block rounded-lg bg-red-900 px-3 py-1 text-sm text-red-200">Our Mission</div>
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-white drop-shadow-lg [text-shadow:_0_2px_4px_rgb(0_0_0_/_50%)]">Strength in Unity</h2>
+                <p className="max-w-[900px] text-red-200 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
                   In the face of adversity, information and coordination are our most powerful tools. ResQTech is dedicated to bridging the gap between affected communities, rescue teams, and authorities, ensuring a swift, efficient, and unified response to natural disasters.
                 </p>
               </div>
@@ -100,9 +100,9 @@ export default function LandingPage() {
         <section id="features" className="w-full py-12 md:py-24 lg:py-32">
           <div className="container grid items-center gap-6 px-4 md:px-6 lg:grid-cols-2 lg:gap-10">
             <div className="space-y-4">
-              <div className="inline-block rounded-lg bg-red-900 px-3 py-1 text-sm text-red-300">Key Features</div>
-              <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight text-white drop-shadow-lg">The Platform for Disaster Response</h2>
-              <p className="max-w-[600px] text-red-300 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+              <div className="inline-block rounded-lg bg-red-900 px-3 py-1 text-sm text-red-200">Key Features</div>
+              <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight text-white drop-shadow-lg [text-shadow:_0_2px_4px_rgb(0_0_0_/_50%)]">The Platform for Disaster Response</h2>
+              <p className="max-w-[600px] text-red-200 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
                 Empowering communities and first responders with the tools they need to act decisively.
               </p>
               <ul className="grid gap-4">
@@ -110,21 +110,21 @@ export default function LandingPage() {
                   <Zap className="mt-1 h-5 w-5 text-red-500" />
                   <div>
                     <h3 className="text-lg font-bold text-white">Real-Time Community Alerts</h3>
-                    <p className="text-red-400">Submit and receive live updates from the ground, keeping everyone informed of the evolving situation.</p>
+                    <p className="text-red-300">Submit and receive live updates from the ground, keeping everyone informed of the evolving situation.</p>
                   </div>
                 </li>
                 <li className="flex items-start gap-3">
                   <Users className="mt-1 h-5 w-5 text-red-500" />
                   <div>
                     <h3 className="text-lg font-bold text-white">Emergency Contact Directory</h3>
-                    <p className="text-red-400">Instantly access geo-located contact numbers for the nearest police, ambulance, and fire services.</p>
+                    <p className="text-red-300">Instantly access geo-located contact numbers for the nearest police, ambulance, and fire services.</p>
                   </div>
                 </li>
                 <li className="flex items-start gap-3">
                   <ShieldCheck className="mt-1 h-5 w-5 text-red-500" />
                   <div>
                     <h3 className="text-lg font-bold text-white">Admin Dispatch System</h3>
-                    <p className="text-red-400">Admins can verify reports and dispatch AI-summarized alerts to official authorities for immediate action.</p>
+                    <p className="text-red-300">Admins can verify reports and dispatch AI-summarized alerts to official authorities for immediate action.</p>
                   </div>
                 </li>
               </ul>
@@ -144,9 +144,9 @@ export default function LandingPage() {
         <section id="developers" className="w-full py-12 md:py-24 lg:py-32 bg-gray-900/50">
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
-              <div className="inline-block rounded-lg bg-red-900 px-3 py-1 text-sm text-red-300">Our Team</div>
-              <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-white drop-shadow-lg">Meet the Developers</h2>
-              <p className="max-w-[900px] text-red-300 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+              <div className="inline-block rounded-lg bg-red-900 px-3 py-1 text-sm text-red-200">Our Team</div>
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-white drop-shadow-lg [text-shadow:_0_2px_4px_rgb(0_0_0_/_50%)]">Meet the Developers</h2>
+              <p className="max-w-[900px] text-red-200 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
                 The passionate minds behind ResQTech, dedicated to using technology for good.
               </p>
             </div>
@@ -172,12 +172,12 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer id="contact" className="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t border-red-900 bg-gray-900/50">
-        <p className="text-xs text-red-400">&copy; 2024 ResQTech. All rights reserved.</p>
+        <p className="text-xs text-red-300">&copy; 2024 ResQTech. All rights reserved.</p>
         <nav className="sm:ml-auto flex gap-4 sm:gap-6">
-          <Link href="#" className="text-xs hover:underline underline-offset-4 text-red-300">
+          <Link href="#" className="text-xs hover:underline underline-offset-4 text-red-200">
             Terms of Service
           </Link>
-          <Link href="#" className="text-xs hover:underline underline-offset-4 text-red-300">
+          <Link href="#" className="text-xs hover:underline underline-offset-4 text-red-200">
             Privacy
           </Link>
         </nav>
