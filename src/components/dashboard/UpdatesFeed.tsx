@@ -4,7 +4,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, Flame, Droplets, Zap, Wind, AlertTriangle, MapPin, Loader2, Search } from 'lucide-react';
 import { UpdateCard } from './UpdateCard';
-import type { DisasterUpdate } from '@/lib/mock-data';
+import type { DisasterUpdate, DisasterUpdateReply } from '@/lib/mock-data';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { SubmitUpdateForm } from './SubmitUpdateForm';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -125,11 +125,12 @@ export function UpdatesFeed({ allUpdates, filteredUpdates, setFilteredUpdates, s
         applyFilters();
     }, [allUpdates, sortedUpdates, activeFilter, citySearch, applyFilters]);
 
-    const addUpdate = (newUpdate: Omit<DisasterUpdate, 'id' | 'timestamp'>) => {
+    const addUpdate = (newUpdate: Omit<DisasterUpdate, 'id' | 'timestamp' | 'replies'>) => {
         const updateToAdd: DisasterUpdate = {
             ...newUpdate,
             id: allUpdates.length + 1,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            replies: [],
         };
         const newUpdates = [updateToAdd, ...allUpdates];
         setUpdates(newUpdates);
@@ -137,6 +138,19 @@ export function UpdatesFeed({ allUpdates, filteredUpdates, setFilteredUpdates, s
         setActiveFilter('All');
         setCitySearch('');
         setIsSheetOpen(false);
+    }
+
+    const addReply = (updateId: number, reply: DisasterUpdateReply) => {
+        const newUpdates = allUpdates.map(update => {
+            if (update.id === updateId) {
+                return {
+                    ...update,
+                    replies: [...update.replies, reply]
+                };
+            }
+            return update;
+        });
+        setUpdates(newUpdates);
     }
     
     const disasterIcons: Record<Exclude<DisasterType, 'All'>, React.ReactNode> = {
@@ -221,7 +235,7 @@ export function UpdatesFeed({ allUpdates, filteredUpdates, setFilteredUpdates, s
             <div className="space-y-4">
                 {filteredUpdates.length > 0 ? (
                     filteredUpdates.map(update => (
-                        <UpdateCard key={update.id} update={update} />
+                        <UpdateCard key={update.id} update={update} onReply={addReply} />
                     ))
                 ) : (
                     <div className="text-center text-muted-foreground py-10">

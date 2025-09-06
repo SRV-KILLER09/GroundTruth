@@ -34,7 +34,7 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 interface SubmitUpdateFormProps {
-    onSubmit: (data: Omit<DisasterUpdate, 'id' | 'timestamp'>) => void;
+    onSubmit: (data: Omit<DisasterUpdate, 'id' | 'timestamp' | 'replies'>) => void;
 }
 
 export function SubmitUpdateForm({ onSubmit }: SubmitUpdateFormProps) {
@@ -123,7 +123,7 @@ export function SubmitUpdateForm({ onSubmit }: SubmitUpdateFormProps) {
             longitude: values.longitude
         },
         message: values.message,
-        updates: [values.message] // Initial update
+        history: [values.message] // Initial update
     };
     
     onSubmit(newUpdate);
