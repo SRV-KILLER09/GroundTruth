@@ -38,14 +38,14 @@ export function LoginForm() {
   }
 
   return (
-    <Card className="w-full max-w-sm bg-card/80 backdrop-blur-sm border-white/20">
+    <Card className="w-full max-w-sm bg-card/80 backdrop-blur-sm border-white/20 shadow-2xl shadow-primary/20">
       <CardHeader className="text-center">
         <div className="flex justify-center items-center mb-4">
             <Mountain className="h-10 w-10 text-primary" />
             <h1 className="text-4xl font-headline ml-3">ResQTech</h1>
         </div>
-        <CardTitle className="text-3xl font-headline">Login</CardTitle>
-        <CardDescription className="text-base">Enter your credentials to access your account.</CardDescription>
+        <CardTitle className="text-3xl font-headline font-bold">Login</CardTitle>
+        <CardDescription className="text-base font-medium">Enter your credentials to access your account.</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>

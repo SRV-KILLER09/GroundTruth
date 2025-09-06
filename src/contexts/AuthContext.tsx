@@ -62,6 +62,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         });
       }
       router.push("/");
+      toast({
+          title: "Welcome to ResQTech",
+      });
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -78,6 +81,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       router.push("/");
+       toast({
+          title: "Welcome to ResQTech",
+      });
     } catch (error: any) {
       toast({
         variant: "destructive",
