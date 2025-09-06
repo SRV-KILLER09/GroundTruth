@@ -5,7 +5,7 @@ export type DisasterUpdate = {
     avatarUrl: string;
   };
   timestamp: string;
-  disasterType: 'Flood' | 'Earthquake' | 'Fire' | 'Hurricane';
+  disasterType: 'Flood' | 'Earthquake' | 'Fire' | 'Hurricane' | string; // Allow custom strings
   location: {
     latitude: number;
     longitude: number;

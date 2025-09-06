@@ -15,11 +15,20 @@ import { Loader2, MapPin } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
-  disasterType: z.enum(['Flood', 'Earthquake', 'Fire', 'Hurricane']),
+  disasterType: z.enum(['Flood', 'Earthquake', 'Fire', 'Hurricane', 'Other']),
+  otherDisasterType: z.string().optional(),
   locationName: z.string().min(1, { message: "Location is required." }),
   latitude: z.coerce.number().min(-90).max(90),
   longitude: z.coerce.number().min(-180).max(180),
   message: z.string().min(10, { message: "Update message must be at least 10 characters." }),
+}).refine((data) => {
+    if (data.disasterType === 'Other') {
+        return !!data.otherDisasterType && data.otherDisasterType.trim().length > 0;
+    }
+    return true;
+}, {
+    message: "Please specify the disaster type.",
+    path: ["otherDisasterType"],
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -37,12 +46,15 @@ export function SubmitUpdateForm({ onSubmit }: SubmitUpdateFormProps) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       disasterType: 'Flood',
+      otherDisasterType: "",
       locationName: "",
       latitude: undefined,
       longitude: undefined,
       message: "",
     },
   });
+
+  const selectedDisasterType = form.watch("disasterType");
 
   const handleGetLocation = () => {
     setIsLocating(true);
@@ -90,12 +102,14 @@ export function SubmitUpdateForm({ onSubmit }: SubmitUpdateFormProps) {
         return;
     }
 
+    const disasterType = values.disasterType === 'Other' ? values.otherDisasterType! : values.disasterType;
+
     const newUpdate = {
         user: {
             name: user.username,
             avatarUrl: `https://picsum.photos/seed/${user.email}/40/40`
         },
-        disasterType: values.disasterType,
+        disasterType: disasterType as any, // We'll allow custom strings
         location: {
             name: values.locationName,
             latitude: values.latitude,
@@ -129,12 +143,28 @@ export function SubmitUpdateForm({ onSubmit }: SubmitUpdateFormProps) {
                   <SelectItem value="Earthquake">Earthquake</SelectItem>
                   <SelectItem value="Fire">Fire</SelectItem>
                   <SelectItem value="Hurricane">Hurricane</SelectItem>
+                  <SelectItem value="Other">Other</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />
             </FormItem>
           )}
         />
+        {selectedDisasterType === 'Other' && (
+            <FormField
+            control={form.control}
+            name="otherDisasterType"
+            render={({ field }) => (
+                <FormItem>
+                <FormLabel>Please Specify</FormLabel>
+                <FormControl>
+                    <Input placeholder="e.g., Landslide, Tsunami" {...field} />
+                </FormControl>
+                <FormMessage />
+                </FormItem>
+            )}
+            />
+        )}
          <FormField
           control={form.control}
           name="locationName"

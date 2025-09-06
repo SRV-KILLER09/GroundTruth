@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Flame, Droplets, Zap, Wind } from 'lucide-react';
+import { PlusCircle, Flame, Droplets, Zap, Wind, AlertTriangle } from 'lucide-react';
 import { UpdateCard } from './UpdateCard';
 import type { DisasterUpdate } from '@/lib/mock-data';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -17,12 +17,13 @@ interface UpdatesFeedProps {
 }
 
 const disasterTypes = ['All', 'Flood', 'Earthquake', 'Fire', 'Hurricane'] as const;
+type DisasterType = typeof disasterTypes[number];
 
 export function UpdatesFeed({ allUpdates, filteredUpdates, setFilteredUpdates, setUpdates }: UpdatesFeedProps) {
-    const [activeFilter, setActiveFilter] = React.useState<typeof disasterTypes[number]>('All');
+    const [activeFilter, setActiveFilter] = React.useState<DisasterType>('All');
     const [isSheetOpen, setIsSheetOpen] = React.useState(false);
 
-    const handleFilter = (type: typeof disasterTypes[number]) => {
+    const handleFilter = (type: DisasterType) => {
         setActiveFilter(type);
         if (type === 'All') {
             setFilteredUpdates(allUpdates);
@@ -45,15 +46,23 @@ export function UpdatesFeed({ allUpdates, filteredUpdates, setFilteredUpdates, s
         };
         const newUpdates = [updateToAdd, ...allUpdates];
         setUpdates(newUpdates);
+        setFilteredUpdates(newUpdates); // Show all updates including the new one
+        setActiveFilter('All'); // Reset filter to 'All'
         setIsSheetOpen(false);
     }
     
-    const disasterIcons = {
+    const disasterIcons: Record<Exclude<DisasterType, 'All'>, React.ReactNode> = {
         'Flood': <Droplets className="mr-2 h-4 w-4" />,
         'Earthquake': <Zap className="mr-2 h-4 w-4" />,
         'Fire': <Flame className="mr-2 h-4 w-4" />,
         'Hurricane': <Wind className="mr-2 h-4 w-4" />
     };
+
+    const otherDisasterTypes = allUpdates
+        .map(u => u.disasterType)
+        .filter(t => !disasterTypes.includes(t as DisasterType));
+    const uniqueOtherTypes = [...new Set(otherDisasterTypes)];
+    const allFilterTypes: string[] = [...disasterTypes, ...uniqueOtherTypes];
 
     return (
         <div className="flex flex-col h-full">
@@ -78,14 +87,17 @@ export function UpdatesFeed({ allUpdates, filteredUpdates, setFilteredUpdates, s
                 </Sheet>
             </div>
             <div className="flex space-x-2 mb-4 overflow-x-auto pb-2">
-                {disasterTypes.map(type => (
+                {allFilterTypes.map(type => (
                     <Button 
                         key={type}
                         variant={activeFilter === type ? 'default' : 'outline'}
-                        onClick={() => handleFilter(type)}
+                        onClick={() => handleFilter(type as DisasterType)}
                         className="capitalize shrink-0"
                     >
-                        {type !== 'All' && disasterIcons[type as Exclude<typeof disasterTypes[number], 'All'>]}
+                        {
+                            //@ts-ignore
+                            disasterIcons[type] ? disasterIcons[type] : (type !== 'All' ? <AlertTriangle className="mr-2 h-4 w-4" /> : null)
+                        }
                         {type}
                     </Button>
                 ))}
