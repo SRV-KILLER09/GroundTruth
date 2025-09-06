@@ -10,12 +10,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/contexts/AuthContext";
 import { DisasterUpdate } from "@/lib/mock-data";
+import { useState } from "react";
+import { Loader2, MapPin } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
   disasterType: z.enum(['Flood', 'Earthquake', 'Fire', 'Hurricane']),
   locationName: z.string().min(1, { message: "Location is required." }),
-  latitude: z.coerce.number(),
-  longitude: z.coerce.number(),
+  latitude: z.coerce.number().min(-90).max(90),
+  longitude: z.coerce.number().min(-180).max(180),
   message: z.string().min(10, { message: "Update message must be at least 10 characters." }),
 });
 
@@ -27,19 +30,65 @@ interface SubmitUpdateFormProps {
 
 export function SubmitUpdateForm({ onSubmit }: SubmitUpdateFormProps) {
   const { user } = useAuth();
+  const { toast } = useToast();
+  const [isLocating, setIsLocating] = useState(false);
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       disasterType: 'Flood',
       locationName: "",
-      latitude: 0,
-      longitude: 0,
+      latitude: undefined,
+      longitude: undefined,
       message: "",
     },
   });
 
+  const handleGetLocation = () => {
+    setIsLocating(true);
+    if (!navigator.geolocation) {
+      toast({
+        variant: "destructive",
+        title: "Geolocation Error",
+        description: "Geolocation is not supported by your browser.",
+      });
+      setIsLocating(false);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        form.setValue("latitude", position.coords.latitude, { shouldValidate: true });
+        form.setValue("longitude", position.coords.longitude, { shouldValidate: true });
+        toast({
+            title: "Location Acquired",
+            description: "Your current location has been filled in.",
+        })
+        setIsLocating(false);
+      },
+      (error) => {
+        toast({
+          variant: "destructive",
+          title: "Geolocation Error",
+          description: `Could not get location: ${error.message}`,
+        });
+        setIsLocating(false);
+      }
+    );
+  };
+
+
   function handleFormSubmit(values: FormValues) {
     if (!user) return;
+    
+    if(values.latitude === undefined || values.longitude === undefined){
+        toast({
+            variant: "destructive",
+            title: "Location Required",
+            description: "Please acquire your location before submitting.",
+        });
+        return;
+    }
 
     const newUpdate = {
         user: {
@@ -93,40 +142,32 @@ export function SubmitUpdateForm({ onSubmit }: SubmitUpdateFormProps) {
             <FormItem>
               <FormLabel>Location Name</FormLabel>
               <FormControl>
-                <Input placeholder="e.g., Downtown, City" {...field} />
+                <Input placeholder="e.g., Downtown, City Park" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <div className="grid grid-cols-2 gap-4">
-             <FormField
-              control={form.control}
-              name="latitude"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Latitude</FormLabel>
-                  <FormControl>
-                    <Input type="number" step="any" placeholder="34.0522" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-             <FormField
-              control={form.control}
-              name="longitude"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Longitude</FormLabel>
-                  <FormControl>
-                    <Input type="number" step="any" placeholder="-118.2437" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+
+        <div className="space-y-2">
+            <FormLabel>Location Coordinates</FormLabel>
+            <Button type="button" variant="outline" className="w-full" onClick={handleGetLocation} disabled={isLocating}>
+                {isLocating ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                    <MapPin className="mr-2 h-4 w-4" />
+                )}
+                {form.getValues().latitude ? 'Re-acquire Location' : 'Acquire My Location'}
+            </Button>
+            {form.formState.errors.latitude && <p className="text-sm font-medium text-destructive">{form.formState.errors.latitude.message}</p>}
+            {form.formState.errors.longitude && <p className="text-sm font-medium text-destructive">{form.formState.errors.longitude.message}</p>}
+             {form.getValues().latitude && (
+                <div className="text-sm text-muted-foreground p-2 bg-muted rounded-md">
+                    Lat: {form.getValues().latitude?.toFixed(4)}, Lng: {form.getValues().longitude?.toFixed(4)}
+                </div>
+            )}
         </div>
+        
         <FormField
           control={form.control}
           name="message"
