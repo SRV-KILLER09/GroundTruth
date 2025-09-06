@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { ReactNode } from "react";
@@ -61,7 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           email: refreshedUser.email,
         });
       }
-      router.push("/");
+      router.push("/dashboard");
       toast({
           title: "Welcome to ResQTech",
       });
@@ -80,7 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      router.push("/");
+      router.push("/dashboard");
        toast({
           title: "Welcome to ResQTech",
       });
