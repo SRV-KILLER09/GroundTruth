@@ -5,11 +5,12 @@ import { useParams } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { mockDisasterUpdates, DisasterUpdate, mockUserActivity } from "@/lib/mock-data";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Award, Mail, List } from "lucide-react";
+import { Award, Mail, List, Edit } from "lucide-react";
 import { UpdateCard } from "@/components/dashboard/UpdateCard";
 import { useState } from "react";
 import type { DisasterUpdateReply } from "@/lib/mock-data";
 import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
 
 export default function UserProfilePage() {
   const params = useParams();
@@ -19,8 +20,6 @@ export default function UserProfilePage() {
   const adminEmails = ['vardaansaxena096@gmail.com', 'saranshwadhwa0102@gmail.com'];
   const isAdmin = currentUser?.email ? adminEmails.includes(currentUser.email) : false;
 
-  // A simple way to find the user's data from the mock updates.
-  // In a real app, you would fetch this from a user service.
   const userUpdates = mockDisasterUpdates.filter(
     (update) => update.user.username.toLowerCase() === username.toLowerCase()
   );
@@ -50,8 +49,6 @@ export default function UserProfilePage() {
 
 
   if (updates.length === 0) {
-    // This could be a loading state or a "user not found" state.
-    // For now, we'll assume if there are no updates, we're still "loading" or the user is invalid.
     return (
        <div className="w-full max-w-4xl mx-auto text-center">
              <Card>
@@ -67,8 +64,9 @@ export default function UserProfilePage() {
   }
 
   const user = updates[0].user;
-  const honorScore = 100; // Hardcoded as per previous requirements.
+  const honorScore = 100;
   const userProfileData = mockUserActivity.find(u => u.username.toLowerCase() === username.toLowerCase());
+  const isOwnProfile = currentUser?.displayName?.toLowerCase() === user.username.toLowerCase();
 
 
   return (
@@ -80,7 +78,15 @@ export default function UserProfilePage() {
             <AvatarFallback className="text-4xl">{user.name.charAt(0)}</AvatarFallback>
           </Avatar>
           <div>
-            <CardTitle className="text-3xl font-bold font-headline">{user.name}</CardTitle>
+            <div className="flex items-center gap-2 justify-center">
+              <CardTitle className="text-3xl font-bold font-headline">{user.name}</CardTitle>
+              {isOwnProfile && (
+                <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <Edit className="h-4 w-4" />
+                  <span className="sr-only">Edit Name</span>
+                </Button>
+              )}
+            </div>
             <CardDescription>@{user.username}</CardDescription>
              {isAdmin && userProfileData && (
                 <div className="flex items-center justify-center gap-2 mt-2 text-sm text-muted-foreground">

@@ -21,7 +21,7 @@ export default function DashboardHomePage() {
         <CardHeader>
           <CardTitle className="flex items-center text-3xl font-headline">
             <HomeIcon className="mr-3 h-8 w-8 text-primary" />
-            Welcome to GroundTruth
+            Welcome To TitanicX
           </CardTitle>
         </CardHeader>
       </Card>

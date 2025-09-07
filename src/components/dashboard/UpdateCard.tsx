@@ -65,8 +65,6 @@ export function UpdateCard({ update, onReply, onDelete }: UpdateCardProps) {
   
   const handleCommentSubmit = () => {
     if (commentText.trim() && user) {
-        // In a real app, you would send this comment to a backend.
-        // For this simulation, we'll just clear the input and close the comment box.
         console.log(`Comment by ${user.displayName}: ${commentText}`);
         setCommentText("");
         setShowComment(false);
@@ -74,8 +72,6 @@ export function UpdateCard({ update, onReply, onDelete }: UpdateCardProps) {
   };
   
   const handleReportUser = () => {
-    // In a real app, this would trigger a backend process.
-    // For now, we'll just show a confirmation toast.
     toast({
         title: "User Reported",
         description: `${update.user.name}'s Honor Score has been reduced.`,
