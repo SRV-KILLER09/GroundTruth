@@ -6,6 +6,15 @@ import Link from "next/link";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 export default function LandingPage() {
+  const developers = [
+    { name: 'VARDAAN', imageUrl: 'https://picsum.photos/seed/VARDAAN/200' },
+    { name: 'SIMRAN', imageUrl: 'https://picsum.photos/seed/SIMRAN/200' },
+    { name: 'ADITI', imageUrl: 'https://images.unsplash.com/photo-1541595532321-014a600d8d73?q=80&w=200&h=200&auto=format&fit=crop&crop=faces&facepad=4' },
+    { name: 'SHAMBHAVI', imageUrl: 'https://picsum.photos/seed/SHAMBHAVI/200' },
+    { name: 'PULKIT', imageUrl: 'https://picsum.photos/seed/PULKIT/200' },
+    { name: 'SARANSH', imageUrl: 'https://picsum.photos/seed/SARANSH/200' },
+  ];
+
   return (
     <div className="bg-black text-red-400 min-h-screen flex flex-col font-headline">
       {/* Header */}
@@ -105,15 +114,7 @@ export default function LandingPage() {
         {/* Our Mission Section */}
         <section id="about" className="w-full py-12 md:py-24 lg:py-32 bg-gray-900/50">
           <div className="container grid items-center gap-6 px-4 md:px-6 lg:grid-cols-2 lg:gap-12">
-            <Image
-              src="https://images.unsplash.com/photo-1618494720182-563a01594d40?q=80&w=1800&auto=format&fit=crop"
-              width={800}
-              height={600}
-              alt="Mission Image"
-              className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center sm:w-full"
-              data-ai-hint="disaster response team"
-            />
-            <div className="flex flex-col justify-center space-y-4 text-center lg:text-left">
+            <div className="order-last lg:order-first flex flex-col justify-center space-y-4 text-center lg:text-left">
               <div className="space-y-2">
                 <div className="inline-block rounded-lg bg-red-900 px-3 py-1 text-sm text-red-100">Our Mission</div>
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-white drop-shadow-lg [text-shadow:_0_2px_4px_rgb(0_0_0_/_50%)]">Strength in Unity</h2>
@@ -122,6 +123,14 @@ export default function LandingPage() {
                 </p>
               </div>
             </div>
+            <Image
+              src="https://images.unsplash.com/photo-1618494720182-563a01594d40?q=80&w=1800&auto=format&fit=crop"
+              width={800}
+              height={600}
+              alt="Mission Image"
+              className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center sm:w-full"
+              data-ai-hint="disaster response team"
+            />
           </div>
         </section>
 
@@ -180,17 +189,17 @@ export default function LandingPage() {
               </p>
             </div>
             <div className="mx-auto grid max-w-5xl grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 items-start gap-6 lg:gap-10 pt-12">
-              {['VARDAAN', 'SIMRAN', 'ADITI', 'SHAMBHAVI', 'PULKIT', 'SARANSH'].map((name) => (
-                <div key={name} className="flex flex-col items-center text-center gap-2">
+              {developers.map((dev) => (
+                <div key={dev.name} className="flex flex-col items-center text-center gap-2">
                   <Image
-                    src={`https://picsum.photos/seed/${name}/200`}
-                    alt={`Developer ${name}`}
+                    src={dev.imageUrl}
+                    alt={`Developer ${dev.name}`}
                     width={120}
                     height={120}
                     className="rounded-full border-4 border-red-800 object-cover"
                     data-ai-hint="person portrait"
                   />
-                  <h3 className="text-lg font-bold text-white mt-2">{name}</h3>
+                  <h3 className="text-lg font-bold text-white mt-2">{dev.name}</h3>
                 </div>
               ))}
             </div>
