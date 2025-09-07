@@ -35,7 +35,7 @@ export default function Sidebar({ isMobile = false }: { isMobile?: boolean }) {
       >
         <Mountain className="h-6 w-6 text-primary transition-all group-hover:scale-110" />
         <div className="flex flex-col">
-            <span className="text-lg font-semibold md:text-base leading-tight">GroundTruth</span>
+            <span className="text-lg font-semibold md:text-base leading-tight">GroundTruth™</span>
             <span className="text-xs text-muted-foreground">by TitanicX</span>
         </div>
       </Link>
