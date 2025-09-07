@@ -22,10 +22,13 @@ export default function Sidebar({ isMobile = false }: { isMobile?: boolean }) {
     <nav className={cn("flex flex-col items-stretch gap-4 px-2", isMobile ? "sm:py-5" : "py-5")}>
       <Link
         href="/dashboard"
-        className="group flex items-center gap-2 rounded-lg px-3 py-2 text-lg font-semibold text-foreground md:text-base"
+        className="group flex items-center gap-2 rounded-lg px-3 py-2 text-foreground"
       >
         <Mountain className="h-6 w-6 text-primary transition-all group-hover:scale-110" />
-        <span>GroundTruth</span>
+        <div className="flex flex-col">
+            <span className="text-lg font-semibold md:text-base leading-tight">GroundTruth</span>
+            <span className="text-xs text-muted-foreground">by TitanicX</span>
+        </div>
       </Link>
       
       {navLinks.map((link) => {
