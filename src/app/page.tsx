@@ -105,7 +105,7 @@ export default function LandingPage() {
         {/* Our Mission Section */}
         <section id="about" className="w-full py-12 md:py-24 lg:py-32 bg-gray-900/50">
           <div className="container grid items-center gap-6 px-4 md:px-6 lg:grid-cols-2 lg:gap-12">
-             <Image
+            <Image
               src="https://images.unsplash.com/photo-1618494720182-563a01594d40?q=80&w=1800&auto=format&fit=crop"
               width={800}
               height={600}
