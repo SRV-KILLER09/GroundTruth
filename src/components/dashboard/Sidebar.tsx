@@ -3,11 +3,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Mountain, Home, Map, LifeBuoy, BarChart3, Shield, Rss } from "lucide-react";
+import { Mountain, Home, Map, LifeBuoy, BarChart3, Shield, Rss, LayoutDashboard } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
-    { href: "/dashboard", label: "Dashboard", icon: <Home className="h-5 w-5" /> },
+    { href: "/", label: "Home", icon: <Home className="h-5 w-5" /> },
+    { href: "/dashboard", label: "Dashboard", icon: <LayoutDashboard className="h-5 w-5" /> },
     { href: "/dashboard/map", label: "Map View", icon: <Map className="h-5 w-5" /> },
     { href: "/dashboard/reports", label: "Reports", icon: <BarChart3 className="h-5 w-5" /> },
     { href: "/dashboard/news", label: "News", icon: <Rss className="h-5 w-5" /> },
