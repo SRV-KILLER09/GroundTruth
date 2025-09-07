@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Mountain, Home, Map, LifeBuoy, BarChart3, Shield, Rss, Tv, MessageSquare, Info, Users, Bell } from "lucide-react";
+import { Mountain, Home, Map, LifeBuoy, BarChart3, Shield, Rss, Tv, MessageSquare, Info, Users, Bell, Megaphone } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -22,6 +22,7 @@ export default function Sidebar({ isMobile = false }: { isMobile?: boolean }) {
     { href: "/dashboard/directory", label: "Directory", icon: <Shield className="h-5 w-5" />, admin: false },
     { href: "/dashboard/chat", label: "Community Chat", icon: <MessageSquare className="h-5 w-5" />, admin: false },
     { href: "/dashboard/updates", label: "User Activity", icon: <Users className="h-5 w-5" />, admin: true },
+    { href: "/dashboard/broadcast", label: "Broadcast", icon: <Megaphone className="h-5 w-5" />, admin: true },
     { href: "/dashboard/resources", label: "Safety Resources", icon: <LifeBuoy className="h-5 w-5" />, admin: false },
     { href: "/dashboard/home", label: "About Us", icon: <Info className="h-5 w-5" />, admin: false },
   ];
