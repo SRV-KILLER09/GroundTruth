@@ -20,6 +20,7 @@ import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import { Mountain } from "lucide-react";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import Image from "next/image";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
@@ -52,9 +53,9 @@ export function LoginForm() {
   return (
     <Card className="w-full max-w-sm bg-card/80 backdrop-blur-sm border-white/20 shadow-2xl shadow-primary/20">
       <CardHeader className="text-center">
-        <div className="flex justify-center items-center mb-4">
-            <Mountain className="h-10 w-10 text-primary" />
-            <h1 className="text-4xl font-headline ml-3">TitanicX</h1>
+        <div className="flex justify-center items-center mb-4 gap-3">
+            <Image src="https://picsum.photos/seed/logo/40/40" alt="GroundTruth Logo" width={40} height={40} className="rounded-full" data-ai-hint="logo"/>
+            <h1 className="text-4xl font-headline">TitanicX</h1>
         </div>
         <CardTitle className="text-3xl font-headline font-bold">Login</CardTitle>
         <CardDescription className="text-base font-medium">Enter your credentials to access your account.</CardDescription>

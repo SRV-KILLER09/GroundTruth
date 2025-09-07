@@ -1,7 +1,8 @@
+
 "use client";
 
 import React from 'react';
-import { Mountain } from 'lucide-react';
+import Image from 'next/image';
 
 export const LoadingSpinner = () => {
   return (
@@ -56,7 +57,7 @@ export const LoadingSpinner = () => {
         <div className="spinner-ring"></div>
         <div className="spinner-ring"></div>
          <div className="absolute inset-0 flex items-center justify-center">
-            <Mountain className="h-8 w-8 text-primary icon-pulse" />
+            <Image src="https://picsum.photos/seed/logo/40/40" alt="GroundTruth Logo" width={32} height={32} className="rounded-full icon-pulse" data-ai-hint="logo" />
         </div>
       </div>
        <p className="mt-4 text-lg font-headline text-primary-foreground animate-pulse">

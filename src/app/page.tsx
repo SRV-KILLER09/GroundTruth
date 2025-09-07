@@ -20,7 +20,7 @@ export default function LandingPage() {
       {/* Header */}
       <header className="sticky top-0 z-50 px-4 lg:px-6 h-14 flex items-center bg-black/80 backdrop-blur-sm border-b border-red-900">
         <Link href="#" className="flex items-center justify-center gap-2">
-          <Mountain className="h-6 w-6 text-red-400" />
+            <Image src="https://picsum.photos/seed/logo/40/40" alt="GroundTruth Logo" width={32} height={32} className="rounded-full" data-ai-hint="logo" />
           <div className="flex flex-col">
             <span className="text-lg font-semibold leading-tight text-white">GroundTruth™</span>
             <span className="text-xs text-red-200/80">by TitanicX</span>
