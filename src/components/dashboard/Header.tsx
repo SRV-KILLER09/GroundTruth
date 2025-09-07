@@ -12,11 +12,20 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { LogOut, Mountain, Home } from "lucide-react";
+import { LogOut, Mountain, Home, Map, LifeBuoy } from "lucide-react";
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { cn } from '@/lib/utils';
 
 export default function Header() {
   const { user, logout } = useAuth();
+  const pathname = usePathname();
+
+  const navLinks = [
+    { href: "/dashboard", label: "Dashboard", icon: <Home className="h-4 w-4" /> },
+    { href: "/dashboard/map", label: "Map View", icon: <Map className="h-4 w-4" /> },
+    { href: "/dashboard/resources", label: "Safety Resources", icon: <LifeBuoy className="h-4 w-4" /> },
+  ];
 
   return (
     <header className="sticky top-0 z-50 flex h-16 items-center justify-between border-b bg-card px-4 md:px-6 shadow-sm">
@@ -27,11 +36,21 @@ export default function Header() {
         </span>
       </Link>
       
+      <nav className="hidden md:flex items-center gap-2">
+        {navLinks.map((link) => (
+          <Button key={link.href} variant={pathname === link.href ? 'secondary' : 'ghost'} asChild>
+            <Link href={link.href}>
+              {link.icon}
+              <span className="ml-2">{link.label}</span>
+            </Link>
+          </Button>
+        ))}
+      </nav>
+
       <div className="flex items-center gap-4">
-        <Button variant="ghost" asChild>
+        <Button variant="outline" asChild className="hidden md:flex">
           <Link href="/">
-            <Home className="mr-2 h-4 w-4" />
-            Home
+            Website Home
           </Link>
         </Button>
         {user && (
@@ -47,6 +66,17 @@ export default function Header() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end" forceMount>
+              <DropdownMenuLabel className="font-normal md:hidden">
+                 <div className="flex flex-col space-y-2">
+                    {navLinks.map((link) => (
+                        <Link key={link.href} href={link.href} className={cn("flex items-center gap-2 rounded-md p-2", pathname === link.href ? 'bg-secondary' : '')}>
+                             {link.icon}
+                            <span>{link.label}</span>
+                        </Link>
+                    ))}
+                 </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator className="md:hidden"/>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none">{user.displayName}</p>
