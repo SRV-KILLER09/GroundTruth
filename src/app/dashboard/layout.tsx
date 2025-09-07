@@ -1,6 +1,7 @@
 import Header from "@/components/dashboard/Header";
 import Sidebar from "@/components/dashboard/Sidebar";
 import ThemeToggle from "@/components/dashboard/ThemeToggle";
+import { cn } from "@/lib/utils";
 
 export default function DashboardLayout({
   children,
@@ -10,7 +11,7 @@ export default function DashboardLayout({
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
       <Sidebar />
-      <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-60">
+      <div className={cn("flex flex-col sm:gap-4 sm:py-4 sm:pl-60")}>
         <Header />
         <main className="flex-1 p-4 md:p-6">{children}</main>
       </div>
