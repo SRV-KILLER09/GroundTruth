@@ -1,20 +1,19 @@
 
 "use client";
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import Header from "@/components/dashboard/Header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer } from "recharts";
-import { mockDisasterUpdates } from "@/lib/mock-data";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { mockDisasterUpdates, createNewMockUpdate } from "@/lib/mock-data";
 import { BarChart3, List, Flame, Droplets, Zap, Wind, AlertTriangle } from 'lucide-react';
 import { subDays, format, parseISO, differenceInDays, startOfDay } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
-import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
-import Autoplay from "embla-carousel-autoplay";
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 type TimeRange = '7d' | '30d' | '3m' | '6m';
 
@@ -26,17 +25,37 @@ const timeRangeConfig = {
 };
 
 const disasterIcons: Record<string, React.ReactNode> = {
-    'Flood': <Droplets className="h-4 w-4" />,
-    'Earthquake': <Zap className="h-4 w-4" />,
-    'Fire': <Flame className="h-4 w-4" />,
-    'Hurricane': <Wind className="h-4 w-4" />
+    'Flood': <Droplets className="h-4 w-4 text-blue-500" />,
+    'Earthquake': <Zap className="h-4 w-4 text-yellow-500" />,
+    'Fire': <Flame className="h-4 w-4 text-orange-500" />,
+    'Hurricane': <Wind className="h-4 w-4 text-gray-500" />
 };
 
-const DefaultIcon = <AlertTriangle className="h-4 w-4" />;
+const DefaultIcon = <AlertTriangle className="h-4 w-4 text-red-500" />;
 
 
 export default function ReportsPage() {
     const [timeRange, setTimeRange] = useState<TimeRange>('7d');
+    const [liveUpdates, setLiveUpdates] = useState(
+        mockDisasterUpdates
+            .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+            .slice(0, 5)
+    );
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setLiveUpdates(prevUpdates => {
+                const newUpdate = createNewMockUpdate(prevUpdates.length + 100); // use a high ID to avoid collisions
+                const nextUpdates = [newUpdate, ...prevUpdates];
+                if (nextUpdates.length > 5) {
+                    nextUpdates.pop();
+                }
+                return nextUpdates;
+            });
+        }, 5000); // Add a new update every 5 seconds
+
+        return () => clearInterval(interval);
+    }, []);
 
     const chartData = useMemo(() => {
         const { days } = timeRangeConfig[timeRange];
@@ -88,11 +107,7 @@ export default function ReportsPage() {
         Hurricane: { label: "Hurricane", color: "hsl(var(--chart-4))" },
         Other: { label: "Other", color: "hsl(var(--chart-5))" },
     };
-
-    const recentUpdates = mockDisasterUpdates
-        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-        .slice(0, 5);
-
+    
     return (
         <div className="flex flex-col min-h-screen bg-background">
             <Header />
@@ -167,47 +182,31 @@ export default function ReportsPage() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <Carousel
-                                opts={{
-                                    align: "start",
-                                    loop: true,
-                                }}
-                                plugins={[
-                                    Autoplay({
-                                        delay: 5000,
-                                        stopOnInteraction: false,
-                                    }),
-                                ]}
-                                className="w-full"
-                            >
-                                <CarouselContent>
-                                    {recentUpdates.map((update) => (
-                                        <CarouselItem key={update.id}>
-                                            <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
-                                                {update.mediaUrl && (
-                                                    <div className="relative aspect-video md:col-span-2 rounded-lg overflow-hidden">
-                                                        <Image src={update.mediaUrl} alt={update.disasterType} fill className="object-cover" data-ai-hint={`${update.disasterType} disaster`} />
-                                                    </div>
-                                                )}
-                                                <div className={cn("md:col-span-3", !update.mediaUrl && "md:col-span-5")}>
-                                                    <div className="flex items-center gap-3 mb-2">
-                                                        <Avatar className="h-10 w-10">
-                                                            <AvatarImage src={update.user.avatarUrl} alt={update.user.name} />
-                                                            <AvatarFallback>{update.user.name.charAt(0)}</AvatarFallback>
-                                                        </Avatar>
-                                                        <div>
-                                                            <p className="font-semibold">{update.user.name}</p>
-                                                            <p className="text-xs text-muted-foreground">{format(parseISO(update.timestamp), "PPp")}</p>
-                                                        </div>
-                                                    </div>
-                                                    <p className="font-bold text-lg mb-1">{update.disasterType} in {update.location.name}</p>
-                                                    <p className="text-muted-foreground text-sm">{update.message}</p>
+                           <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead className="w-[120px]">Type</TableHead>
+                                        <TableHead>Location</TableHead>
+                                        <TableHead>Message</TableHead>
+                                        <TableHead className="text-right">Time</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {liveUpdates.map((update) => (
+                                        <TableRow key={update.id} className="transition-opacity duration-500">
+                                            <TableCell>
+                                                <div className="flex items-center gap-2 font-medium">
+                                                    {disasterIcons[update.disasterType] || DefaultIcon}
+                                                    {update.disasterType}
                                                 </div>
-                                            </div>
-                                        </CarouselItem>
+                                            </TableCell>
+                                            <TableCell>{update.location.name}</TableCell>
+                                            <TableCell className="max-w-xs truncate">{update.message}</TableCell>
+                                            <TableCell className="text-right text-muted-foreground">{format(parseISO(update.timestamp), "HH:mm:ss")}</TableCell>
+                                        </TableRow>
                                     ))}
-                                </CarouselContent>
-                            </Carousel>
+                                </TableBody>
+                            </Table>
                         </CardContent>
                     </Card>
                 </div>
