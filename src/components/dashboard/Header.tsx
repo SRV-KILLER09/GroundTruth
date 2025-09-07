@@ -27,10 +27,15 @@ export default function Header() {
     { href: "/dashboard/map", label: "Map View", icon: <Map className="h-4 w-4" /> },
     { href: "/dashboard/reports", label: "Reports", icon: <BarChart3 className="h-4 w-4" /> },
     { href: "/dashboard/news", label: "News", icon: <Rss className="h-4 w-4" /> },
-    { href: "/dashboard/announcements", label: "Announcements", icon: <Megaphone className="h-4 w-4" /> },
     { href: "/dashboard/directory", label: "Directory", icon: <Shield className="h-4 w-4" /> },
     { href: "/dashboard/resources", label: "Safety Resources", icon: <LifeBuoy className="h-4 w-4" /> },
   ];
+
+  const mobileNavLinks = [
+    ...navLinks,
+    { href: "/dashboard/announcements", label: "Announcements", icon: <Megaphone className="h-4 w-4" /> },
+  ]
+
 
   return (
     <header className="sticky top-0 z-50 flex h-16 items-center justify-between border-b bg-card px-4 md:px-6 shadow-sm">
@@ -74,7 +79,7 @@ export default function Header() {
             <DropdownMenuContent className="w-56" align="end" forceMount>
               <DropdownMenuLabel className="font-normal md:hidden">
                  <div className="flex flex-col space-y-2">
-                    {navLinks.map((link) => (
+                    {mobileNavLinks.map((link) => (
                         <Link key={link.href} href={link.href} className={cn("flex items-center gap-2 rounded-md p-2", pathname === link.href ? 'bg-secondary' : '')}>
                              {link.icon}
                             <span>{link.label}</span>
