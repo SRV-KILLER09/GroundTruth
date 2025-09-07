@@ -65,15 +65,19 @@ export default function Sidebar({ isMobile = false }: { isMobile?: boolean }) {
     </nav>
   );
 
+  const ScrollableContent = () => (
+    <ScrollArea className="flex-1">
+        <NavContent />
+    </ScrollArea>
+  );
+
   if (isMobile) {
-    return <NavContent />;
+    return <ScrollableContent />;
   }
   
   return (
     <aside className="fixed inset-y-0 left-0 z-10 hidden w-60 flex-col border-r bg-background sm:flex">
-        <ScrollArea className="flex-1">
-            <NavContent />
-        </ScrollArea>
+        <ScrollableContent />
     </aside>
   );
 }
