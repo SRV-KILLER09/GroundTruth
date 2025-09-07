@@ -12,9 +12,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAuth } from "@/contexts/AuthContext";
 import { DisasterUpdate } from "@/lib/mock-data";
 import { useState } from "react";
-import { Loader2, MapPin } from "lucide-react";
+import { Loader2, MapPin, Video, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { generateDisasterImage } from "@/ai/flows/generate-disaster-image";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { VideoRecorder } from "./VideoRecorder";
+
 
 const formSchema = z.object({
   disasterType: z.enum(['Flood', 'Earthquake', 'Fire', 'Hurricane', 'Other']),
@@ -44,6 +47,8 @@ export function SubmitUpdateForm({ onSubmit }: SubmitUpdateFormProps) {
   const { toast } = useToast();
   const [isLocating, setIsLocating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isVideoSubmitted, setIsVideoSubmitted] = useState(false);
+
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -119,23 +124,28 @@ export function SubmitUpdateForm({ onSubmit }: SubmitUpdateFormProps) {
     const disasterType = values.disasterType === 'Other' ? values.otherDisasterType! : values.disasterType;
 
     let imageUrl;
-    try {
-        toast({
-            title: "Generating Image...",
-            description: "Our AI is creating an image for your report. Please wait."
-        });
-        const imageResult = await generateDisasterImage({
-            disasterType: disasterType,
-            description: values.message,
-        });
-        imageUrl = imageResult.imageUrl;
-    } catch (error) {
-        console.error("Image generation failed:", error);
-        toast({
-            variant: "destructive",
-            title: "Image Generation Failed",
-            description: "Could not generate an image, but your report will be submitted without one.",
-        });
+    if (isVideoSubmitted) {
+        // Use a placeholder video/image for submitted videos
+        imageUrl = "https://images.unsplash.com/photo-1531613296-803527414663?q=80&w=600&h=400&auto=format&fit=crop";
+    } else {
+        try {
+            toast({
+                title: "Generating Image...",
+                description: "Our AI is creating an image for your report. Please wait."
+            });
+            const imageResult = await generateDisasterImage({
+                disasterType: disasterType,
+                description: values.message,
+            });
+            imageUrl = imageResult.imageUrl;
+        } catch (error) {
+            console.error("Image generation failed:", error);
+            toast({
+                variant: "destructive",
+                title: "Image Generation Failed",
+                description: "Could not generate an image, but your report will be submitted without one.",
+            });
+        }
     }
 
     const newUpdate = {
@@ -149,7 +159,7 @@ export function SubmitUpdateForm({ onSubmit }: SubmitUpdateFormProps) {
             latitude: values.latitude,
             longitude: values.longitude
         },
-        message: values.message,
+        message: isVideoSubmitted ? "Video report submitted. Pending review." : values.message,
         mediaUrl: imageUrl,
         history: [values.message]
     };
@@ -157,11 +167,37 @@ export function SubmitUpdateForm({ onSubmit }: SubmitUpdateFormProps) {
     onSubmit(newUpdate);
     form.reset();
     setIsSubmitting(false);
+    setIsVideoSubmitted(false);
   }
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6 pt-6">
+       <Tabs defaultValue="text" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="text"><FileText className="mr-2 h-4 w-4"/>Text Report</TabsTrigger>
+                <TabsTrigger value="video"><Video className="mr-2 h-4 w-4"/>Video Report</TabsTrigger>
+            </TabsList>
+            <TabsContent value="text" className="space-y-6 pt-4">
+                 <FormField
+                    control={form.control}
+                    name="message"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Update Message</FormLabel>
+                        <FormControl>
+                            <Textarea rows={4} placeholder="Provide a detailed update on the situation..." {...field} disabled={isSubmitting} />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+            </TabsContent>
+            <TabsContent value="video" className="pt-4">
+                <VideoRecorder onVideoSubmit={() => setIsVideoSubmitted(true)} isSubmitting={isSubmitting} />
+            </TabsContent>
+        </Tabs>
+
         <FormField
           control={form.control}
           name="disasterType"
@@ -234,20 +270,6 @@ export function SubmitUpdateForm({ onSubmit }: SubmitUpdateFormProps) {
             )}
         </div>
         
-        <FormField
-          control={form.control}
-          name="message"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Update Message</FormLabel>
-              <FormControl>
-                <Textarea rows={4} placeholder="Provide a detailed update on the situation..." {...field} disabled={isSubmitting} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
         <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {isSubmitting ? 'Submitting Report...' : 'Submit Update'}
