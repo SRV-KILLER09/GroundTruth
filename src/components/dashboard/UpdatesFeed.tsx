@@ -139,6 +139,10 @@ export function UpdatesFeed({ allUpdates, filteredUpdates, setFilteredUpdates, s
         setActiveFilter('All');
         setCitySearch('');
         setIsSheetOpen(false);
+        toast({
+            title: "Update Submitted",
+            description: "Thank you for contributing to community safety.",
+        });
     }
 
     const addReply = (updateId: number, reply: DisasterUpdateReply) => {
@@ -197,7 +201,7 @@ export function UpdatesFeed({ allUpdates, filteredUpdates, setFilteredUpdates, s
                             <SheetHeader>
                                 <SheetTitle>Submit a New Disaster Update</SheetTitle>
                                 <SheetDescription>
-                                    Help your community by providing real-time information.
+                                    Help your community by providing real-time information. Your report will include an AI-generated image.
                                 </SheetDescription>
                             </SheetHeader>
                             <SubmitUpdateForm onSubmit={addUpdate} />

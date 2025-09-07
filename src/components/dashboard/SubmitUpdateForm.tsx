@@ -13,6 +13,7 @@ import { DisasterUpdate } from "@/lib/mock-data";
 import { useState } from "react";
 import { Loader2, MapPin } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { generateDisasterImage } from "@/ai/flows/generate-disaster-image";
 
 const formSchema = z.object({
   disasterType: z.enum(['Flood', 'Earthquake', 'Fire', 'Hurricane', 'Other']),
@@ -41,6 +42,7 @@ export function SubmitUpdateForm({ onSubmit }: SubmitUpdateFormProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const [isLocating, setIsLocating] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -90,13 +92,16 @@ export function SubmitUpdateForm({ onSubmit }: SubmitUpdateFormProps) {
   };
 
 
-  function handleFormSubmit(values: FormValues) {
+  async function handleFormSubmit(values: FormValues) {
+    setIsSubmitting(true);
+
     if (!user || !user.displayName) {
         toast({
             variant: "destructive",
             title: "Authentication Error",
             description: "You must be logged in to submit an update.",
         });
+        setIsSubmitting(false);
         return;
     };
     
@@ -106,28 +111,51 @@ export function SubmitUpdateForm({ onSubmit }: SubmitUpdateFormProps) {
             title: "Location Required",
             description: "Please acquire your location before submitting.",
         });
+        setIsSubmitting(false);
         return;
     }
 
     const disasterType = values.disasterType === 'Other' ? values.otherDisasterType! : values.disasterType;
+
+    let imageUrl;
+    try {
+        toast({
+            title: "Generating Image...",
+            description: "Our AI is creating an image for your report. Please wait."
+        });
+        const imageResult = await generateDisasterImage({
+            disasterType: disasterType,
+            description: values.message,
+        });
+        imageUrl = imageResult.imageUrl;
+    } catch (error) {
+        console.error("Image generation failed:", error);
+        toast({
+            variant: "destructive",
+            title: "Image Generation Failed",
+            description: "Could not generate an image, but your report will be submitted without one.",
+        });
+    }
 
     const newUpdate = {
         user: {
             name: user.displayName,
             avatarUrl: `https://picsum.photos/seed/${user.email}/40/40`
         },
-        disasterType: disasterType as any, // We'll allow custom strings
+        disasterType: disasterType as any,
         location: {
             name: values.locationName,
             latitude: values.latitude,
             longitude: values.longitude
         },
         message: values.message,
-        history: [values.message] // Initial update
+        mediaUrl: imageUrl,
+        history: [values.message]
     };
     
     onSubmit(newUpdate);
     form.reset();
+    setIsSubmitting(false);
   }
 
   return (
@@ -139,7 +167,7 @@ export function SubmitUpdateForm({ onSubmit }: SubmitUpdateFormProps) {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Disaster Type</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isSubmitting}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a disaster type" />
@@ -165,7 +193,7 @@ export function SubmitUpdateForm({ onSubmit }: SubmitUpdateFormProps) {
                 <FormItem>
                 <FormLabel>Please Specify</FormLabel>
                 <FormControl>
-                    <Input placeholder="e.g., Landslide, Tsunami" {...field} />
+                    <Input placeholder="e.g., Landslide, Tsunami" {...field} disabled={isSubmitting} />
                 </FormControl>
                 <FormMessage />
                 </FormItem>
@@ -179,7 +207,7 @@ export function SubmitUpdateForm({ onSubmit }: SubmitUpdateFormProps) {
             <FormItem>
               <FormLabel>Location Name</FormLabel>
               <FormControl>
-                <Input placeholder="e.g., Downtown, City Park" {...field} />
+                <Input placeholder="e.g., Downtown, City Park" {...field} disabled={isSubmitting}/>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -188,7 +216,7 @@ export function SubmitUpdateForm({ onSubmit }: SubmitUpdateFormProps) {
 
         <div className="space-y-2">
             <FormLabel>Location Coordinates</FormLabel>
-            <Button type="button" variant="outline" className="w-full" onClick={handleGetLocation} disabled={isLocating}>
+            <Button type="button" variant="outline" className="w-full" onClick={handleGetLocation} disabled={isLocating || isSubmitting}>
                 {isLocating ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : (
@@ -212,14 +240,17 @@ export function SubmitUpdateForm({ onSubmit }: SubmitUpdateFormProps) {
             <FormItem>
               <FormLabel>Update Message</FormLabel>
               <FormControl>
-                <Textarea rows={4} placeholder="Provide a detailed update on the situation..." {...field} />
+                <Textarea rows={4} placeholder="Provide a detailed update on the situation..." {...field} disabled={isSubmitting} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <Button type="submit" className="w-full">Submit Update</Button>
+        <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isSubmitting ? 'Submitting Report...' : 'Submit Update'}
+        </Button>
       </form>
     </Form>
   );
