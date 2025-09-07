@@ -23,7 +23,7 @@ export default function LandingPage() {
             <Image src="https://picsum.photos/seed/logo/40/40" alt="GroundTruth Logo" width={32} height={32} className="rounded-full" data-ai-hint="logo" />
           <div className="flex flex-col">
             <span className="text-lg font-semibold leading-tight text-white">GroundTruth™</span>
-            <span className="text-xs text-red-200/80">by TitanicX</span>
+            <span className="text-xs text-red-400 font-semibold">by TitanicX</span>
           </div>
         </Link>
         <nav className="ml-auto hidden lg:flex gap-4 sm:gap-6 items-center">
