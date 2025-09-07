@@ -23,12 +23,11 @@ export default function Sidebar({ isMobile = false }: { isMobile?: boolean }) {
       <Link
         href="/dashboard"
         className={cn(
-          "group flex shrink-0 items-center justify-center gap-2 rounded-full text-lg font-semibold text-primary-foreground md:text-base",
-          isMobile ? "h-12 w-full bg-primary" : "h-9 w-9 bg-primary self-center"
+          "group flex items-center gap-2 rounded-lg px-3 py-2 text-lg font-semibold text-primary-foreground md:text-base bg-primary"
         )}
       >
-        <Mountain className="h-4 w-4 transition-all group-hover:scale-110" />
-        <span className={cn(isMobile ? "" : "sr-only")}>TitanicX</span>
+        <Mountain className="h-6 w-6 transition-all group-hover:scale-110" />
+        <span>GroundTruth</span>
       </Link>
       
       {navLinks.map((link) => {
