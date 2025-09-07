@@ -19,42 +19,51 @@ interface Contacts {
     location: string;
 }
 
-// In a real app, this data would be fetched from an API based on coordinates.
-// This function simulates that by generating more varied mock data.
-const getMockContacts = (lat: number, lon: number): Omit<Contacts, 'location'> => {
-    // Simple hashing of coordinates to get deterministic but varied results
-    const latInt = Math.floor(lat);
-    const lonInt = Math.floor(lon);
-    
-    // Pre-defined sets of mock data
-    const locations = [
-        { city: "Mumbai, MH", police: "Marine Drive Police", hospital: "Bombay Hospital", fire: "Fort Fire Station" },
-        { city: "New Delhi, DL", police: "Connaught Place Police", hospital: "Sir Ganga Ram Hospital", fire: "Connaught Circus Fire Stn" },
-        { city: "Chennai, TN", police: "Teynampet Police Station", hospital: "Apollo Hospital", fire: "Guindy Fire Station" },
-        { city: "Kolkata, WB", police: "Park Street Police", hospital: "AMRI Hospital", fire: "Tollygunge Fire Station" },
-        { city: "Bengaluru, KA", police: "Koramangala Police", hospital: "Fortis Hospital", fire: "Indiranagar Fire Station" },
-    ];
+// --- Enhanced Mock Data Simulation ---
 
-    const determinedIndex = (latInt + lonInt) % locations.length;
-    const loc = locations[determinedIndex];
+// Arrays of plausible name parts for generating realistic-sounding local services
+const areaPrefixes = ["North", "South", "East", "West", "Central", "Old", "New", "Lakeview", "Riverbend", "Hillside"];
+const areaSuffixes = ["Nagar", "Ganj", "Pura", "Colony", "Sector", "Vihar", "Park", "Township", "Circle", "Market"];
+const streetNames = ["Gandhi", "Nehru", "Patel", "Tagore", "Bose", "Vivekananda", "Shivaji", "Lajpat Rai"];
+const hospitalTypes = ["General Hospital", "Community Clinic", "Medical Center", "Sanjeevani Hospital", "Care Center"];
+const policeTypes = ["Police Station", "Chowki", "Police Post", "District Police"];
+const fireTypes = ["Fire Station", "Fire & Rescue", "Fire Brigade"];
+
+
+// Generates a deterministic but unique-looking value from coordinates
+const generateDeterministicValue = (seed1: number, seed2: number, list: string[]) => {
+    const intSeed1 = Math.floor(Math.abs(seed1));
+    const intSeed2 = Math.floor(Math.abs(seed2));
+    const index = (intSeed1 * 19 + intSeed2 * 31) % list.length;
+    return list[index];
+};
+
+
+// In a real app, this data would be fetched from an API.
+// This function simulates that by generating more varied and plausible mock data.
+const getMockContacts = (lat: number, lon: number): Omit<Contacts, 'location'> => {
+    // Use coordinates to generate a plausible local area name
+    const areaName = `${generateDeterministicValue(lat, lon, areaPrefixes)} ${generateDeterministicValue(lon, lat, areaSuffixes)}`;
+    const streetName = generateDeterministicValue(lat, lon, streetNames);
 
     // Generate pseudo-random but consistent phone numbers based on coordinates
-    const randomSuffix = (num: number) => Math.floor(Math.abs(Math.sin(num) * 10000));
-    const policeNum = `(0${Math.floor(lat) % 10}${Math.floor(lon) % 10}) 2${randomSuffix(latInt)}-${randomSuffix(lonInt)}`;
-    const hospitalNum = `(0${Math.floor(lat) % 10}${Math.floor(lon) % 10}) 4${randomSuffix(lonInt)}-${randomSuffix(latInt)}`;
-    const fireNum = `(0${Math.floor(lat) % 10}${Math.floor(lon) % 10}) 101-${randomSuffix(lat + lon)}`;
+    const randomSuffix = (num: number, offset: number) => Math.floor(Math.abs(Math.sin(num + offset) * 10000));
+    const cityCode = `0${Math.floor(lat) % 90 + 10}`;
+    const policeNum = `(${cityCode}) 2${randomSuffix(lat, 1)}-${randomSuffix(lon, 2)}`;
+    const hospitalNum = `(${cityCode}) 4${randomSuffix(lon, 3)}-${randomSuffix(lat, 4)}`;
+    const fireNum = `(${cityCode}) 101-${randomSuffix(lat + lon, 5)}`;
     
     return {
-        police: { name: loc.police, number: policeNum },
-        hospital: { name: loc.hospital, number: hospitalNum },
-        fire: { name: loc.fire, number: fireNum },
+        police: { name: `${areaName} ${generateDeterministicValue(lon, lat, policeTypes)}`, number: policeNum },
+        hospital: { name: `${streetName} ${generateDeterministicValue(lat, lon, hospitalTypes)}`, number: hospitalNum },
+        fire: { name: `${areaName} ${generateDeterministicValue(lat, lon, fireTypes)}`, number: fireNum },
     };
 };
 
 const getMockLocationName = (lat: number, lon: number): string => {
-     const locations = ["Mumbai, MH", "New Delhi, DL", "Chennai, TN", "Kolkata, WB", "Bengaluru, KA", "Jaipur, RJ", "Pune, MH"];
-     const determinedIndex = (Math.floor(lat) + Math.floor(lon)) % locations.length;
-     return locations[determinedIndex];
+     const areaName = `${generateDeterministicValue(lat, lon, areaPrefixes)} ${generateDeterministicValue(lon, lat, areaSuffixes)}`;
+     const cityName = `${generateDeterministicValue(lon, lat, areaPrefixes)} City`; // Fake city name for flavor
+     return `${areaName}, ${cityName}`;
 }
 
 
@@ -128,7 +137,7 @@ export function EmergencyContacts() {
                 {contacts && (
                     <div>
                         <p className="text-sm text-muted-foreground mb-4">
-                            Showing contacts for: <strong>{contacts.location}</strong>
+                            Showing simulated contacts for: <strong>{contacts.location}</strong>
                         </p>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
                             <div className="bg-muted p-4 rounded-lg">
