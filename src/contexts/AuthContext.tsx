@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { onAuthStateChanged, User as FirebaseUser, Auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
+import { sendWelcomeEmail } from "@/ai/flows/send-welcome-email";
 
 interface User {
   uid: string;
@@ -53,6 +54,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(userCredential.user, { displayName: username });
+      
+      // Send welcome emails
+      await sendWelcomeEmail({ email, username });
+
       // Refresh the user to get the updated profile information
       const refreshedUser = auth.currentUser;
       if (refreshedUser) {
@@ -65,6 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       router.push("/dashboard");
       toast({
           title: "Welcome to TitanicX",
+          description: "Your account has been created successfully."
       });
     } catch (error: any) {
       toast({
@@ -83,7 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await signInWithEmailAndPassword(auth, email, password);
       router.push("/dashboard");
        toast({
-          title: "Welcome to TitanicX",
+          title: "Welcome back to TitanicX",
       });
     } catch (error: any) {
       toast({
