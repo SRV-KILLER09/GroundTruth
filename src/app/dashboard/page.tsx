@@ -11,7 +11,7 @@ import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { StatusSection } from "@/components/dashboard/StatusSection";
 import type { DisasterUpdateReply } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Megaphone } from "lucide-react";
+import { PlusCircle, Megaphone, Users } from "lucide-react";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { SubmitUpdateForm } from "@/components/dashboard/SubmitUpdateForm";
 import { useToast } from "@/hooks/use-toast";
@@ -114,12 +114,20 @@ export default function DashboardPage() {
                 <h1 className="text-3xl font-bold font-headline">Dashboard</h1>
                 <div className="flex items-center gap-2">
                     {isAdmin && (
-                        <Button asChild variant="outline">
-                            <Link href="/dashboard/announcements">
-                                <Megaphone className="mr-2 h-4 w-4" />
-                                Make Announcement
-                            </Link>
-                        </Button>
+                        <>
+                            <Button asChild variant="outline">
+                                <Link href="/dashboard/announcements">
+                                    <Megaphone className="mr-2 h-4 w-4" />
+                                    Make Announcement
+                                </Link>
+                            </Button>
+                            <Button asChild variant="outline">
+                                <Link href="/dashboard/updates">
+                                    <Users className="mr-2 h-4 w-4" />
+                                    Updates
+                                </Link>
+                            </Button>
+                        </>
                     )}
                      <Button asChild variant="outline">
                         <Link href="/dashboard/announcements">
