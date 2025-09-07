@@ -2,7 +2,7 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
 import type { DisasterUpdate, DisasterUpdateReply } from "@/lib/mock-data";
-import { Flame, Droplets, Zap, Wind, AlertTriangle, MessageSquare, ShieldCheck, Siren, CheckCircle, HelpCircle, XCircle } from 'lucide-react';
+import { Flame, Droplets, Zap, Wind, AlertTriangle, MessageSquare, ShieldCheck, Siren, CheckCircle, HelpCircle, XCircle, ThumbsUp, ThumbsDown, CornerDownRight } from 'lucide-react';
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
 import { Textarea } from "../ui/textarea";
@@ -36,6 +36,9 @@ export function UpdateCard({ update, onReply }: UpdateCardProps) {
   const { user } = useAuth();
   const [replyText, setReplyText] = useState("");
   const [isDispatching, setIsDispatching] = useState(false);
+  const [interaction, setInteraction] = useState<'like' | 'dislike' | null>(null);
+  const [showComment, setShowComment] = useState(false);
+  const [commentText, setCommentText] = useState("");
 
   // Simple admin check for prototyping purposes
   const isAdmin = user?.email === 'admin@resqtech.com';
@@ -49,6 +52,16 @@ export function UpdateCard({ update, onReply }: UpdateCardProps) {
       };
       onReply(update.id, newReply);
       setReplyText("");
+    }
+  };
+  
+  const handleCommentSubmit = () => {
+    if (commentText.trim() && user) {
+        // In a real app, you would send this comment to a backend.
+        // For this simulation, we'll just clear the input and close the comment box.
+        console.log(`Comment by ${user.displayName}: ${commentText}`);
+        setCommentText("");
+        setShowComment(false);
     }
   };
 
@@ -111,6 +124,25 @@ export function UpdateCard({ update, onReply }: UpdateCardProps) {
             </div>
           ))}
         </div>
+        
+        {showComment && (
+            <div className="mt-4 space-y-2">
+                <Textarea
+                    placeholder={`Replying as ${user?.displayName || 'user'}...`}
+                    value={commentText}
+                    onChange={(e) => setCommentText(e.target.value)}
+                    rows={2}
+                />
+                <div className="flex justify-end gap-2">
+                    <Button variant="ghost" size="sm" onClick={() => setShowComment(false)}>Cancel</Button>
+                    <Button size="sm" onClick={handleCommentSubmit} disabled={!commentText.trim()}>
+                        <CornerDownRight className="mr-2 h-4 w-4"/>
+                        Submit
+                    </Button>
+                </div>
+            </div>
+        )}
+
         {isAdmin && (
             <div className="mt-4 flex items-start gap-4">
                 <div className="flex-1 space-y-2">
@@ -132,10 +164,24 @@ export function UpdateCard({ update, onReply }: UpdateCardProps) {
             </div>
         )}
       </CardContent>
-      <CardFooter className="flex justify-start bg-muted/50 p-4 text-sm text-muted-foreground">
-        <div className="flex items-center">
+      <CardFooter className="flex justify-between items-center bg-muted/50 p-2 text-sm text-muted-foreground">
+        <div className="flex items-center pl-2">
             {icon}
             <span className="ml-1.5">{update.disasterType}</span>
+        </div>
+        <div className="flex items-center gap-1">
+            <Button variant="ghost" size="sm" onClick={() => setInteraction(interaction === 'like' ? null : 'like')}>
+                <ThumbsUp className={cn("mr-2 h-4 w-4", interaction === 'like' && "text-primary fill-primary/20")} />
+                Like
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => setInteraction(interaction === 'dislike' ? null : 'dislike')}>
+                <ThumbsDown className={cn("mr-2 h-4 w-4", interaction === 'dislike' && "text-destructive fill-destructive/20")} />
+                Dislike
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => setShowComment(!showComment)}>
+                <MessageSquare className="mr-2 h-4 w-4" />
+                Comment
+            </Button>
         </div>
       </CardFooter>
     </Card>
