@@ -46,7 +46,7 @@ export default function NotificationsPage() {
 
   const NotificationCard = ({ notification }: { notification: Notification }) => {
     return (
-      <div className="bg-muted/50 p-4 rounded-lg border border-primary/20 flex flex-col gap-4">
+      <div className="bg-muted/50 p-4 rounded-lg border border-primary shadow-md shadow-primary/20 flex flex-col gap-4">
         <div className="flex justify-between items-start gap-4">
             <div>
                 <p className="text-foreground/90 mb-2">{notification.message}</p>
