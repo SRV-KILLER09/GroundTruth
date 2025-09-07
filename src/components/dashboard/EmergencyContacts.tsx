@@ -19,6 +19,40 @@ interface Contacts {
     location: string;
 }
 
+// In a real app, this would come from a reverse geocoding API
+const getMockLocationName = (lat: number, lon: number): string => {
+    // This is a simplified mock lookup.
+    if (lat > 18 && lat < 20 && lon > 72 && lon < 74) return "Mumbai, MH";
+    if (lat > 28 && lat < 29 && lon > 76 && lon < 78) return "New Delhi, DL";
+    if (lat > 12 && lat < 14 && lon > 79 && lon < 81) return "Chennai, TN";
+    return "Your Current Location";
+}
+
+// In a real app, this data would be fetched from an API based on coordinates
+const getMockContactsByLocation = (locationName: string): Omit<Contacts, 'location'> => {
+     switch (locationName) {
+        case "Mumbai, MH":
+            return {
+                police: { name: "Marine Drive Police Station", number: "(022) 2261-1934" },
+                hospital: { name: "Bombay Hospital", number: "(022) 2206-7676" },
+                fire: { name: "Fort Fire Station", number: "(022) 2261-1234" },
+            };
+        case "New Delhi, DL":
+            return {
+                police: { name: "Connaught Place Police", number: "(011) 2341-3518" },
+                hospital: { name: "Sir Ganga Ram Hospital", number: "(011) 2575-0000" },
+                fire: { name: "Connaught Circus Fire Stn", number: "(011) 2341-4444" },
+            };
+        default:
+            return {
+                police: { name: "Central Police Precinct", number: "(555) 123-4567" },
+                hospital: { name: "City General Hospital", number: "(555) 987-6543" },
+                fire: { name: "Downtown Fire Brigade", number: "(555) 112-2334" },
+            };
+    }
+}
+
+
 export function EmergencyContacts() {
     const [contacts, setContacts] = useState<Contacts | null>(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -38,18 +72,18 @@ export function EmergencyContacts() {
 
         navigator.geolocation.getCurrentPosition(
             (position) => {
-                // In a real app, you would use these coordinates to query an API
-                // for the nearest emergency services. For this prototype, we'll
-                // use mock data and a timeout to simulate an API call.
+                const { latitude, longitude } = position.coords;
+                // Simulate API call
                 setTimeout(() => {
+                    const locationName = getMockLocationName(latitude, longitude);
+                    const fetchedContacts = getMockContactsByLocation(locationName);
+
                     setContacts({
-                        police: { name: "City Police Dept.", number: "100" },
-                        hospital: { name: "General Hospital", number: "102" },
-                        fire: { name: "Central Fire Station", number: "101" },
-                        location: `Near you (${position.coords.latitude.toFixed(2)}, ${position.coords.longitude.toFixed(2)})`
+                        ...fetchedContacts,
+                        location: `${locationName} (${latitude.toFixed(4)}, ${longitude.toFixed(4)})`
                     });
                     setIsLoading(false);
-                }, 1000);
+                }, 1500);
             },
             (error) => {
                 toast({
