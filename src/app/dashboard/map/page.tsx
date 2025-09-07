@@ -71,7 +71,7 @@ export default function MapViewPage() {
                                 <div className="relative w-full aspect-[2/1] bg-black rounded-lg overflow-hidden border-2 border-primary/20">
                                     {/* Map Background Image */}
                                     <Image
-                                        src="https://images.unsplash.com/photo-1572422776384-1fdf502851d5?q=80&w=1800&auto=format&fit=crop"
+                                        src="https://images.unsplash.com/photo-1542848141-893d5c58d451?q=80&w=1800&auto=format&fit=crop"
                                         alt="Satellite map background"
                                         fill
                                         className="object-cover opacity-60"

@@ -12,7 +12,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { LogOut, Mountain, Home, Map, LifeBuoy } from "lucide-react";
+import { LogOut, Mountain, Home, Map, LifeBuoy, BarChart3 } from "lucide-react";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -24,6 +24,7 @@ export default function Header() {
   const navLinks = [
     { href: "/dashboard", label: "Dashboard", icon: <Home className="h-4 w-4" /> },
     { href: "/dashboard/map", label: "Map View", icon: <Map className="h-4 w-4" /> },
+    { href: "/dashboard/reports", label: "Reports", icon: <BarChart3 className="h-4 w-4" /> },
     { href: "/dashboard/resources", label: "Safety Resources", icon: <LifeBuoy className="h-4 w-4" /> },
   ];
 
