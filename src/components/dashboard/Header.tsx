@@ -50,7 +50,8 @@ export default function Header() {
       <div className="flex items-center gap-4">
         <Button variant="outline" asChild className="hidden md:flex">
           <Link href="/">
-            Website Home
+            <Home className="h-4 w-4" />
+            <span className="ml-2">Home</span>
           </Link>
         </Button>
         {user && (
