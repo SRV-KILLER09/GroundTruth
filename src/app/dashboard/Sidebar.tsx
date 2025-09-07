@@ -36,7 +36,7 @@ export default function Sidebar({ isMobile = false }: { isMobile?: boolean }) {
             href="/dashboard/home"
             className="group flex items-center gap-2 rounded-lg text-foreground w-full"
         >
-            <Image src="https://picsum.photos/seed/logo/40/40" alt="GroundTruth™ Logo" width={40} height={40} className="rounded-full transition-all group-hover:scale-110" data-ai-hint="logo" />
+            <Image src="https://picsum.photos/seed/newlogo/40/40" alt="GroundTruth™ Logo" width={40} height={40} className="rounded-full transition-all group-hover:scale-110" data-ai-hint="logo" />
             <div className="flex flex-col">
                 <span className="text-lg font-semibold md:text-base leading-tight">GroundTruth™</span>
                 <span className="text-xs text-primary font-semibold">by TitanicX</span>
