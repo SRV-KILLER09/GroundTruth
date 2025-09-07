@@ -6,7 +6,7 @@ import Header from "@/components/dashboard/Header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
-import { mockDisasterUpdates, createNewMockUpdate } from "@/lib/mock-data";
+import { mockDisasterUpdates, createNewMockUpdate, DisasterUpdate } from "@/lib/mock-data";
 import { BarChart3, List, Flame, Droplets, Zap, Wind, AlertTriangle, User, Shield } from 'lucide-react';
 import { subDays, format, parseISO, differenceInDays, startOfDay } from 'date-fns';
 import { Button } from '@/components/ui/button';
@@ -35,21 +35,19 @@ const DefaultIcon = <AlertTriangle className="h-4 w-4 text-red-500" />;
 
 export default function ReportsPage() {
     const [timeRange, setTimeRange] = useState<TimeRange>('7d');
-    const [liveUpdates, setLiveUpdates] = useState(
-        mockDisasterUpdates
-            .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-            .slice(0, 5)
-    );
+    const [allUpdates, setAllUpdates] = useState<DisasterUpdate[]>(mockDisasterUpdates);
 
+    const liveUpdates = useMemo(() => {
+        return allUpdates
+            .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+            .slice(0, 5);
+    }, [allUpdates]);
+    
     useEffect(() => {
         const interval = setInterval(() => {
-            setLiveUpdates(prevUpdates => {
+            setAllUpdates(prevUpdates => {
                 const newUpdate = createNewMockUpdate(prevUpdates.length + 100); // use a high ID to avoid collisions
-                const nextUpdates = [newUpdate, ...prevUpdates];
-                if (nextUpdates.length > 5) {
-                    nextUpdates.pop();
-                }
-                return nextUpdates;
+                return [newUpdate, ...prevUpdates];
             });
         }, 5000); // Add a new update every 5 seconds
 
@@ -61,7 +59,7 @@ export default function ReportsPage() {
         const today = startOfDay(new Date());
         const startDate = subDays(today, days - 1);
 
-        const updatesInRange = mockDisasterUpdates.filter(update => {
+        const updatesInRange = allUpdates.filter(update => {
             const updateDate = parseISO(update.timestamp);
             return differenceInDays(today, updateDate) < days && updateDate >= startDate;
         });
@@ -96,7 +94,7 @@ export default function ReportsPage() {
         });
 
         return Array.from(dataMap.values());
-    }, [timeRange]);
+    }, [timeRange, allUpdates]);
 
 
     const chartConfig = {
