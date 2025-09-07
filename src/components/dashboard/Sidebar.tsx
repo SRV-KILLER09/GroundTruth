@@ -22,11 +22,9 @@ export default function Sidebar({ isMobile = false }: { isMobile?: boolean }) {
     <nav className={cn("flex flex-col items-stretch gap-4 px-2", isMobile ? "sm:py-5" : "py-5")}>
       <Link
         href="/dashboard"
-        className={cn(
-          "group flex items-center gap-2 rounded-lg px-3 py-2 text-lg font-semibold text-primary-foreground md:text-base bg-primary"
-        )}
+        className="group flex items-center gap-2 rounded-lg px-3 py-2 text-lg font-semibold text-foreground md:text-base"
       >
-        <Mountain className="h-6 w-6 transition-all group-hover:scale-110" />
+        <Mountain className="h-6 w-6 text-primary transition-all group-hover:scale-110" />
         <span>GroundTruth</span>
       </Link>
       
