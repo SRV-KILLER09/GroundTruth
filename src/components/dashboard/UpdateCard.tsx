@@ -2,13 +2,15 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
 import type { DisasterUpdate, DisasterUpdateReply } from "@/lib/mock-data";
-import { Flame, Droplets, Zap, Wind, AlertTriangle, MessageSquare, ShieldCheck, Siren } from 'lucide-react';
+import { Flame, Droplets, Zap, Wind, AlertTriangle, MessageSquare, ShieldCheck, Siren, CheckCircle, HelpCircle, XCircle } from 'lucide-react';
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
 import { AdminDispatchDialog } from "./AdminDispatchDialog";
+import { Badge } from "../ui/badge";
+import { cn } from "@/lib/utils";
 
 interface UpdateCardProps {
   update: DisasterUpdate;
@@ -21,6 +23,12 @@ const disasterIcons: Record<string, React.ReactNode> = {
     'Fire': <Flame className="h-4 w-4 text-muted-foreground" />,
     'Hurricane': <Wind className="h-4 w-4 text-muted-foreground" />
 };
+
+const statusConfig = {
+    'Verified': { icon: <CheckCircle className="h-4 w-4 text-green-500" />, text: "Verified", variant: "default" as const, className: "bg-green-500/10 text-green-500 border-green-500/20" },
+    'Under Investigation': { icon: <HelpCircle className="h-4 w-4 text-yellow-500" />, text: "Under Investigation", variant: "secondary" as const, className: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20" },
+    'Fake': { icon: <XCircle className="h-4 w-4 text-red-500" />, text: "Fake", variant: "destructive" as const, className: "bg-red-500/10 text-red-500 border-red-500/20" },
+}
 
 const DefaultIcon = <AlertTriangle className="h-4 w-4 text-muted-foreground" />;
 
@@ -45,28 +53,30 @@ export function UpdateCard({ update, onReply }: UpdateCardProps) {
   };
 
   const icon = disasterIcons[update.disasterType] || DefaultIcon;
+  const currentStatus = statusConfig[update.status];
+
   return (
     <>
     <Card className="overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
-      <CardHeader className="flex flex-row items-center gap-3 space-y-0 p-4">
+      <CardHeader className="flex flex-row items-start gap-3 space-y-0 p-4">
         <Avatar>
           <AvatarImage src={update.user.avatarUrl} alt={update.user.name} />
           <AvatarFallback>{update.user.name.charAt(0)}</AvatarFallback>
         </Avatar>
-        <div className="grid gap-1">
-          <p className="font-semibold">{update.user.name}</p>
+        <div className="grid gap-1 flex-1">
+          <div className="flex items-center justify-between">
+            <p className="font-semibold">{update.user.name}</p>
+             <Badge variant={currentStatus.variant} className={cn("whitespace-nowrap", currentStatus.className)}>
+                {currentStatus.icon}
+                <span className="ml-1">{currentStatus.text}</span>
+            </Badge>
+          </div>
           <p className="text-sm text-muted-foreground flex items-center">
             <span>{new Date(update.timestamp).toLocaleDateString()}</span>
             <span className="mx-1.5">·</span>
             <span className="truncate">{update.location.name}</span>
           </p>
         </div>
-        {isAdmin && (
-            <Button variant="outline" size="sm" className="ml-auto" onClick={() => setIsDispatching(true)}>
-                <Siren className="mr-2 h-4 w-4" />
-                Dispatch Alert
-            </Button>
-        )}
       </CardHeader>
       <CardContent className="p-4 pt-0">
         <p className="mb-4 text-foreground/90">{update.message}</p>
@@ -102,16 +112,22 @@ export function UpdateCard({ update, onReply }: UpdateCardProps) {
           ))}
         </div>
         {isAdmin && (
-            <div className="mt-4 space-y-2">
-                <Textarea 
-                    value={replyText}
-                    onChange={(e) => setReplyText(e.target.value)}
-                    placeholder="Add an official reply..."
-                    rows={2}
-                />
-                <Button onClick={handleReplySubmit} size="sm" disabled={!replyText.trim()}>
-                    <MessageSquare className="mr-2 h-4 w-4" />
-                    Reply as Admin
+            <div className="mt-4 flex items-start gap-4">
+                <div className="flex-1 space-y-2">
+                    <Textarea 
+                        value={replyText}
+                        onChange={(e) => setReplyText(e.target.value)}
+                        placeholder="Add an official reply..."
+                        rows={2}
+                    />
+                    <Button onClick={handleReplySubmit} size="sm" disabled={!replyText.trim()}>
+                        <MessageSquare className="mr-2 h-4 w-4" />
+                        Reply & Verify
+                    </Button>
+                </div>
+                 <Button variant="outline" size="sm" className="mt-auto" onClick={() => setIsDispatching(true)}>
+                    <Siren className="mr-2 h-4 w-4" />
+                    Dispatch Alert
                 </Button>
             </div>
         )}

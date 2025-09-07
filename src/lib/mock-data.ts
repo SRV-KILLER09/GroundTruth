@@ -5,6 +5,8 @@ export type DisasterUpdateReply = {
   timestamp: string;
 };
 
+export type DisasterStatus = 'Verified' | 'Under Investigation' | 'Fake';
+
 export type DisasterUpdate = {
   id: number;
   user: {
@@ -22,7 +24,7 @@ export type DisasterUpdate = {
   mediaUrl?: string;
   history: string[];
   replies: DisasterUpdateReply[];
-  status: 'Verified' | 'Under Investigation' | 'Fake';
+  status: DisasterStatus;
   authority: 'NDRF' | 'Local Police' | 'Fire Dept.' | 'Medical Team';
 };
 

@@ -5,7 +5,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, Flame, Droplets, Zap, Wind, AlertTriangle, MapPin, Loader2, Search, CheckCircle, HelpCircle, XCircle } from 'lucide-react';
 import { UpdateCard } from './UpdateCard';
-import type { DisasterUpdate, DisasterUpdateReply } from '@/lib/mock-data';
+import type { DisasterUpdate, DisasterUpdateReply, DisasterStatus } from '@/lib/mock-data';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { SubmitUpdateForm } from './SubmitUpdateForm';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -15,19 +15,16 @@ import { cn } from '@/lib/utils';
 
 interface UpdatesFeedProps {
     allUpdates: DisasterUpdate[];
-    filteredUpdates: DisasterUpdate[];
-    setFilteredUpdates: React.Dispatch<React.SetStateAction<DisasterUpdate[]>>;
     setUpdates: React.Dispatch<React.SetStateAction<DisasterUpdate[]>>;
+    onReply: (updateId: number, reply: DisasterUpdateReply) => void;
 }
 
 const disasterTypes = ['All', 'Flood', 'Earthquake', 'Fire', 'Hurricane'] as const;
 type DisasterType = typeof disasterTypes[number];
 type SortOrder = 'recent' | 'closest';
-type StatusFilter = 'All' | 'Verified' | 'Under Investigation' | 'Fake';
 
 
-const statusConfig: Record<StatusFilter, { icon: React.ReactNode, className: string }> = {
-    'All': { icon: null, className: ''},
+const statusConfig: Record<DisasterStatus, { icon: React.ReactNode, className: string }> = {
     'Verified': { icon: <CheckCircle className="mr-2 h-4 w-4" />, className: "hover:bg-green-500/10 hover:text-green-500 border-green-500/20 text-green-500 [&[data-active=true]]:bg-green-500/10" },
     'Under Investigation': { icon: <HelpCircle className="mr-2 h-4 w-4" />, className: "hover:bg-yellow-500/10 hover:text-yellow-500 border-yellow-500/20 text-yellow-500 [&[data-active=true]]:bg-yellow-500/10" },
     'Fake': { icon: <XCircle className="mr-2 h-4 w-4" />, className: "hover:bg-red-500/10 hover:text-red-500 border-red-500/20 text-red-500 [&[data-active=true]]:bg-red-500/10" }
@@ -46,9 +43,10 @@ const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => 
   return R * c; // Distance in km
 };
 
-export function UpdatesFeed({ allUpdates, filteredUpdates, setFilteredUpdates, setUpdates }: UpdatesFeedProps) {
+export function UpdatesFeed({ allUpdates, setUpdates, onReply }: UpdatesFeedProps) {
+    const [filteredUpdates, setFilteredUpdates] = React.useState<DisasterUpdate[]>(allUpdates);
     const [activeDisasterType, setActiveDisasterType] = React.useState<DisasterType>('All');
-    const [activeStatusFilter, setActiveStatusFilter] = React.useState<StatusFilter>('All');
+    const [activeStatusFilter, setActiveStatusFilter] = React.useState<DisasterStatus | 'All'>('All');
     const [isSheetOpen, setIsSheetOpen] = React.useState(false);
     const [sortOrder, setSortOrder] = React.useState<SortOrder>('recent');
     const [userLocation, setUserLocation] = React.useState<{latitude: number, longitude: number} | null>(null);
@@ -161,19 +159,6 @@ export function UpdatesFeed({ allUpdates, filteredUpdates, setFilteredUpdates, s
             description: "Thank you for contributing to community safety.",
         });
     }
-
-    const addReply = (updateId: number, reply: DisasterUpdateReply) => {
-        const newUpdates = allUpdates.map(update => {
-            if (update.id === updateId) {
-                return {
-                    ...update,
-                    replies: [...update.replies, reply]
-                };
-            }
-            return update;
-        });
-        setUpdates(newUpdates);
-    }
     
     const disasterIcons: Record<Exclude<DisasterType, 'All'>, React.ReactNode> = {
         'Flood': <Droplets className="mr-2 h-4 w-4" />,
@@ -229,8 +214,7 @@ export function UpdatesFeed({ allUpdates, filteredUpdates, setFilteredUpdates, s
             
             <div className="flex flex-col sm:flex-row gap-4 mb-4">
                 <div className="flex space-x-2 p-1 bg-muted rounded-lg">
-                    {(Object.keys(statusConfig) as StatusFilter[]).map(status => (
-                        status !== 'All' && 
+                    {(Object.keys(statusConfig) as DisasterStatus[]).map(status => (
                         <Button 
                             key={status}
                             variant={activeStatusFilter === status ? 'secondary' : 'ghost'}
@@ -282,7 +266,7 @@ export function UpdatesFeed({ allUpdates, filteredUpdates, setFilteredUpdates, s
             <div className="space-y-4">
                 {filteredUpdates.length > 0 ? (
                     filteredUpdates.map(update => (
-                        <UpdateCard key={update.id} update={update} onReply={addReply} />
+                        <UpdateCard key={update.id} update={update} onReply={onReply} />
                     ))
                 ) : (
                     <div className="text-center text-muted-foreground py-10">
