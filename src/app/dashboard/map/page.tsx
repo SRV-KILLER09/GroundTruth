@@ -1,117 +1,124 @@
 
+"use client"
+
 import Header from "@/components/dashboard/Header";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Map, Flame, Droplets, Zap, Wind, AlertTriangle } from "lucide-react";
-import { mockDisasterUpdates, DisasterUpdate } from "@/lib/mock-data";
+import { mockDisasterUpdates } from "@/lib/mock-data";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import Image from "next/image";
+import React, { useState, useMemo } from 'react';
+import { Button } from "@/components/ui/button";
 
-const disasterInfo: Record<string, { icon: React.ReactNode; color: string }> = {
-    'Fire': { icon: <Flame className="h-5 w-5" />, color: "bg-red-500" },
-    'Flood': { icon: <Droplets className="h-5 w-5" />, color: "bg-blue-500" },
-    'Earthquake': { icon: <Zap className="h-5 w-5" />, color: "bg-yellow-500" },
-    'Hurricane': { icon: <Wind className="h-5 w-5" />, color: "bg-gray-500" },
-    'Default': { icon: <AlertTriangle className="h-5 w-5" />, color: "bg-orange-500" },
+const disasterInfo: Record<string, { icon: React.ReactNode; color: string; class: string }> = {
+    'Fire': { icon: <Flame className="h-5 w-5" />, color: "#ef4444", class: "bg-red-500" },
+    'Flood': { icon: <Droplets className="h-5 w-5" />, color: "#3b82f6", class: "bg-blue-500" },
+    'Earthquake': { icon: <Zap className="h-5 w-5" />, color: "#eab308", class: "bg-yellow-500" },
+    'Hurricane': { icon: <Wind className="h-5 w-5" />, color: "#6b7280", class: "bg-gray-500" },
+    'Default': { icon: <AlertTriangle className="h-5 w-5" />, color: "#f97316", class: "bg-orange-500" },
 };
 
-// Normalize coordinates to fit within a 100x100 grid
-const normalizeCoordinates = (updates: DisasterUpdate[]) => {
-    if (updates.length === 0) return [];
-    
+const getMapBounds = (updates: typeof mockDisasterUpdates) => {
+    if (updates.length === 0) {
+        return { lat: 20.5937, lon: 78.9629, zoom: 4 }; // Default to India
+    }
     const latitudes = updates.map(u => u.location.latitude);
     const longitudes = updates.map(u => u.location.longitude);
-
     const minLat = Math.min(...latitudes);
     const maxLat = Math.max(...latitudes);
     const minLng = Math.min(...longitudes);
     const maxLng = Math.max(...longitudes);
 
-    const latRange = maxLat - minLat || 1;
-    const lngRange = maxLng - minLng || 1;
-
-    return updates.map(update => ({
-        ...update,
-        mapX: ((update.location.longitude - minLng) / lngRange) * 90 + 5, // % position
-        mapY: ((maxLat - update.location.latitude) / latRange) * 90 + 5, // % position
-    }));
+    return {
+        minLat, maxLat, minLng, maxLng
+    };
 };
 
-
 export default function MapViewPage() {
-    const mappedUpdates = normalizeCoordinates(mockDisasterUpdates.slice(0, 8)); // Limit for clarity
+    const [selectedUpdate, setSelectedUpdate] = useState(mockDisasterUpdates[0]);
+
+    const mapBounds = useMemo(() => getMapBounds(mockDisasterUpdates), []);
+
+    const mapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${mapBounds.minLng},${mapBounds.minLat},${mapBounds.maxLng},${mapBounds.maxLat}&layer=mapnik`;
 
     return (
         <div className="flex flex-col min-h-screen bg-background">
             <Header />
             <main className="flex-1 p-4 md:p-6">
-                <div className="w-full max-w-6xl mx-auto">
+                <div className="w-full max-w-7xl mx-auto">
                     <Card>
-                        <CardHeader className="flex flex-row justify-between items-center">
-                            <div>
-                                <CardTitle className="flex items-center">
-                                    <Map className="mr-2 h-6 w-6 text-primary" />
-                                    Geospatial Disaster Feed
-                                </CardTitle>
-                                <p className="text-muted-foreground text-sm mt-1">
-                                    This map displays real-time disaster reports. Hover over beacons for precise location details.
-                                </p>
-                            </div>
-                             <div className="flex space-x-4">
-                                {Object.entries(disasterInfo).map(([key, { icon, color }]) => (
-                                   key !== 'Default' && <div key={key} className="flex items-center gap-2">
-                                        <div className={cn("h-4 w-4 rounded-full", color)}></div>
-                                        <span className="text-sm text-muted-foreground">{key}</span>
-                                    </div>
-                                ))}
-                            </div>
+                        <CardHeader>
+                            <CardTitle className="flex items-center">
+                                <Map className="mr-2 h-6 w-6 text-primary" />
+                                Interactive Geospatial Feed
+                            </CardTitle>
+                            <CardDescription>
+                                An interactive map displaying real-time disaster reports. Click on a report from the list to view its location.
+                            </CardDescription>
                         </CardHeader>
                         <CardContent>
-                             <TooltipProvider>
-                                <div className="relative w-full aspect-[2/1] bg-black rounded-lg overflow-hidden border-2 border-primary/20">
-                                    {/* Map Background Image */}
-                                    <Image
-                                        src="https://images.unsplash.com/photo-1542848141-893d5c58d451?q=80&w=1800&auto=format&fit=crop"
-                                        alt="Satellite map background"
-                                        fill
-                                        className="object-cover opacity-60"
-                                        data-ai-hint="satellite map"
-                                    />
-
-                                    {/* Data Points */}
-                                    {mappedUpdates.map((update) => {
-                                        const info = disasterInfo[update.disasterType] || disasterInfo['Default'];
-                                        return (
-                                            <Tooltip key={update.id}>
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                <div className="lg:col-span-2 relative w-full aspect-[16/10] bg-muted rounded-lg overflow-hidden border-2 border-primary/20">
+                                    <iframe
+                                        width="100%"
+                                        height="100%"
+                                        src={mapUrl}
+                                        className="border-0"
+                                    ></iframe>
+                                    {/* Marker for selected update */}
+                                    {selectedUpdate && (
+                                        <TooltipProvider>
+                                            <Tooltip>
                                                 <TooltipTrigger asChild>
-                                                    <div 
-                                                        className="absolute -translate-x-1/2 -translate-y-1/2"
-                                                        style={{ left: `${update.mapX}%`, top: `${update.mapY}%` }}
+                                                    <div
+                                                        className="absolute"
+                                                        style={{
+                                                            left: `${((selectedUpdate.location.longitude - mapBounds.minLng) / (mapBounds.maxLng - mapBounds.minLng)) * 100}%`,
+                                                            top: `${100 - ((selectedUpdate.location.latitude - mapBounds.minLat) / (mapBounds.maxLat - mapBounds.minLat)) * 100}%`,
+                                                            transform: 'translate(-50%, -50%)',
+                                                        }}
                                                     >
-                                                        <div className={cn("relative h-4 w-4 rounded-full flex items-center justify-center animate-pulse", info.color)}>
-                                                           <div className={cn("absolute h-4 w-4 rounded-full", info.color, "opacity-75")}></div>
+                                                        <div className={cn("relative h-4 w-4 rounded-full flex items-center justify-center animate-pulse", disasterInfo[selectedUpdate.disasterType]?.class || disasterInfo['Default'].class)}>
+                                                            <div className={cn("absolute h-4 w-4 rounded-full opacity-75", disasterInfo[selectedUpdate.disasterType]?.class || disasterInfo['Default'].class)}></div>
                                                         </div>
                                                     </div>
                                                 </TooltipTrigger>
                                                 <TooltipContent>
+                                                    <p className="font-bold">{selectedUpdate.disasterType} in {selectedUpdate.location.name}</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </TooltipProvider>
+                                    )}
+                                </div>
+                                <div className="lg:col-span-1">
+                                    <h3 className="text-lg font-semibold mb-3">Report List</h3>
+                                    <div className="space-y-2 h-[450px] overflow-y-auto pr-2">
+                                        {mockDisasterUpdates.map((update) => {
+                                            const info = disasterInfo[update.disasterType] || disasterInfo['Default'];
+                                            return (
+                                                <button
+                                                    key={update.id}
+                                                    onClick={() => setSelectedUpdate(update)}
+                                                    className={cn(
+                                                        "w-full text-left p-3 rounded-lg border transition-colors",
+                                                        selectedUpdate.id === update.id ? "bg-primary/10 border-primary" : "bg-muted/50 hover:bg-muted"
+                                                    )}
+                                                >
                                                     <div className="flex items-center gap-3">
-                                                         <div className="text-white bg-card p-2 rounded-full border border-primary/50">
+                                                        <div className={cn("h-8 w-8 rounded-full flex items-center justify-center text-primary-foreground", info.class)}>
                                                             {info.icon}
                                                         </div>
                                                         <div>
-                                                            <p className="font-bold">{update.disasterType} in {update.location.name}</p>
-                                                            <p className="text-sm text-muted-foreground truncate max-w-xs">{update.message}</p>
-                                                            <p className="text-xs text-muted-foreground/80 mt-1">
-                                                                Coords: {update.location.latitude.toFixed(4)}, {update.location.longitude.toFixed(4)}
-                                                            </p>
+                                                            <p className="font-semibold">{update.disasterType} - {update.location.name}</p>
+                                                            <p className="text-sm text-muted-foreground truncate">{update.message}</p>
                                                         </div>
                                                     </div>
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        );
-                                    })}
+                                                </button>
+                                            )
+                                        })}
+                                    </div>
                                 </div>
-                            </TooltipProvider>
+                            </div>
                         </CardContent>
                     </Card>
                 </div>
