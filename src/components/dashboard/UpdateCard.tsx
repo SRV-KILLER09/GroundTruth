@@ -3,7 +3,7 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
 import type { DisasterUpdate, DisasterUpdateReply } from "@/lib/mock-data";
-import { Flame, Droplets, Zap, Wind, AlertTriangle, MessageSquare, ShieldCheck, Siren, CheckCircle, HelpCircle, XCircle, ThumbsUp, ThumbsDown, CornerDownRight } from 'lucide-react';
+import { Flame, Droplets, Zap, Wind, AlertTriangle, MessageSquare, ShieldCheck, Siren, CheckCircle, HelpCircle, XCircle, ThumbsUp, ThumbsDown, CornerDownRight, Flag } from 'lucide-react';
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
 import { Textarea } from "../ui/textarea";
@@ -12,6 +12,8 @@ import { Separator } from "../ui/separator";
 import { AdminDispatchDialog } from "./AdminDispatchDialog";
 import { Badge } from "../ui/badge";
 import { cn } from "@/lib/utils";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
 
 interface UpdateCardProps {
   update: DisasterUpdate;
@@ -35,6 +37,7 @@ const DefaultIcon = <AlertTriangle className="h-4 w-4 text-muted-foreground" />;
 
 export function UpdateCard({ update, onReply }: UpdateCardProps) {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [replyText, setReplyText] = useState("");
   const [isDispatching, setIsDispatching] = useState(false);
   const [interaction, setInteraction] = useState<'like' | 'dislike' | null>(null);
@@ -65,6 +68,15 @@ export function UpdateCard({ update, onReply }: UpdateCardProps) {
         setShowComment(false);
     }
   };
+  
+  const handleReportUser = () => {
+    // In a real app, this would trigger a backend process.
+    // For now, we'll just show a confirmation toast.
+    toast({
+        title: "User Reported",
+        description: `${update.user.name}'s Honor Score has been reduced.`,
+    });
+  };
 
   const icon = disasterIcons[update.disasterType] || DefaultIcon;
   const currentStatus = statusConfig[update.status];
@@ -79,8 +91,34 @@ export function UpdateCard({ update, onReply }: UpdateCardProps) {
         </Avatar>
         <div className="grid gap-1 flex-1">
           <div className="flex items-center justify-between">
-            <p className="font-semibold">{update.user.name}</p>
-             <Badge variant={currentStatus.variant} className={cn("whitespace-nowrap", currentStatus.className)}>
+            <div className="flex items-center gap-2">
+                <p className="font-semibold">{update.user.name}</p>
+                {isAdmin && (
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                             <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-destructive">
+                                <Flag className="h-4 w-4" />
+                                <span className="sr-only">Report User</span>
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Report User?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    Are you sure you want to report {update.user.name}? This action will reduce their Honor Score and cannot be undone.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={handleReportUser} className="bg-destructive hover:bg-destructive/90">
+                                    Confirm Report
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                )}
+            </div>
+             <Badge variant={currentStatus.variant} className={cn("whitespace-nowrap w-fit", currentStatus.className)}>
                 {currentStatus.icon}
                 <span className="ml-1">{currentStatus.text}</span>
             </Badge>
