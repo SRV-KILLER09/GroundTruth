@@ -93,7 +93,7 @@ export function EmergencyContacts() {
                     const fetchedContacts = getMockContacts(latitude, longitude);
                     const newContacts = {
                         ...fetchedContacts,
-                        location: `${locationName} (${latitude.toFixed(4)}, ${longitude.toFixed(4)})`
+                        location: `Simulated for: ${locationName} (Lat: ${latitude.toFixed(4)}, Lng: ${longitude.toFixed(4)})`
                     };
                     setContacts(newContacts);
                     setIsLoading(false);
@@ -160,7 +160,7 @@ export function EmergencyContacts() {
                     <div className="space-y-6">
                         <div>
                             <p className="text-sm text-muted-foreground mb-4">
-                                Showing simulated contacts for: <strong>{contacts.location}</strong>
+                                <strong>{contacts.location}</strong>
                             </p>
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
                                 <div className="bg-muted p-4 rounded-lg">
