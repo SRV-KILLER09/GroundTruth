@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { Mountain, Home, Map, LifeBuoy, BarChart3, Shield, Rss, Tv, MessageSquare, Info, Users, Bell, Megaphone } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function Sidebar({ isMobile = false }: { isMobile?: boolean }) {
   const pathname = usePathname();
@@ -70,7 +71,9 @@ export default function Sidebar({ isMobile = false }: { isMobile?: boolean }) {
   
   return (
     <aside className="fixed inset-y-0 left-0 z-10 hidden w-60 flex-col border-r bg-background sm:flex">
-        <NavContent />
+        <ScrollArea className="flex-1">
+            <NavContent />
+        </ScrollArea>
     </aside>
   );
 }
