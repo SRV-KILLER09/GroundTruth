@@ -3,7 +3,7 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
 import type { DisasterUpdate, DisasterUpdateReply } from "@/lib/mock-data";
-import { Flame, Droplets, Zap, Wind, AlertTriangle, MessageSquare, ShieldCheck, Siren, CheckCircle, HelpCircle, XCircle, ThumbsUp, ThumbsDown, CornerDownRight, Flag, History, Clock } from 'lucide-react';
+import { Flame, Droplets, Zap, Wind, AlertTriangle, MessageSquare, ShieldCheck, Siren, CheckCircle, HelpCircle, XCircle, ThumbsUp, ThumbsDown, CornerDownRight, Flag, History, Clock, Trash2 } from 'lucide-react';
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
 import { Textarea } from "../ui/textarea";
@@ -21,6 +21,7 @@ import Link from "next/link";
 interface UpdateCardProps {
   update: DisasterUpdate;
   onReply: (updateId: number, reply: DisasterUpdateReply) => void;
+  onDelete: (updateId: number) => void;
 }
 
 const disasterIcons: Record<string, React.ReactNode> = {
@@ -38,7 +39,7 @@ const statusConfig = {
 
 const DefaultIcon = <AlertTriangle className="h-4 w-4 text-muted-foreground" />;
 
-export function UpdateCard({ update, onReply }: UpdateCardProps) {
+export function UpdateCard({ update, onReply, onDelete }: UpdateCardProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const [replyText, setReplyText] = useState("");
@@ -78,6 +79,14 @@ export function UpdateCard({ update, onReply }: UpdateCardProps) {
     toast({
         title: "User Reported",
         description: `${update.user.name}'s Honor Score has been reduced.`,
+    });
+  };
+
+  const handleDeletePost = () => {
+    onDelete(update.id);
+    toast({
+        title: "Post Deleted",
+        description: "The post has been successfully removed.",
     });
   };
 
@@ -126,10 +135,36 @@ export function UpdateCard({ update, onReply }: UpdateCardProps) {
                     </AlertDialog>
                 )}
             </div>
-             <Badge variant={currentStatus.variant} className={cn("whitespace-nowrap w-fit", currentStatus.className)}>
-                {currentStatus.icon}
-                <span className="ml-1">{currentStatus.text}</span>
-            </Badge>
+             <div className="flex items-center gap-2">
+                <Badge variant={currentStatus.variant} className={cn("whitespace-nowrap w-fit", currentStatus.className)}>
+                    {currentStatus.icon}
+                    <span className="ml-1">{currentStatus.text}</span>
+                </Badge>
+                {isAdmin && (
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive">
+                                <Trash2 className="h-4 w-4" />
+                                <span className="sr-only">Delete Post</span>
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Delete this Post?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    This action cannot be undone. This will permanently delete the post from the feed.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={handleDeletePost} className="bg-destructive hover:bg-destructive/90">
+                                    Delete Post
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                )}
+             </div>
           </div>
           <p className="text-sm text-muted-foreground flex items-center">
             <span>{new Date(update.timestamp).toLocaleDateString()}</span>

@@ -42,6 +42,12 @@ export default function UserProfilePage() {
     );
   };
 
+  const deleteUpdate = (updateId: number) => {
+    setUpdates(currentUpdates => 
+      currentUpdates.filter(update => update.id !== updateId)
+    );
+  };
+
 
   if (updates.length === 0) {
     // This could be a loading state or a "user not found" state.
@@ -96,7 +102,7 @@ export default function UserProfilePage() {
             </h2>
             <div className="space-y-4">
                 {updates.map((update) => (
-                    <UpdateCard key={update.id} update={update} onReply={addReply} />
+                    <UpdateCard key={update.id} update={update} onReply={addReply} onDelete={deleteUpdate} />
                 ))}
             </div>
         </CardContent>

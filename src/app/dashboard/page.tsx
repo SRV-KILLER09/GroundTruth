@@ -52,6 +52,12 @@ export default function DashboardPage() {
       })
     );
   };
+
+  const deleteUpdate = (updateId: number) => {
+    setUpdates(currentUpdates => 
+      currentUpdates.filter(update => update.id !== updateId)
+    );
+  };
   
   if (loading || !isAuthenticated) {
     return <LoadingSpinner />;
@@ -59,7 +65,7 @@ export default function DashboardPage() {
 
   return (
     <div className="w-full max-w-4xl mx-auto">
-      <UpdatesFeed allUpdates={updates} setUpdates={setUpdates} onReply={addReply} />
+      <UpdatesFeed allUpdates={updates} setUpdates={setUpdates} onReply={addReply} onDelete={deleteUpdate} />
     </div>
   );
 }

@@ -20,6 +20,7 @@ interface UpdatesFeedProps {
     allUpdates: DisasterUpdate[];
     setUpdates: React.Dispatch<React.SetStateAction<DisasterUpdate[]>>;
     onReply: (updateId: number, reply: DisasterUpdateReply) => void;
+    onDelete: (updateId: number) => void;
 }
 
 const disasterTypes = ['All', 'Flood', 'Earthquake', 'Fire', 'Hurricane'] as const;
@@ -46,7 +47,7 @@ const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => 
   return R * c; // Distance in km
 };
 
-export function UpdatesFeed({ allUpdates, setUpdates, onReply }: UpdatesFeedProps) {
+export function UpdatesFeed({ allUpdates, setUpdates, onReply, onDelete }: UpdatesFeedProps) {
     const { user } = useAuth();
     const [filteredUpdates, setFilteredUpdates] = React.useState<DisasterUpdate[]>(allUpdates);
     const [activeDisasterType, setActiveDisasterType] = React.useState<DisasterType>('All');
@@ -275,7 +276,7 @@ export function UpdatesFeed({ allUpdates, setUpdates, onReply }: UpdatesFeedProp
             <div className="space-y-4">
                 {filteredUpdates.length > 0 ? (
                     filteredUpdates.map(update => (
-                        <UpdateCard key={update.id} update={update} onReply={onReply} />
+                        <UpdateCard key={update.id} update={update} onReply={onReply} onDelete={onDelete} />
                     ))
                 ) : (
                     <div className="text-center text-muted-foreground py-10">
