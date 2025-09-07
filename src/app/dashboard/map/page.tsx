@@ -131,49 +131,6 @@ export default function MapViewPage() {
                                         className="border-0"
                                         title="Interactive Map of Disaster Reports"
                                     ></iframe>
-                                    {/* Markers for all updates */}
-                                    {filteredUpdates.map(update => {
-                                        const info = disasterInfo[update.disasterType] || disasterInfo['Default'];
-                                        const status = statusConfig[update.status];
-                                        const isSelected = selectedUpdate && update.id === selectedUpdate.id;
-                                        
-                                        const latRange = (mapBounds.maxLat + buffer) - (mapBounds.minLat - buffer);
-                                        const lonRange = (mapBounds.maxLng + buffer) - (mapBounds.minLng - buffer);
-
-                                        const leftPercent = ((update.location.longitude - (mapBounds.minLng - buffer)) / lonRange) * 100;
-                                        const topPercent = 100 - (((update.location.latitude - (mapBounds.minLat - buffer)) / latRange) * 100);
-
-                                        return (
-                                        <TooltipProvider key={update.id}>
-                                            <Tooltip>
-                                                <TooltipTrigger asChild>
-                                                    <div
-                                                        className="absolute cursor-pointer"
-                                                        style={{
-                                                            left: `${leftPercent}%`,
-                                                            top: `${topPercent}%`,
-                                                            transform: 'translate(-50%, -50%)',
-                                                            zIndex: isSelected ? 10 : 1,
-                                                        }}
-                                                        onClick={() => handleSelectUpdate(update)}
-                                                    >
-                                                        <div className={cn(
-                                                            "h-8 w-8 rounded-full flex items-center justify-center text-primary-foreground transition-all duration-300", 
-                                                            info.class,
-                                                            isSelected ? 'ring-4 ring-offset-2 ring-offset-background ring-primary scale-125' : 'ring-2 ring-background'
-                                                            )}>
-                                                            {info.icon}
-                                                        </div>
-                                                    </div>
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p className="font-bold">{update.disasterType} in {update.location.name}</p>
-                                                    <p className="text-sm text-muted-foreground">{format(new Date(update.timestamp), "PPp")}</p>
-                                                    <Badge variant="outline" className={cn("mt-1.5", status.className)}>{status.icon} {status.text}</Badge>
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        </TooltipProvider>
-                                    )})}
                                 </div>
                                 <div className="lg:col-span-1 h-[500px] flex flex-col gap-3">
                                     <div className="relative">
@@ -233,3 +190,4 @@ export default function MapViewPage() {
     );
 
     
+}
