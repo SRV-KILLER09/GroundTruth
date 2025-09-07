@@ -22,6 +22,8 @@ export type DisasterUpdate = {
   mediaUrl?: string;
   history: string[];
   replies: DisasterUpdateReply[];
+  status: 'Verified' | 'Under Investigation';
+  authority: 'NDRF' | 'Local Police' | 'Fire Dept.' | 'Medical Team';
 };
 
 export const mockDisasterUpdates: DisasterUpdate[] = [
@@ -37,6 +39,8 @@ export const mockDisasterUpdates: DisasterUpdate[] = [
     replies: [
         { author: "Admin", message: "The problem has been reported to the concerned authorities and actions have been taken accordingly. Please stay clear of the area.", timestamp: "2025-07-23T14:15:00Z" }
     ],
+    status: 'Verified',
+    authority: 'Fire Dept.',
   },
   {
     id: 1,
@@ -50,6 +54,8 @@ export const mockDisasterUpdates: DisasterUpdate[] = [
     replies: [
       { author: "Admin", message: "We are aware of the situation. Emergency services have been dispatched. Please stay indoors and away from flooded areas.", timestamp: "2025-07-29T10:15:00Z" }
     ],
+    status: 'Verified',
+    authority: 'NDRF',
   },
   {
     id: 2,
@@ -63,6 +69,8 @@ export const mockDisasterUpdates: DisasterUpdate[] = [
     replies: [
       { author: "Admin", message: "Our seismology team has confirmed the magnitude. No major damages reported yet. Please report any structural concerns to the city helpline.", timestamp: "2025-07-29T09:45:00Z" }
     ],
+    status: 'Verified',
+    authority: 'NDRF',
   },
   {
     id: 6,
@@ -76,6 +84,8 @@ export const mockDisasterUpdates: DisasterUpdate[] = [
     replies: [
       { author: "Admin", message: "Road clearance crews are being dispatched. Please stay in a safe location away from the slide area. We will post updates as they come.", timestamp: "2025-07-28T22:15:00Z" }
     ],
+    status: 'Under Investigation',
+    authority: 'Local Police',
   },
   {
     id: 3,
@@ -89,6 +99,8 @@ export const mockDisasterUpdates: DisasterUpdate[] = [
     replies: [
         { author: "Admin", message: "Fire crews are on site. We advise residents in the vicinity to keep windows closed and avoid the area to allow emergency vehicles access.", timestamp: "2025-07-29T08:20:00Z" }
     ],
+    status: 'Verified',
+    authority: 'Fire Dept.',
   },
     {
     id: 4,
@@ -102,6 +114,8 @@ export const mockDisasterUpdates: DisasterUpdate[] = [
     replies: [
         { author: "Admin", message: "This is a severe weather event. Please follow all evacuation orders and tune into local news for the latest updates on shelters and safety measures.", timestamp: "2025-07-28T18:30:00Z" }
     ],
+    status: 'Verified',
+    authority: 'NDRF',
   },
   {
     id: 7,
@@ -115,6 +129,8 @@ export const mockDisasterUpdates: DisasterUpdate[] = [
     replies: [
         { author: "Admin", message: "Crews are working to restore power. Estimated time for restoration is 8 PM tonight. We apologize for the inconvenience.", timestamp: "2025-07-27T12:00:00Z" }
     ],
+    status: 'Under Investigation',
+    authority: 'Local Police',
   }
 ];
 
@@ -127,10 +143,10 @@ const sampleUsers = [
 ];
 
 const sampleDisasters = [
-    { type: 'Flood', location: { name: "Patna, BR", latitude: 25.5941, longitude: 85.1376 }, message: "River Ganges is overflowing its banks. Water has entered several residential areas." },
-    { type: 'Fire', location: { name: "Bangalore, KA", latitude: 12.9716, longitude: 77.5946 }, message: "A fire has broken out in a factory in the Peenya industrial area. Multiple fire tenders at the spot." },
-    { type: 'Earthquake', location: { name: "Guwahati, AS", latitude: 26.1445, longitude: 91.7362 }, message: "Tremors felt in the city. People are rushing out of their homes. No reports of damage yet." },
-    { type: 'Cyclone', location: { name: "Bhubaneswar, OD", latitude: 20.2961, longitude: 85.8245 }, message: "Cyclone alert issued for the coastal areas. Fishermen are advised not to venture into the sea." },
+    { type: 'Flood', location: { name: "Patna, BR", latitude: 25.5941, longitude: 85.1376 }, message: "River Ganges is overflowing its banks. Water has entered several residential areas.", authority: 'NDRF' as const },
+    { type: 'Fire', location: { name: "Bangalore, KA", latitude: 12.9716, longitude: 77.5946 }, message: "A fire has broken out in a factory in the Peenya industrial area. Multiple fire tenders at the spot.", authority: 'Fire Dept.' as const },
+    { type: 'Earthquake', location: { name: "Guwahati, AS", latitude: 26.1445, longitude: 91.7362 }, message: "Tremors felt in the city. People are rushing out of their homes. No reports of damage yet.", authority: 'NDRF' as const },
+    { type: 'Cyclone', location: { name: "Bhubaneswar, OD", latitude: 20.2961, longitude: 85.8245 }, message: "Cyclone alert issued for the coastal areas. Fishermen are advised not to venture into the sea.", authority: 'NDRF' as const },
 ];
 
 const sampleImages = [
@@ -155,5 +171,7 @@ export const createNewMockUpdate = (id: number): DisasterUpdate => {
         mediaUrl: randomImage,
         history: [randomDisaster.message],
         replies: [],
+        status: 'Under Investigation',
+        authority: randomDisaster.authority,
     };
 };

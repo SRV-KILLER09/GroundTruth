@@ -7,13 +7,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { mockDisasterUpdates, createNewMockUpdate } from "@/lib/mock-data";
-import { BarChart3, List, Flame, Droplets, Zap, Wind, AlertTriangle } from 'lucide-react';
+import { BarChart3, List, Flame, Droplets, Zap, Wind, AlertTriangle, User, Shield } from 'lucide-react';
 import { subDays, format, parseISO, differenceInDays, startOfDay } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import Image from 'next/image';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from '@/components/ui/badge';
 
 type TimeRange = '7d' | '30d' | '3m' | '6m';
 
@@ -185,9 +184,12 @@ export default function ReportsPage() {
                            <Table>
                                 <TableHeader>
                                     <TableRow>
-                                        <TableHead className="w-[120px]">Type</TableHead>
+                                        <TableHead>Type</TableHead>
                                         <TableHead>Location</TableHead>
                                         <TableHead>Message</TableHead>
+                                        <TableHead>Status</TableHead>
+                                        <TableHead>Reported By</TableHead>
+                                        <TableHead>Authority</TableHead>
                                         <TableHead className="text-right">Time</TableHead>
                                     </TableRow>
                                 </TableHeader>
@@ -200,8 +202,30 @@ export default function ReportsPage() {
                                                     {update.disasterType}
                                                 </div>
                                             </TableCell>
-                                            <TableCell>{update.location.name}</TableCell>
+                                            <TableCell>
+                                                <div className="font-medium">{update.location.name}</div>
+                                                <div className="text-xs text-muted-foreground">
+                                                    {update.location.latitude.toFixed(4)}, {update.location.longitude.toFixed(4)}
+                                                </div>
+                                            </TableCell>
                                             <TableCell className="max-w-xs truncate">{update.message}</TableCell>
+                                            <TableCell>
+                                                <Badge variant={update.status === 'Verified' ? 'default' : 'secondary'}>
+                                                    {update.status}
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell>
+                                                <div className="flex items-center gap-2">
+                                                    <User className="h-4 w-4 text-muted-foreground" />
+                                                    {update.user.name}
+                                                </div>
+                                            </TableCell>
+                                             <TableCell>
+                                                <div className="flex items-center gap-2">
+                                                    <Shield className="h-4 w-4 text-muted-foreground" />
+                                                    {update.authority}
+                                                </div>
+                                            </TableCell>
                                             <TableCell className="text-right text-muted-foreground">{format(parseISO(update.timestamp), "HH:mm:ss")}</TableCell>
                                         </TableRow>
                                     ))}
