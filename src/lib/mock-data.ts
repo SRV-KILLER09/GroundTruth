@@ -38,6 +38,26 @@ export type MockNewsItem = {
     categoryType: "alert" | "news" | "corporate";
 };
 
+export type Announcement = {
+  id: number;
+  message: string;
+  timestamp: string;
+};
+
+
+export const mockAnnouncements: Announcement[] = [
+  {
+    id: 1,
+    message: "Scheduled system maintenance on July 30th from 2:00 AM to 4:00 AM. The platform may be temporarily unavailable.",
+    timestamp: "2025-07-28T10:00:00Z",
+  },
+  {
+    id: 2,
+    message: "Our new AI-powered image verification system is now live. Reports with images will be analyzed for authenticity.",
+    timestamp: "2025-07-27T15:30:00Z",
+  }
+];
+
 
 export const mockDisasterUpdates: DisasterUpdate[] = [
     {
