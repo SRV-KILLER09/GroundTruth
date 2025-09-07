@@ -56,13 +56,19 @@ export type UserActivity = {
 
 
 export const mockUserActivity: UserActivity[] = [
-    { id: "u1", email: "priya@example.com", username: "Priya", location: "Mumbai, MH", creationTime: "2025-07-29T09:00:00Z", honorScore: 100, status: "Logged In" },
+    { id: "u1a", email: "priya@example.com", username: "Priya", location: "Mumbai, MH", creationTime: "2025-07-29T12:05:00Z", honorScore: 100, status: "Logged In" },
+    { id: "u7", email: "neha@example.com", username: "Neha", location: "Bengaluru, KA", creationTime: "2025-07-29T11:00:00Z", honorScore: 100, status: "Registered" },
+    { id: "u1b", email: "priya@example.com", username: "Priya", location: "Mumbai, MH", creationTime: "2025-07-29T09:00:00Z", honorScore: 100, status: "Registered" },
     { id: "u2", email: "rohan@example.com", username: "Rohan", location: "Chennai, TN", creationTime: "2025-07-29T08:30:00Z", honorScore: 99, status: "Logged In" },
     { id: "u3", email: "anjali@example.com", username: "Anjali", location: "Kolkata, WB", creationTime: "2025-07-29T07:00:00Z", honorScore: 100, status: "Logged In" },
-    { id: "u4", email: "vikram@example.com", username: "Vikram", location: "Goa", creationTime: "2025-07-28T17:00:00Z", honorScore: 98, status: "Logged In" },
     { id: "u5", email: "aisha@example.com", username: "Aisha", location: "Shimla, HP", creationTime: "2025-07-28T21:00:00Z", honorScore: 100, status: "Registered" },
-    { id: "u6", email: "sameer@example.com", username: "Sameer", location: "Jaipur, RJ", creationTime: "2025-07-27T10:45:00Z", honorScore: 100, status: "Logged In" },
-    { id: "u7", email: "neha@example.com", username: "Neha", location: "Bengaluru, KA", creationTime: "2025-07-29T11:00:00Z", honorScore: 100, status: "Registered" },
+    { id: "u4", email: "vikram@example.com", username: "Vikram", location: "Goa", creationTime: "2025-07-28T17:00:00Z", honorScore: 98, status: "Logged In" },
+    { id: "u6a", email: "sameer@example.com", username: "Sameer", location: "Jaipur, RJ", creationTime: "2025-07-28T14:15:00Z", honorScore: 100, status: "Logged In" },
+    { id: "u2b", email: "rohan@example.com", username: "Rohan", location: "Chennai, TN", creationTime: "2025-07-28T11:20:00Z", honorScore: 99, status: "Logged In" },
+    { id: "u6b", email: "sameer@example.com", username: "Sameer", location: "Jaipur, RJ", creationTime: "2025-07-27T10:45:00Z", honorScore: 100, status: "Registered" },
+    { id: "u3b", email: "anjali@example.com", username: "Anjali", location: "Kolkata, WB", creationTime: "2025-07-27T09:05:00Z", honorScore: 100, status: "Registered" },
+    { id: "u2c", email: "rohan@example.com", username: "Rohan", location: "Chennai, TN", creationTime: "2025-07-27T08:00:00Z", honorScore: 99, status: "Registered" },
+    { id: "u4b", email: "vikram@example.com", username: "Vikram", location: "Goa", creationTime: "2025-07-26T18:30:00Z", honorScore: 98, status: "Registered" },
 ];
 
 
