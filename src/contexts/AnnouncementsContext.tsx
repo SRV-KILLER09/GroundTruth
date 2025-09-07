@@ -13,6 +13,7 @@ export type Announcement = {
 interface AnnouncementsContextType {
   announcements: Announcement[];
   addAnnouncement: (message: string) => void;
+  deleteAnnouncement: (id: number) => void;
 }
 
 const AnnouncementsContext = createContext<AnnouncementsContextType | undefined>(undefined);
@@ -22,15 +23,19 @@ export function AnnouncementsProvider({ children }: { children: ReactNode }) {
 
   const addAnnouncement = (message: string) => {
     const newAnnouncement: Announcement = {
-      id: announcements.length + 1,
+      id: announcements.length > 0 ? Math.max(...announcements.map(a => a.id)) + 1 : 1,
       message,
       timestamp: new Date().toISOString(),
     };
     setAnnouncements(prev => [newAnnouncement, ...prev]);
   };
 
+  const deleteAnnouncement = (id: number) => {
+    setAnnouncements(prev => prev.filter(announcement => announcement.id !== id));
+  };
+
   return (
-    <AnnouncementsContext.Provider value={{ announcements, addAnnouncement }}>
+    <AnnouncementsContext.Provider value={{ announcements, addAnnouncement, deleteAnnouncement }}>
       {children}
     </AnnouncementsContext.Provider>
   );
