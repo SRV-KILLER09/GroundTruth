@@ -1,5 +1,6 @@
 import Header from "@/components/dashboard/Header";
 import Sidebar from "@/components/dashboard/Sidebar";
+import ThemeToggle from "@/components/dashboard/ThemeToggle";
 
 export default function DashboardLayout({
   children,
@@ -13,6 +14,7 @@ export default function DashboardLayout({
         <Header />
         <main className="flex-1 p-4 md:p-6">{children}</main>
       </div>
+      <ThemeToggle />
     </div>
   );
 }
