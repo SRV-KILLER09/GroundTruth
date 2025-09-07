@@ -19,37 +19,42 @@ interface Contacts {
     location: string;
 }
 
-// In a real app, this would come from a reverse geocoding API
-const getMockLocationName = (lat: number, lon: number): string => {
-    // This is a simplified mock lookup.
-    if (lat > 18 && lat < 20 && lon > 72 && lon < 74) return "Mumbai, MH";
-    if (lat > 28 && lat < 29 && lon > 76 && lon < 78) return "New Delhi, DL";
-    if (lat > 12 && lat < 14 && lon > 79 && lon < 81) return "Chennai, TN";
-    return "Your Current Location";
-}
+// In a real app, this data would be fetched from an API based on coordinates.
+// This function simulates that by generating more varied mock data.
+const getMockContacts = (lat: number, lon: number): Omit<Contacts, 'location'> => {
+    // Simple hashing of coordinates to get deterministic but varied results
+    const latInt = Math.floor(lat);
+    const lonInt = Math.floor(lon);
+    
+    // Pre-defined sets of mock data
+    const locations = [
+        { city: "Mumbai, MH", police: "Marine Drive Police", hospital: "Bombay Hospital", fire: "Fort Fire Station" },
+        { city: "New Delhi, DL", police: "Connaught Place Police", hospital: "Sir Ganga Ram Hospital", fire: "Connaught Circus Fire Stn" },
+        { city: "Chennai, TN", police: "Teynampet Police Station", hospital: "Apollo Hospital", fire: "Guindy Fire Station" },
+        { city: "Kolkata, WB", police: "Park Street Police", hospital: "AMRI Hospital", fire: "Tollygunge Fire Station" },
+        { city: "Bengaluru, KA", police: "Koramangala Police", hospital: "Fortis Hospital", fire: "Indiranagar Fire Station" },
+    ];
 
-// In a real app, this data would be fetched from an API based on coordinates
-const getMockContactsByLocation = (locationName: string): Omit<Contacts, 'location'> => {
-     switch (locationName) {
-        case "Mumbai, MH":
-            return {
-                police: { name: "Marine Drive Police Station", number: "(022) 2261-1934" },
-                hospital: { name: "Bombay Hospital", number: "(022) 2206-7676" },
-                fire: { name: "Fort Fire Station", number: "(022) 2261-1234" },
-            };
-        case "New Delhi, DL":
-            return {
-                police: { name: "Connaught Place Police", number: "(011) 2341-3518" },
-                hospital: { name: "Sir Ganga Ram Hospital", number: "(011) 2575-0000" },
-                fire: { name: "Connaught Circus Fire Stn", number: "(011) 2341-4444" },
-            };
-        default:
-            return {
-                police: { name: "Central Police Precinct", number: "(555) 123-4567" },
-                hospital: { name: "City General Hospital", number: "(555) 987-6543" },
-                fire: { name: "Downtown Fire Brigade", number: "(555) 112-2334" },
-            };
-    }
+    const determinedIndex = (latInt + lonInt) % locations.length;
+    const loc = locations[determinedIndex];
+
+    // Generate pseudo-random but consistent phone numbers based on coordinates
+    const randomSuffix = (num: number) => Math.floor(Math.abs(Math.sin(num) * 10000));
+    const policeNum = `(0${Math.floor(lat) % 10}${Math.floor(lon) % 10}) 2${randomSuffix(latInt)}-${randomSuffix(lonInt)}`;
+    const hospitalNum = `(0${Math.floor(lat) % 10}${Math.floor(lon) % 10}) 4${randomSuffix(lonInt)}-${randomSuffix(latInt)}`;
+    const fireNum = `(0${Math.floor(lat) % 10}${Math.floor(lon) % 10}) 101-${randomSuffix(lat + lon)}`;
+    
+    return {
+        police: { name: loc.police, number: policeNum },
+        hospital: { name: loc.hospital, number: hospitalNum },
+        fire: { name: loc.fire, number: fireNum },
+    };
+};
+
+const getMockLocationName = (lat: number, lon: number): string => {
+     const locations = ["Mumbai, MH", "New Delhi, DL", "Chennai, TN", "Kolkata, WB", "Bengaluru, KA", "Jaipur, RJ", "Pune, MH"];
+     const determinedIndex = (Math.floor(lat) + Math.floor(lon)) % locations.length;
+     return locations[determinedIndex];
 }
 
 
@@ -76,7 +81,7 @@ export function EmergencyContacts() {
                 // Simulate API call
                 setTimeout(() => {
                     const locationName = getMockLocationName(latitude, longitude);
-                    const fetchedContacts = getMockContactsByLocation(locationName);
+                    const fetchedContacts = getMockContacts(latitude, longitude);
 
                     setContacts({
                         ...fetchedContacts,
@@ -108,7 +113,7 @@ export function EmergencyContacts() {
                 {!contacts && (
                     <div className="text-center">
                         <p className="text-muted-foreground mb-4">
-                            Click the button to get emergency contact numbers for your current location.
+                            Click the button to get simulated emergency contacts for your current location.
                         </p>
                         <Button onClick={handleFetchContacts} disabled={isLoading}>
                             {isLoading ? (
