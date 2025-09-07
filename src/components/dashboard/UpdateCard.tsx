@@ -3,7 +3,7 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
 import type { DisasterUpdate, DisasterUpdateReply } from "@/lib/mock-data";
-import { Flame, Droplets, Zap, Wind, AlertTriangle, MessageSquare, ShieldCheck, Siren, CheckCircle, HelpCircle, XCircle, ThumbsUp, ThumbsDown, CornerDownRight, Flag } from 'lucide-react';
+import { Flame, Droplets, Zap, Wind, AlertTriangle, MessageSquare, ShieldCheck, Siren, CheckCircle, HelpCircle, XCircle, ThumbsUp, ThumbsDown, CornerDownRight, Flag, History, Clock } from 'lucide-react';
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
 import { Textarea } from "../ui/textarea";
@@ -14,6 +14,8 @@ import { Badge } from "../ui/badge";
 import { cn } from "@/lib/utils";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+
 
 interface UpdateCardProps {
   update: DisasterUpdate;
@@ -143,6 +145,23 @@ export function UpdateCard({ update, onReply }: UpdateCardProps) {
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
           </div>
+        )}
+        {update.history && update.history.length > 1 && (
+          <Collapsible className="mb-4">
+            <CollapsibleTrigger asChild>
+              <Button variant="link" size="sm" className="p-0 h-auto text-muted-foreground">
+                <History className="mr-2 h-4 w-4" />
+                View update history
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <div className="mt-2 space-y-2 text-sm text-muted-foreground border-l-2 border-primary/20 pl-4 ml-2">
+                {update.history.slice(1).map((item, index) => (
+                  <p key={index} className="italic">"{item}"</p>
+                ))}
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
         )}
         {update.replies.length > 0 && <Separator className="my-4" />}
         <div className="space-y-4">
