@@ -25,23 +25,23 @@ interface SafetyChecklist {
     evacuationRoute: string;
 }
 
-const areaPrefixes = ["North", "South", "East", "West", "Central", "Old", "New", "Lakeview", "Riverbend", "Hillside"];
-const areaSuffixes = ["Nagar", "Ganj", "Pura", "Colony", "Sector", "Vihar", "Park", "Township", "Circle", "Market"];
-const streetNames = ["Gandhi", "Nehru", "Patel", "Tagore", "Bose", "Vivekananda", "Shivaji", "Lajpat Rai"];
-const hospitalTypes = ["General Hospital", "Community Clinic", "Medical Center", "Sanjeevani Hospital", "Care Center"];
-const policeTypes = ["Police Station", "Chowki", "Police Post", "District Police"];
-const fireTypes = ["Fire Station", "Fire & Rescue", "Fire Brigade"];
+const areaPrefixes = ["North", "South", "East", "West", "Central", "Greenwood", "Riverdale", "Hillcrest", "Lakeview", "Sunrise"];
+const areaSuffixes = ["Nagar", "Ganj", "Pura", "Colony", "Sector", "Vihar", "Park", "Township", "Enclave", "Heights"];
+const streetNames = ["Gandhi Marg", "Nehru Road", "Patel Avenue", "Tagore Street", "Bose Lane", "Vivekananda Path", "Shivaji Crescent", "Lajpat Rai Square"];
+const hospitalTypes = ["Community Hospital", "City Medical Center", "Sanjeevani Clinic", "Lifeline Care", "General Hospital"];
+const policeTypes = ["Police Station", "District Chowki", "City Police Post", "Area Command"];
+const fireTypes = ["Fire Station", "Regional Fire & Rescue", "City Fire Brigade"];
 
 
 const generateDeterministicValue = (seed1: number, seed2: number, list: string[]) => {
-    const intSeed1 = Math.floor(Math.abs(seed1));
-    const intSeed2 = Math.floor(Math.abs(seed2));
+    const intSeed1 = Math.floor(Math.abs(seed1 * 1000));
+    const intSeed2 = Math.floor(Math.abs(seed2 * 1000));
     const index = (intSeed1 * 19 + intSeed2 * 31) % list.length;
     return list[index];
 };
 
 const getMockContacts = (lat: number, lon: number): Omit<Contacts, 'location'> => {
-    const areaName = `${generateDeterministicValue(lat, lon, areaPrefixes)} ${generateDeterministicValue(lon, lat, areaSuffixes)}`;
+    const sector = `Sector ${Math.floor(Math.abs(Math.sin(lat) * 100))}`;
     const streetName = generateDeterministicValue(lat, lon, streetNames);
 
     const randomSuffix = (num: number, offset: number) => Math.floor(Math.abs(Math.sin(num + offset) * 10000));
@@ -51,16 +51,16 @@ const getMockContacts = (lat: number, lon: number): Omit<Contacts, 'location'> =
     const fireNum = `(${cityCode}) 101-${randomSuffix(lat + lon, 5)}`;
     
     return {
-        police: { name: `${areaName} ${generateDeterministicValue(lon, lat, policeTypes)}`, number: policeNum },
+        police: { name: `${sector} ${generateDeterministicValue(lon, lat, policeTypes)}`, number: policeNum },
         hospital: { name: `${streetName} ${generateDeterministicValue(lat, lon, hospitalTypes)}`, number: hospitalNum },
-        fire: { name: `${areaName} ${generateDeterministicValue(lat, lon, fireTypes)}`, number: fireNum },
+        fire: { name: `${sector} ${generateDeterministicValue(lat, lon, fireTypes)}`, number: fireNum },
     };
 };
 
 const getMockLocationName = (lat: number, lon: number): string => {
+     const sector = `Sector ${Math.floor(Math.abs(Math.sin(lat) * 100))}`;
      const areaName = `${generateDeterministicValue(lat, lon, areaPrefixes)} ${generateDeterministicValue(lon, lat, areaSuffixes)}`;
-     const cityName = `${generateDeterministicValue(lon, lat, areaPrefixes)} City`;
-     return `${areaName}, ${cityName}`;
+     return `${sector}, ${areaName}`;
 }
 
 
