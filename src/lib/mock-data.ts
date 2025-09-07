@@ -97,7 +97,7 @@ export const mockDisasterUpdates: DisasterUpdate[] = [
     disasterType: 'Fire',
     location: { latitude: 28.6139, longitude: 77.2090, name: "New Delhi" },
     message: "GAIL pipeline near the river exploded after damage from the recent floods. Huge fire, authorities need to be alerted immediately!",
-    mediaUrl: "https://images.unsplash.com/photo-1603489297311-c794274574f2?q=80&w=600&h=400&auto=format&fit=crop",
+    mediaUrl: "https://picsum.photos/seed/fire1/600/400",
     history: ["Pipeline exploded an hour ago.", "Smoke is visible from miles away.", "The area has been evacuated."],
     replies: [
         { author: "Admin", message: "The problem has been reported to the concerned authorities and actions have been taken accordingly. Please stay clear of the area.", timestamp: "2025-07-23T14:15:00Z" }
@@ -112,7 +112,7 @@ export const mockDisasterUpdates: DisasterUpdate[] = [
     disasterType: 'Flood',
     location: { latitude: 19.0760, longitude: 72.8777, name: "Mumbai, MH" },
     message: "Major flooding in downtown Mumbai after monsoon rains. Streets are completely submerged.",
-    mediaUrl: "https://images.unsplash.com/photo-1582574049441-79172f6a73a2?q=80&w=600&h=400&auto=format&fit=crop",
+    mediaUrl: "https://picsum.photos/seed/flood1/600/400",
     history: ["Water levels rising rapidly near Marine Drive.", "Evacuation orders issued for low-lying areas.", "Power outages reported in several neighborhoods."],
     replies: [
       { author: "Admin", message: "We are aware of the situation. Emergency services have been dispatched. Please stay indoors and away from flooded areas.", timestamp: "2025-07-29T10:15:00Z" }
@@ -127,7 +127,7 @@ export const mockDisasterUpdates: DisasterUpdate[] = [
     disasterType: 'Earthquake',
     location: { latitude: 13.0827, longitude: 80.2707, name: "Chennai, TN" },
     message: "4.5 magnitude earthquake just hit. Light shaking felt across the city.",
-    mediaUrl: "https://images.unsplash.com/photo-1513483329936-8fa84a89667a?q=80&w=600&h=400&auto=format&fit=crop",
+    mediaUrl: "https://picsum.photos/seed/quake1/600/400",
     history: ["Minor cracks reported in some older buildings.", "No tsunami warning has been issued.", "Officials advise checking for structural damages."],
     replies: [
       { author: "Admin", message: "Our seismology team has confirmed the magnitude. No major damages reported yet. Please report any structural concerns to the city helpline.", timestamp: "2025-07-29T09:45:00Z" }
@@ -142,7 +142,7 @@ export const mockDisasterUpdates: DisasterUpdate[] = [
     disasterType: 'Tsunami',
     location: { latitude: 13.0827, longitude: 80.2707, name: "Chennai, TN" },
     message: "There is a Tsunami coming!! The waves are 100 feet high and will hit the shore in 5 minutes! Evacuate now!",
-    mediaUrl: "https://images.unsplash.com/photo-1582092723933-263a25b35c02?q=80&w=600&h=400&auto=format&fit=crop",
+    mediaUrl: "https://picsum.photos/seed/tsunami1/600/400",
     history: ["This is not a drill, I saw it on a news website."],
     replies: [
         { author: "Admin", message: "This report has been identified as false. There is NO tsunami warning in effect for Chennai. Please rely on official sources for information.", timestamp: "2025-07-25T11:10:00Z" }
@@ -157,7 +157,7 @@ export const mockDisasterUpdates: DisasterUpdate[] = [
     disasterType: 'Landslide',
     location: { latitude: 31.1048, longitude: 77.1734, name: "Shimla, HP" },
     message: "Landslide on the main highway has blocked the road to the city. We are stranded.",
-    mediaUrl: "https://images.unsplash.com/photo-1588618231225-7815b565a7b8?q=80&w=600&h=400&auto=format&fit=crop",
+    mediaUrl: "https://picsum.photos/seed/landslide1/600/400",
     history: ["The road is completely blocked with debris.", "No alternate routes are open.", "Heavy rains are continuing."],
     replies: [
       { author: "Admin", message: "Road clearance crews are being dispatched. Please stay in a safe location away from the slide area. We will post updates as they come.", timestamp: "2025-07-28T22:15:00Z" }
@@ -172,7 +172,7 @@ export const mockDisasterUpdates: DisasterUpdate[] = [
     disasterType: 'Fire',
     location: { latitude: 22.5726, longitude: 88.3639, name: "Kolkata, WB" },
     message: "Large fire at a warehouse near the port. Smoke is heavy in the region.",
-    mediaUrl: "https://images.unsplash.com/photo-1561331792-69102434e3a8?q=80&w=600&h=400&auto=format&fit=crop",
+    mediaUrl: "https://picsum.photos/seed/fire2/600/400",
     history: ["Air quality is poor. Stay indoors.", "Nearby roads are closed.", "Firefighters are on the scene working to control the blaze."],
     replies: [
         { author: "Admin", message: "Fire crews are on site. We advise residents in the vicinity to keep windows closed and avoid the area to allow emergency vehicles access.", timestamp: "2025-07-29T08:20:00Z" }
@@ -187,7 +187,7 @@ export const mockDisasterUpdates: DisasterUpdate[] = [
     disasterType: 'Hurricane',
     location: { latitude: 15.2993, longitude: 74.1240, name: "Goa" },
     message: "Cyclone making landfall. Strong winds and storm surge expected.",
-    mediaUrl: "https://images.unsplash.com/photo-1561075104-e34b992f4e41?q=80&w=600&h=400&auto=format&fit=crop",
+    mediaUrl: "https://picsum.photos/seed/hurricane1/600/400",
     history: ["Mandatory evacuations for coastal areas.", "Shelters are open at local schools and community centers.", "Expect widespread power outages."],
     replies: [
         { author: "Admin", message: "This is a severe weather event. Please follow all evacuation orders and tune into local news for the latest updates on shelters and safety measures.", timestamp: "2025-07-28T18:30:00Z" }
@@ -202,7 +202,7 @@ export const mockDisasterUpdates: DisasterUpdate[] = [
     disasterType: 'Power Outage',
     location: { latitude: 26.9124, longitude: 75.7873, name: "Jaipur, RJ" },
     message: "Power has been out for over 12 hours in our area after the dust storm. Any update on restoration?",
-    mediaUrl: "https://images.unsplash.com/photo-1580258956422-834c81d739b8?q=80&w=600&h=400&auto=format&fit=crop",
+    mediaUrl: "https://picsum.photos/seed/poweroutage1/600/400",
     history: ["The entire neighborhood is dark.", "Phones are running out of battery.", "No official communication from the power company yet."],
     replies: [
         { author: "Admin", message: "Crews are working to restore power. Estimated time for restoration is 8 PM tonight. We apologize for the inconvenience.", timestamp: "2025-07-27T12:00:00Z" }
@@ -286,10 +286,10 @@ const sampleDisasters = [
 ];
 
 const sampleImages = [
-    'https://images.unsplash.com/photo-1567611295982-84323360742f?q=80&w=600&h=400&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1549463207-3c973a6a188f?q=80&w=600&h=400&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1599408013233-a335f6311110?q=80&w=600&h=400&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1529429402839-a46f6b0b8e73?q=80&w=600&h=400&auto=format&fit=crop',
+    'https://picsum.photos/seed/disaster1/600/400',
+    'https://picsum.photos/seed/disaster2/600/400',
+    'https://picsum.photos/seed/disaster3/600/400',
+    'https://picsum.photos/seed/disaster4/600/400',
 ]
 
 export const createNewMockUpdate = (id: number): DisasterUpdate => {

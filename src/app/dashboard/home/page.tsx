@@ -9,7 +9,7 @@ export default function DashboardHomePage() {
   const developers = [
     { name: 'VARDAAN', imageUrl: 'https://picsum.photos/seed/VARDAAN/200' },
     { name: 'SIMRAN', imageUrl: 'https://picsum.photos/seed/SIMRAN/200' },
-    { name: 'ADITI', imageUrl: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=200&h=200&auto=format&fit=crop' },
+    { name: 'ADITI', imageUrl: 'https://picsum.photos/seed/ADITI/200' },
     { name: 'SHAMBHAVI', imageUrl: 'https://picsum.photos/seed/SHAMBHAVI/200' },
     { name: 'PULKIT', imageUrl: 'https://picsum.photos/seed/PULKIT/200' },
     { name: 'SARANSH', imageUrl: 'https://picsum.photos/seed/SARANSH/200' },
@@ -41,7 +41,7 @@ export default function DashboardHomePage() {
                 </Button>
             </div>
           <Image
-            src="https://images.unsplash.com/photo-1599052951433-5f334d83d932?q=80&w=800&auto=format&fit=crop"
+            src="https://picsum.photos/800/600"
             width={800}
             height={600}
             alt="Mission Image"

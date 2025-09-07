@@ -9,7 +9,7 @@ export default function LandingPage() {
   const developers = [
     { name: 'VARDAAN', imageUrl: 'https://picsum.photos/seed/VARDAAN/200' },
     { name: 'SIMRAN', imageUrl: 'https://picsum.photos/seed/SIMRAN/200' },
-    { name: 'ADITI', imageUrl: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=200&h=200&auto=format&fit=crop' },
+    { name: 'ADITI', imageUrl: 'https://picsum.photos/seed/ADITI/200' },
     { name: 'SHAMBHAVI', imageUrl: 'https://picsum.photos/seed/SHAMBHAVI/200' },
     { name: 'PULKIT', imageUrl: 'https://picsum.photos/seed/PULKIT/200' },
     { name: 'SARANSH', imageUrl: 'https://picsum.photos/seed/SARANSH/200' },
@@ -88,7 +88,7 @@ export default function LandingPage() {
         <section className="relative w-full py-24 md:py-32 lg:py-48 flex items-center justify-center text-center">
           <div className="absolute inset-0 bg-black/60 z-10" />
           <Image
-            src="https://images.unsplash.com/photo-1504711331442-262f6e3cde6f?q=80&w=1800&auto=format&fit=crop"
+            src="https://picsum.photos/1800/900?grayscale"
             alt="Hero Background"
             fill
             className="object-cover"
@@ -124,7 +124,7 @@ export default function LandingPage() {
               </div>
             </div>
             <Image
-              src="https://images.unsplash.com/photo-1599052951433-5f334d83d932?q=80&w=1800&auto=format&fit=crop"
+              src="https://picsum.photos/800/600"
               width={800}
               height={600}
               alt="Mission Image"
@@ -168,7 +168,7 @@ export default function LandingPage() {
               </ul>
             </div>
             <Image
-              src="https://images.unsplash.com/photo-1516466723877-e4ec1d736c8a?q=80&w=1800&auto=format&fit=crop"
+              src="https://picsum.photos/800/600?grayscale"
               width={800}
               height={600}
               alt="Feature Image"

@@ -126,7 +126,7 @@ export function SubmitUpdateForm({ onSubmit }: SubmitUpdateFormProps) {
     let imageUrl;
     if (isVideoSubmitted) {
         // Use a placeholder video/image for submitted videos
-        imageUrl = "https://images.unsplash.com/photo-1531613296-803527414663?q=80&w=600&h=400&auto=format&fit=crop";
+        imageUrl = "https://picsum.photos/600/400?blur";
     } else {
         try {
             toast({
