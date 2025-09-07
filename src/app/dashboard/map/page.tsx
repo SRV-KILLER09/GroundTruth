@@ -5,6 +5,7 @@ import { Map, Flame, Droplets, Zap, Wind, AlertTriangle } from "lucide-react";
 import { mockDisasterUpdates, DisasterUpdate } from "@/lib/mock-data";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 const disasterInfo: Record<string, { icon: React.ReactNode; color: string }> = {
     'Fire': { icon: <Flame className="h-5 w-5" />, color: "bg-red-500" },
@@ -50,10 +51,10 @@ export default function MapViewPage() {
                             <div>
                                 <CardTitle className="flex items-center">
                                     <Map className="mr-2 h-6 w-6 text-primary" />
-                                    Live Disaster Map
+                                    Geospatial Disaster Feed
                                 </CardTitle>
                                 <p className="text-muted-foreground text-sm mt-1">
-                                    Hover over beacons for more information on active events.
+                                    This map displays real-time disaster reports. Hover over beacons for precise location details.
                                 </p>
                             </div>
                              <div className="flex space-x-4">
@@ -67,14 +68,14 @@ export default function MapViewPage() {
                         </CardHeader>
                         <CardContent>
                              <TooltipProvider>
-                                <div className="relative w-full aspect-[2/1] bg-muted rounded-lg overflow-hidden border-2 border-primary/20">
-                                    {/* Map Background Pattern */}
-                                    <div 
-                                        className="absolute inset-0 bg-repeat" 
-                                        style={{
-                                            backgroundImage: 'radial-gradient(hsl(var(--border)) 1px, transparent 1px)',
-                                            backgroundSize: '20px 20px',
-                                        }}
+                                <div className="relative w-full aspect-[2/1] bg-black rounded-lg overflow-hidden border-2 border-primary/20">
+                                    {/* Map Background Image */}
+                                    <Image
+                                        src="https://images.unsplash.com/photo-1572422776384-1fdf502851d5?q=80&w=1800&auto=format&fit=crop"
+                                        alt="Satellite map background"
+                                        fill
+                                        className="object-cover opacity-60"
+                                        data-ai-hint="satellite map"
                                     />
 
                                     {/* Data Points */}
@@ -100,6 +101,9 @@ export default function MapViewPage() {
                                                         <div>
                                                             <p className="font-bold">{update.disasterType} in {update.location.name}</p>
                                                             <p className="text-sm text-muted-foreground truncate max-w-xs">{update.message}</p>
+                                                            <p className="text-xs text-muted-foreground/80 mt-1">
+                                                                Coords: {update.location.latitude.toFixed(4)}, {update.location.longitude.toFixed(4)}
+                                                            </p>
                                                         </div>
                                                     </div>
                                                 </TooltipContent>
