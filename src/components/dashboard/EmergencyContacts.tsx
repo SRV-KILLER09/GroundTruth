@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Phone, Siren, Flame, Hospital, Loader2, Bot, ListChecks, Route } from 'lucide-react';
+import { Phone, Siren, Flame, Hospital, Loader2, Bot, ListChecks, Route, MapPin } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { generateSafetyChecklist } from '@/ai/flows/generate-safety-checklist';
 
@@ -159,9 +159,10 @@ export function EmergencyContacts() {
                 {contacts && (
                     <div className="space-y-6">
                         <div>
-                            <p className="text-sm text-muted-foreground mb-4">
-                                <strong>{contacts.location}</strong>
-                            </p>
+                            <div className="flex items-center justify-center text-center text-sm text-muted-foreground mb-4 bg-muted p-3 rounded-lg">
+                                <MapPin className="h-5 w-5 mr-3 text-primary flex-shrink-0" />
+                                <span className="font-semibold">{contacts.location}</span>
+                            </div>
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
                                 <div className="bg-muted p-4 rounded-lg">
                                     <Siren className="h-8 w-8 text-blue-500 mx-auto mb-2" />
