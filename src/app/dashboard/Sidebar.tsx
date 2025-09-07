@@ -29,55 +29,54 @@ export default function Sidebar({ isMobile = false }: { isMobile?: boolean }) {
   ];
 
   const NavContent = () => (
-    <nav className={cn("flex flex-col items-stretch gap-4 px-2", isMobile ? "sm:py-5" : "py-5")}>
-      <Link
-        href="/dashboard/home"
-        className="group flex items-center gap-2 rounded-lg px-3 py-2 text-foreground"
-      >
-        <Mountain className="h-6 w-6 text-primary transition-all group-hover:scale-110" />
-        <div className="flex flex-col">
-            <span className="text-lg font-semibold md:text-base leading-tight">GroundTruth</span>
-            <span className="text-xs text-muted-foreground">by TitanicX</span>
-        </div>
-      </Link>
-      
-      {navLinks.map((link) => {
-        if (link.admin && !isAdmin) {
-          return null;
-        }
-        const isActive = pathname === link.href || (link.href === "/dashboard" && pathname.startsWith("/dashboard/profile"));
-        return (
-          <Link
-              key={link.href}
-              href={link.href}
-              className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2 transition-all",
-                  isActive 
-                      ? "bg-accent text-accent-foreground" 
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
-              )}
-          >
-              {link.icon}
-              <span>{link.label}</span>
-          </Link>
-        )
-      })}
-    </nav>
-  );
-
-  const ScrollableContent = () => (
-    <ScrollArea className="flex-1">
-        <NavContent />
-    </ScrollArea>
+    <>
+      <div className="flex items-center px-4 pt-5 pb-1">
+        <Link
+            href="/dashboard/home"
+            className="group flex items-center gap-2 rounded-lg text-foreground w-full"
+        >
+            <Mountain className="h-6 w-6 text-primary transition-all group-hover:scale-110" />
+            <div className="flex flex-col">
+                <span className="text-lg font-semibold md:text-base leading-tight">GroundTruth</span>
+                <span className="text-xs text-muted-foreground">by TitanicX</span>
+            </div>
+        </Link>
+      </div>
+      <ScrollArea className="flex-1">
+        <nav className={cn("flex flex-col items-stretch gap-4 px-2 py-4")}>
+        {navLinks.map((link) => {
+            if (link.admin && !isAdmin) {
+            return null;
+            }
+            const isActive = pathname === link.href || (link.href === "/dashboard" && pathname.startsWith("/dashboard/profile"));
+            return (
+            <Link
+                key={link.href}
+                href={link.href}
+                className={cn(
+                    "flex items-center gap-3 rounded-lg px-3 py-2 transition-all",
+                    isActive 
+                        ? "bg-accent text-accent-foreground" 
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                )}
+            >
+                {link.icon}
+                <span>{link.label}</span>
+            </Link>
+            )
+        })}
+        </nav>
+      </ScrollArea>
+    </>
   );
 
   if (isMobile) {
-    return <ScrollableContent />;
+    return <NavContent />;
   }
   
   return (
     <aside className="fixed inset-y-0 left-0 z-10 hidden w-60 flex-col border-r bg-background sm:flex">
-        <ScrollableContent />
+        <NavContent />
     </aside>
   );
 }
