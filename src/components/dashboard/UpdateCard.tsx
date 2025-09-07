@@ -46,8 +46,8 @@ export function UpdateCard({ update, onReply }: UpdateCardProps) {
   const [showComment, setShowComment] = useState(false);
   const [commentText, setCommentText] = useState("");
 
-  // Simple admin check for prototyping purposes
-  const isAdmin = user?.email === 'vardaansaxena096@gmail.com';
+  const adminEmails = ['vardaansaxena096@gmail.com', 'saranshwadhwa0102@gmail.com'];
+  const isAdmin = user?.email ? adminEmails.includes(user.email) : false;
 
   const handleReplySubmit = () => {
     if (replyText.trim() && isAdmin) {

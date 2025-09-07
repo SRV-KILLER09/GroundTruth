@@ -28,7 +28,8 @@ export default function AnnouncementsPage() {
   const { toast } = useToast();
   const [announcements, setAnnouncements] = useState<Announcement[]>(mockAnnouncements);
   const [newAnnouncement, setNewAnnouncement] = useState("");
-  const isAdmin = user?.email === 'vardaansaxena096@gmail.com';
+  const adminEmails = ['vardaansaxena096@gmail.com', 'saranshwadhwa0102@gmail.com'];
+  const isAdmin = user?.email ? adminEmails.includes(user.email) : false;
 
   const handlePostAnnouncement = () => {
     if (newAnnouncement.trim() && isAdmin) {

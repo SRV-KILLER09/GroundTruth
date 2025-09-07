@@ -29,7 +29,8 @@ export default function DashboardPage() {
   const { toast } = useToast();
   const [latestAnnouncement, setLatestAnnouncement] = useState(mockAnnouncements[0]);
   const [isAnnouncementVisible, setIsAnnouncementVisible] = useState(true);
-  const isAdmin = user?.email === 'vardaansaxena096@gmail.com';
+  const adminEmails = ['vardaansaxena096@gmail.com', 'saranshwadhwa0102@gmail.com'];
+  const isAdmin = user?.email ? adminEmails.includes(user.email) : false;
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {

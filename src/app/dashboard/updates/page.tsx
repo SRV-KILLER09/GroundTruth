@@ -16,7 +16,8 @@ import { Badge } from '@/components/ui/badge';
 export default function UpdatesPage() {
     const { user, isAuthenticated, loading } = useAuth();
     const router = useRouter();
-    const isAdmin = user?.email === 'vardaansaxena096@gmail.com';
+    const adminEmails = ['vardaansaxena096@gmail.com', 'saranshwadhwa0102@gmail.com'];
+    const isAdmin = user?.email ? adminEmails.includes(user.email) : false;
 
     React.useEffect(() => {
         if (!loading && (!isAuthenticated || !isAdmin)) {
