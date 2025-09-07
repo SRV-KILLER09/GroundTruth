@@ -4,7 +4,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-import { mockDisasterUpdates, DisasterUpdate, createNewMockUpdate, mockAnnouncements } from "@/lib/mock-data";
+import { mockDisasterUpdates, DisasterUpdate, createNewMockUpdate } from "@/lib/mock-data";
+import { useAnnouncements } from "@/contexts/AnnouncementsContext";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import type { DisasterUpdateReply } from "@/lib/mock-data";
 import { UpdatesFeed } from "@/components/dashboard/UpdatesFeed";
@@ -16,9 +17,10 @@ import { Button } from "@/components/ui/button";
 
 export default function DashboardPage() {
   const { isAuthenticated, loading } = useAuth();
+  const { announcements } = useAnnouncements();
   const router = useRouter();
   const [updates, setUpdates] = useState<DisasterUpdate[]>(mockDisasterUpdates);
-  const latestAnnouncement = mockAnnouncements.length > 0 ? mockAnnouncements[0] : null;
+  const latestAnnouncement = announcements.length > 0 ? announcements[0] : null;
   const [isAnnouncementVisible, setIsAnnouncementVisible] = useState(true);
   
   useEffect(() => {
@@ -72,7 +74,7 @@ export default function DashboardPage() {
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6">
        {latestAnnouncement && isAnnouncementVisible && (
-        <Alert className="relative">
+        <Alert className="relative pr-10">
           <Megaphone className="h-4 w-4" />
           <AlertTitle>Latest Announcement</AlertTitle>
           <AlertDescription>

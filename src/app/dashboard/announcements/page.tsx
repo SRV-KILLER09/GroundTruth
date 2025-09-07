@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { mockAnnouncements, type Announcement } from "@/lib/mock-data";
+import { useAnnouncements, type Announcement } from "@/contexts/AnnouncementsContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -25,19 +25,14 @@ const AnnouncementCard = ({ announcement }: { announcement: Announcement }) => {
 export default function AnnouncementsPage() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [announcements, setAnnouncements] = useState<Announcement[]>(mockAnnouncements);
+  const { announcements, addAnnouncement } = useAnnouncements();
   const [newAnnouncement, setNewAnnouncement] = useState("");
   const adminEmails = ['vardaansaxena096@gmail.com', 'saranshwadhwa0102@gmail.com'];
   const isAdmin = user?.email ? adminEmails.includes(user.email) : false;
 
   const handlePostAnnouncement = () => {
     if (newAnnouncement.trim() && isAdmin) {
-      const announcement: Announcement = {
-        id: announcements.length + 1,
-        message: newAnnouncement,
-        timestamp: new Date().toISOString(),
-      };
-      setAnnouncements([announcement, ...announcements]);
+      addAnnouncement(newAnnouncement);
       setNewAnnouncement("");
       toast({
         title: "Announcement Posted",
