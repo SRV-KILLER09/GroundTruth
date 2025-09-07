@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useForm } from "react-hook-form";
@@ -35,7 +36,7 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 interface SubmitUpdateFormProps {
-    onSubmit: (data: Omit<DisasterUpdate, 'id' | 'timestamp' | 'replies'>) => void;
+    onSubmit: (data: Omit<DisasterUpdate, 'id' | 'timestamp' | 'replies' | 'status' | 'authority'>) => void;
 }
 
 export function SubmitUpdateForm({ onSubmit }: SubmitUpdateFormProps) {
@@ -142,7 +143,7 @@ export function SubmitUpdateForm({ onSubmit }: SubmitUpdateFormProps) {
             name: user.displayName,
             avatarUrl: `https://picsum.photos/seed/${user.email}/40/40`
         },
-        disasterType: disasterType as any,
+        disasterType: disasterType,
         location: {
             name: values.locationName,
             latitude: values.latitude,

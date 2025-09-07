@@ -10,11 +10,18 @@ import { EmergencyContacts } from "@/components/dashboard/EmergencyContacts";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { StatusSection } from "@/components/dashboard/StatusSection";
 import type { DisasterUpdateReply } from "@/lib/mock-data";
+import { Button } from "@/components/ui/button";
+import { PlusCircle } from "lucide-react";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { SubmitUpdateForm } from "@/components/dashboard/SubmitUpdateForm";
+import { useToast } from "@/hooks/use-toast";
 
 export default function DashboardPage() {
   const { isAuthenticated, loading } = useAuth();
   const router = useRouter();
   const [updates, setUpdates] = useState<DisasterUpdate[]>(mockDisasterUpdates);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
@@ -48,6 +55,24 @@ export default function DashboardPage() {
       })
     );
   };
+  
+  const addUpdate = (newUpdateData: Omit<DisasterUpdate, 'id' | 'timestamp' | 'replies' | 'status' | 'authority'>) => {
+    const newUpdate: DisasterUpdate = {
+        ...newUpdateData,
+        id: updates.length + 1,
+        timestamp: new Date().toISOString(),
+        replies: [],
+        status: 'Under Investigation',
+        authority: 'Local Police', // Default authority
+    };
+    setUpdates(prevUpdates => [newUpdate, ...prevUpdates]);
+    setIsSheetOpen(false);
+    toast({
+        title: "Update Submitted",
+        description: "Thank you for contributing to community safety.",
+    });
+  }
+
 
   if (loading || !isAuthenticated) {
     return <LoadingSpinner />;
@@ -62,6 +87,27 @@ export default function DashboardPage() {
       <Header />
       <main className="flex-1 p-4 md:p-6">
         <div className="w-full max-w-4xl mx-auto space-y-8">
+            <div className="flex justify-between items-center">
+                <h1 className="text-3xl font-bold font-headline">Dashboard</h1>
+                <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+                    <SheetTrigger asChild>
+                        <Button>
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            New Update
+                        </Button>
+                    </SheetTrigger>
+                    <SheetContent className="w-full sm:max-w-lg">
+                        <SheetHeader>
+                            <SheetTitle>Submit a New Disaster Update</SheetTitle>
+                            <SheetDescription>
+                                Help your community by providing real-time information. Your report will include an AI-generated image.
+                            </SheetDescription>
+                        </SheetHeader>
+                        <SubmitUpdateForm onSubmit={addUpdate} />
+                    </SheetContent>
+                </Sheet>
+            </div>
+
             <EmergencyContacts />
             
             <StatusSection title="Verified Reports" status="Verified" updates={verifiedUpdates} onReply={addReply} />
