@@ -21,13 +21,22 @@ export default function DashboardPage() {
   const router = useRouter();
   const [updates, setUpdates] = useState<DisasterUpdate[]>(mockDisasterUpdates);
   const latestAnnouncement = announcements.length > 0 ? announcements[0] : null;
-  const [isAnnouncementVisible, setIsAnnouncementVisible] = useState(true);
+  const [isAnnouncementVisible, setIsAnnouncementVisible] = useState(false);
   
   useEffect(() => {
     if (!loading && !isAuthenticated) {
       router.push("/login");
     }
   }, [isAuthenticated, loading, router]);
+
+  useEffect(() => {
+    if (latestAnnouncement) {
+      const dismissedAnnouncements = JSON.parse(localStorage.getItem('dismissedAnnouncements') || '[]');
+      if (!dismissedAnnouncements.includes(latestAnnouncement.id)) {
+        setIsAnnouncementVisible(true);
+      }
+    }
+  }, [latestAnnouncement]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -66,6 +75,14 @@ export default function DashboardPage() {
       currentUpdates.filter(update => update.id !== updateId)
     );
   };
+
+  const handleDismissAnnouncement = () => {
+    if (latestAnnouncement) {
+        const dismissedAnnouncements = JSON.parse(localStorage.getItem('dismissedAnnouncements') || '[]');
+        localStorage.setItem('dismissedAnnouncements', JSON.stringify([...dismissedAnnouncements, latestAnnouncement.id]));
+        setIsAnnouncementVisible(false);
+    }
+  }
   
   if (loading || !isAuthenticated) {
     return <LoadingSpinner />;
@@ -87,7 +104,7 @@ export default function DashboardPage() {
             variant="ghost" 
             size="icon" 
             className="absolute top-2 right-2 h-6 w-6"
-            onClick={() => setIsAnnouncementVisible(false)}
+            onClick={handleDismissAnnouncement}
           >
             <X className="h-4 w-4" />
             <span className="sr-only">Close announcement</span>
