@@ -1,8 +1,8 @@
+
 "use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Mountain, Home, Map, LifeBuoy, BarChart3, Shield, Rss } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -19,50 +19,34 @@ export default function Sidebar({ isMobile = false }: { isMobile?: boolean }) {
   const pathname = usePathname();
 
   const NavContent = () => (
-    <nav className={cn("flex flex-col items-center gap-4 px-2", isMobile ? "sm:py-5" : "py-5")}>
+    <nav className={cn("flex flex-col items-stretch gap-4 px-2", isMobile ? "sm:py-5" : "py-5")}>
       <Link
         href="/dashboard"
-        className="group flex h-9 w-9 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:h-8 md:w-8 md:text-base"
+        className={cn(
+          "group flex shrink-0 items-center justify-center gap-2 rounded-full text-lg font-semibold text-primary-foreground md:text-base",
+          isMobile ? "h-12 w-full bg-primary" : "h-9 w-9 bg-primary self-center"
+        )}
       >
         <Mountain className="h-4 w-4 transition-all group-hover:scale-110" />
-        <span className="sr-only">TitanicX</span>
+        <span className={cn(isMobile ? "" : "sr-only")}>TitanicX</span>
       </Link>
       
       {navLinks.map((link) => {
         const isActive = pathname === link.href;
-        if (isMobile) {
-            return (
-                <Link
-                    key={link.href}
-                    href={link.href}
-                    className={cn(
-                        "flex items-center gap-4 px-2.5",
-                        isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"
-                    )}
-                >
-                    {link.icon}
-                    {link.label}
-                </Link>
-            )
-        }
         return (
-          <TooltipProvider key={link.href}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link
-                  href={link.href}
-                  className={cn(
-                    "flex h-9 w-9 items-center justify-center rounded-lg transition-colors md:h-8 md:w-8",
-                    isActive ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  {link.icon}
-                  <span className="sr-only">{link.label}</span>
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent side="right">{link.label}</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <Link
+              key={link.href}
+              href={link.href}
+              className={cn(
+                  "flex items-center gap-3 rounded-lg px-3 py-2 transition-all",
+                  isActive 
+                      ? "bg-accent text-accent-foreground" 
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
+              )}
+          >
+              {link.icon}
+              <span>{link.label}</span>
+          </Link>
         )
       })}
     </nav>
@@ -73,7 +57,7 @@ export default function Sidebar({ isMobile = false }: { isMobile?: boolean }) {
   }
   
   return (
-    <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">
+    <aside className="fixed inset-y-0 left-0 z-10 hidden w-60 flex-col border-r bg-background sm:flex">
         <NavContent />
     </aside>
   );
