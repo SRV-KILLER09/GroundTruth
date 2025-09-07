@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
@@ -41,7 +42,7 @@ export function UpdateCard({ update, onReply }: UpdateCardProps) {
   const [commentText, setCommentText] = useState("");
 
   // Simple admin check for prototyping purposes
-  const isAdmin = user?.email === 'admin@resqtech.com';
+  const isAdmin = user?.email === 'vardaansaxena096@gmail.com';
 
   const handleReplySubmit = () => {
     if (replyText.trim() && isAdmin) {
