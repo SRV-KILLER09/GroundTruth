@@ -11,10 +11,11 @@ import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { StatusSection } from "@/components/dashboard/StatusSection";
 import type { DisasterUpdateReply } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, AlertTriangle, TrendingUp } from "lucide-react";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { SubmitUpdateForm } from "@/components/dashboard/SubmitUpdateForm";
 import { useToast } from "@/hooks/use-toast";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function DashboardPage() {
   const { isAuthenticated, loading } = useAuth();
@@ -107,6 +108,27 @@ export default function DashboardPage() {
                     </SheetContent>
                 </Sheet>
             </div>
+
+            <Card className="bg-muted/50">
+              <CardHeader>
+                <CardTitle className="flex items-center text-xl">
+                  <AlertTriangle className="mr-3 h-6 w-6 text-primary" />
+                  Real-Time Alert Escalation System
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <ul className="list-disc pl-5 space-y-2 text-muted-foreground">
+                  <li>Auto-trigger alerts to local authorities when multiple similar reports are received in the same area.</li>
+                  <li>Priority levels: info, caution, critical.</li>
+                </ul>
+                <div className="flex items-center text-sm text-foreground/80 pt-2">
+                  <TrendingUp className="mr-2 h-4 w-4 text-green-500" />
+                  <p>
+                    <span className="font-semibold">Adds actionability to your dashboard</span> — turning insight into real-time response.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
 
             <EmergencyContacts />
             
