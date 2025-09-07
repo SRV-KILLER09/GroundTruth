@@ -29,7 +29,7 @@ export function StatusSection({ title, status, updates, onReply }: StatusSection
 
   return (
     <section>
-        <Collapsible defaultOpen={status !== 'Fake'}>
+        <Collapsible defaultOpen={true}>
             <CollapsibleTrigger className="w-full">
                 <div className="flex items-center gap-3 w-full border-b pb-2 mb-4">
                     <span className={color}>{icon}</span>
