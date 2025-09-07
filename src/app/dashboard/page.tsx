@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { mockDisasterUpdates, DisasterUpdate, createNewMockUpdate } from "@/lib/mock-data";
-import { useAnnouncements } from "@/contexts/AnnouncementsContext";
+import { useNotifications } from "@/contexts/NotificationsContext";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import type { DisasterUpdateReply } from "@/lib/mock-data";
 import { UpdatesFeed } from "@/components/dashboard/UpdatesFeed";
@@ -17,11 +17,11 @@ import { Button } from "@/components/ui/button";
 
 export default function DashboardPage() {
   const { isAuthenticated, loading } = useAuth();
-  const { announcements } = useAnnouncements();
+  const { notifications } = useNotifications();
   const router = useRouter();
   const [updates, setUpdates] = useState<DisasterUpdate[]>(mockDisasterUpdates);
-  const latestAnnouncement = announcements.length > 0 ? announcements[0] : null;
-  const [isAnnouncementVisible, setIsAnnouncementVisible] = useState(false);
+  const latestNotification = notifications.length > 0 ? notifications[0] : null;
+  const [isNotificationVisible, setIsNotificationVisible] = useState(false);
   
   useEffect(() => {
     if (!loading && !isAuthenticated) {
@@ -30,13 +30,13 @@ export default function DashboardPage() {
   }, [isAuthenticated, loading, router]);
 
   useEffect(() => {
-    if (latestAnnouncement) {
-      const dismissedAnnouncements = JSON.parse(localStorage.getItem('dismissedAnnouncements') || '[]');
-      if (!dismissedAnnouncements.includes(latestAnnouncement.id)) {
-        setIsAnnouncementVisible(true);
+    if (latestNotification) {
+      const dismissedNotifications = JSON.parse(localStorage.getItem('dismissedNotifications') || '[]');
+      if (!dismissedNotifications.includes(latestNotification.id)) {
+        setIsNotificationVisible(true);
       }
     }
-  }, [latestAnnouncement]);
+  }, [latestNotification]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -76,11 +76,11 @@ export default function DashboardPage() {
     );
   };
 
-  const handleDismissAnnouncement = () => {
-    if (latestAnnouncement) {
-        const dismissedAnnouncements = JSON.parse(localStorage.getItem('dismissedAnnouncements') || '[]');
-        localStorage.setItem('dismissedAnnouncements', JSON.stringify([...dismissedAnnouncements, latestAnnouncement.id]));
-        setIsAnnouncementVisible(false);
+  const handleDismissNotification = () => {
+    if (latestNotification) {
+        const dismissedNotifications = JSON.parse(localStorage.getItem('dismissedNotifications') || '[]');
+        localStorage.setItem('dismissedNotifications', JSON.stringify([...dismissedNotifications, latestNotification.id]));
+        setIsNotificationVisible(false);
     }
   }
   
@@ -90,12 +90,12 @@ export default function DashboardPage() {
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6">
-       {latestAnnouncement && isAnnouncementVisible && (
+       {latestNotification && isNotificationVisible && (
         <Alert className="relative pr-10">
           <Bell className="h-4 w-4" />
           <AlertTitle>Latest Notification</AlertTitle>
           <AlertDescription>
-            {latestAnnouncement.message}
+            {latestNotification.message}
             <Link href="/dashboard/notifications" className="ml-2 font-semibold underline text-primary">
               View all
             </Link>
@@ -104,7 +104,7 @@ export default function DashboardPage() {
             variant="ghost" 
             size="icon" 
             className="absolute top-2 right-2 h-6 w-6"
-            onClick={handleDismissAnnouncement}
+            onClick={handleDismissNotification}
           >
             <X className="h-4 w-4" />
             <span className="sr-only">Close notification</span>
