@@ -3,14 +3,15 @@
 
 import Header from "@/components/dashboard/Header";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Map, Flame, Droplets, Zap, Wind, AlertTriangle, Search, CheckCircle, HelpCircle, XCircle } from "lucide-react";
-import { mockDisasterUpdates, DisasterStatus } from "@/lib/mock-data";
+import { Map, Flame, Droplets, Zap, Wind, AlertTriangle, Search, CheckCircle, HelpCircle, XCircle, Clock, User, Shield, MapPin } from "lucide-react";
+import { mockDisasterUpdates, DisasterStatus, DisasterUpdate } from "@/lib/mock-data";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import React, { useState, useMemo } from 'react';
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
+import Image from "next/image";
 
 const disasterInfo: Record<string, { icon: React.ReactNode; color: string; class: string }> = {
     'Fire': { icon: <Flame className="h-5 w-5" />, color: "#ef4444", class: "bg-red-500" },
@@ -42,9 +43,51 @@ const getMapBounds = (updates: typeof mockDisasterUpdates) => {
     };
 };
 
+const IncidentDetailCard = ({ update }: { update: DisasterUpdate }) => {
+    const status = statusConfig[update.status];
+    const info = disasterInfo[update.disasterType] || disasterInfo['Default'];
+
+    return (
+        <Card className="bg-muted/50 border-primary/20">
+            <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-3">
+                    <div className={cn("h-10 w-10 rounded-full flex-shrink-0 flex items-center justify-center text-primary-foreground", info.class)}>
+                        {info.icon}
+                    </div>
+                    <span>{update.disasterType} in {update.location.name}</span>
+                </CardTitle>
+                <CardDescription>
+                    <Badge variant="outline" className={status.className}>{status.icon} {status.text}</Badge>
+                </CardDescription>
+            </CardHeader>
+            <CardContent>
+                {update.mediaUrl && (
+                    <div className="relative aspect-video w-full overflow-hidden rounded-lg mb-4 border">
+                        <Image 
+                            src={update.mediaUrl} 
+                            alt={`Update from ${update.user.name}`} 
+                            fill 
+                            className="object-cover" 
+                            data-ai-hint={`${update.disasterType} disaster`}
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        />
+                    </div>
+                )}
+                 <p className="mb-4 text-foreground/90">{update.message}</p>
+                 <ul className="space-y-2 text-sm text-muted-foreground">
+                    <li className="flex items-center"><Clock className="h-4 w-4 mr-2 text-primary"/> {format(new Date(update.timestamp), "PPp")}</li>
+                    <li className="flex items-center"><User className="h-4 w-4 mr-2 text-primary"/> Reported by {update.user.name}</li>
+                    <li className="flex items-center"><Shield className="h-4 w-4 mr-2 text-primary"/> Authority: {update.authority}</li>
+                    <li className="flex items-center"><MapPin className="h-4 w-4 mr-2 text-primary"/> Coords: {update.location.latitude.toFixed(4)}, {update.location.longitude.toFixed(4)}</li>
+                </ul>
+            </CardContent>
+        </Card>
+    )
+}
+
 export default function MapViewPage() {
     const [searchTerm, setSearchTerm] = useState("");
-    const [selectedUpdate, setSelectedUpdate] = useState(mockDisasterUpdates[0]);
+    const [selectedUpdate, setSelectedUpdate] = useState<DisasterUpdate | null>(mockDisasterUpdates[0]);
 
     const filteredUpdates = useMemo(() => {
         return mockDisasterUpdates.filter(update =>
@@ -57,7 +100,7 @@ export default function MapViewPage() {
 
     const mapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${mapBounds.minLng},${mapBounds.minLat},${mapBounds.maxLng},${mapBounds.maxLat}&layer=mapnik`;
     
-    const handleSelectUpdate = (update: typeof mockDisasterUpdates[0]) => {
+    const handleSelectUpdate = (update: DisasterUpdate) => {
       setSelectedUpdate(update);
     }
 
@@ -73,7 +116,7 @@ export default function MapViewPage() {
                                 Interactive Geospatial Feed
                             </CardTitle>
                             <CardDescription>
-                                An interactive map displaying disaster reports. Click a report to view its location or search for an incident.
+                                An interactive map displaying disaster reports. Select a report to view details.
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
@@ -84,6 +127,7 @@ export default function MapViewPage() {
                                         height="100%"
                                         src={mapUrl}
                                         className="border-0"
+                                        title="Interactive Map of Disaster Reports"
                                     ></iframe>
                                     {/* Markers for all updates */}
                                     {filteredUpdates.map(update => {
@@ -122,8 +166,8 @@ export default function MapViewPage() {
                                         </TooltipProvider>
                                     )})}
                                 </div>
-                                <div className="lg:col-span-1">
-                                    <div className="relative mb-3">
+                                <div className="lg:col-span-1 h-[500px] flex flex-col gap-3">
+                                    <div className="relative">
                                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                                         <Input
                                             type="text"
@@ -133,11 +177,10 @@ export default function MapViewPage() {
                                             className="pl-10 w-full"
                                         />
                                     </div>
-                                    <h3 className="text-lg font-semibold mb-3">Report List ({filteredUpdates.length})</h3>
-                                    <div className="space-y-2 h-[450px] overflow-y-auto pr-2">
+                                    <div className="flex-1 space-y-2 overflow-y-auto pr-2">
+                                        <h3 className="text-lg font-semibold sticky top-0 bg-background/80 backdrop-blur-sm py-2">Reports ({filteredUpdates.length})</h3>
                                         {filteredUpdates.map((update) => {
                                             const info = disasterInfo[update.disasterType] || disasterInfo['Default'];
-                                            const status = statusConfig[update.status];
                                             return (
                                                 <button
                                                     key={update.id}
@@ -147,16 +190,13 @@ export default function MapViewPage() {
                                                         selectedUpdate && selectedUpdate.id === update.id ? "bg-primary/10 border-primary" : "bg-muted/50 hover:bg-muted"
                                                     )}
                                                 >
-                                                    <div className="flex items-start gap-3">
+                                                    <div className="flex items-center gap-3">
                                                         <div className={cn("h-8 w-8 rounded-full flex-shrink-0 flex items-center justify-center text-primary-foreground", info.class)}>
                                                             {info.icon}
                                                         </div>
                                                         <div className="flex-1">
-                                                            <div className="flex justify-between items-center">
-                                                                <p className="font-semibold">{update.disasterType} - {update.location.name}</p>
-                                                                 <Badge variant="outline" className={status.className}>{status.icon} <span className="hidden sm:inline-block">{status.text}</span></Badge>
-                                                            </div>
-                                                            <p className="text-sm text-muted-foreground">{format(new Date(update.timestamp), "MMM d, yyyy HH:mm")}</p>
+                                                            <p className="font-semibold truncate">{update.disasterType} - {update.location.name}</p>
+                                                            <p className="text-sm text-muted-foreground">{format(new Date(update.timestamp), "MMM d, HH:mm")}</p>
                                                         </div>
                                                     </div>
                                                 </button>
@@ -170,6 +210,12 @@ export default function MapViewPage() {
                                     </div>
                                 </div>
                             </div>
+                            {selectedUpdate && (
+                                <div className="mt-6">
+                                    <h2 className="text-2xl font-bold font-headline mb-4">Incident Details</h2>
+                                    <IncidentDetailCard update={selectedUpdate} />
+                                </div>
+                            )}
                         </CardContent>
                     </Card>
                 </div>
@@ -177,3 +223,4 @@ export default function MapViewPage() {
         </div>
     );
 }
+
