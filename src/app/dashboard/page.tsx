@@ -8,12 +8,16 @@ import { mockDisasterUpdates, DisasterUpdate, createNewMockUpdate, mockAnnouncem
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import type { DisasterUpdateReply } from "@/lib/mock-data";
 import { UpdatesFeed } from "@/components/dashboard/UpdatesFeed";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Megaphone } from "lucide-react";
+import Link from "next/link";
 
 
 export default function DashboardPage() {
   const { isAuthenticated, loading } = useAuth();
   const router = useRouter();
   const [updates, setUpdates] = useState<DisasterUpdate[]>(mockDisasterUpdates);
+  const latestAnnouncement = mockAnnouncements.length > 0 ? mockAnnouncements[0] : null;
   
   useEffect(() => {
     if (!loading && !isAuthenticated) {
@@ -64,7 +68,19 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
+    <div className="w-full max-w-4xl mx-auto space-y-6">
+       {latestAnnouncement && (
+        <Alert>
+          <Megaphone className="h-4 w-4" />
+          <AlertTitle>Latest Announcement</AlertTitle>
+          <AlertDescription>
+            {latestAnnouncement.message}
+            <Link href="/dashboard/announcements" className="ml-2 font-semibold underline text-primary">
+              View all
+            </Link>
+          </AlertDescription>
+        </Alert>
+      )}
       <UpdatesFeed allUpdates={updates} setUpdates={setUpdates} onReply={addReply} onDelete={deleteUpdate} />
     </div>
   );
