@@ -22,7 +22,7 @@ export type DisasterUpdate = {
   mediaUrl?: string;
   history: string[];
   replies: DisasterUpdateReply[];
-  status: 'Verified' | 'Under Investigation';
+  status: 'Verified' | 'Under Investigation' | 'Fake';
   authority: 'NDRF' | 'Local Police' | 'Fire Dept.' | 'Medical Team';
 };
 
@@ -71,6 +71,21 @@ export const mockDisasterUpdates: DisasterUpdate[] = [
     ],
     status: 'Verified',
     authority: 'NDRF',
+  },
+  {
+    id: 8,
+    user: { name: "ConcernedCitizen", avatarUrl: "https://picsum.photos/id/512/40/40" },
+    timestamp: "2025-07-25T11:00:00Z",
+    disasterType: 'Tsunami',
+    location: { latitude: 13.0827, longitude: 80.2707, name: "Chennai, TN" },
+    message: "There is a Tsunami coming!! The waves are 100 feet high and will hit the shore in 5 minutes! Evacuate now!",
+    mediaUrl: "https://images.unsplash.com/photo-1582092723933-263a25b35c02?q=80&w=600&h=400&auto=format&fit=crop",
+    history: ["This is not a drill, I saw it on a news website."],
+    replies: [
+        { author: "Admin", message: "This report has been identified as false. There is NO tsunami warning in effect for Chennai. Please rely on official sources for information.", timestamp: "2025-07-25T11:10:00Z" }
+    ],
+    status: 'Fake',
+    authority: 'Local Police',
   },
   {
     id: 6,

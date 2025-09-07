@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Flame, Droplets, Zap, Wind, AlertTriangle, MapPin, Loader2, Search } from 'lucide-react';
+import { PlusCircle, Flame, Droplets, Zap, Wind, AlertTriangle, MapPin, Loader2, Search, CheckCircle, HelpCircle, XCircle } from 'lucide-react';
 import { UpdateCard } from './UpdateCard';
 import type { DisasterUpdate, DisasterUpdateReply } from '@/lib/mock-data';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -11,6 +11,7 @@ import { SubmitUpdateForm } from './SubmitUpdateForm';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 interface UpdatesFeedProps {
     allUpdates: DisasterUpdate[];
@@ -22,6 +23,15 @@ interface UpdatesFeedProps {
 const disasterTypes = ['All', 'Flood', 'Earthquake', 'Fire', 'Hurricane'] as const;
 type DisasterType = typeof disasterTypes[number];
 type SortOrder = 'recent' | 'closest';
+type StatusFilter = 'All' | 'Verified' | 'Under Investigation' | 'Fake';
+
+
+const statusConfig: Record<StatusFilter, { icon: React.ReactNode, className: string }> = {
+    'All': { icon: null, className: ''},
+    'Verified': { icon: <CheckCircle className="mr-2 h-4 w-4" />, className: "hover:bg-green-500/10 hover:text-green-500 border-green-500/20 text-green-500 [&[data-active=true]]:bg-green-500/10" },
+    'Under Investigation': { icon: <HelpCircle className="mr-2 h-4 w-4" />, className: "hover:bg-yellow-500/10 hover:text-yellow-500 border-yellow-500/20 text-yellow-500 [&[data-active=true]]:bg-yellow-500/10" },
+    'Fake': { icon: <XCircle className="mr-2 h-4 w-4" />, className: "hover:bg-red-500/10 hover:text-red-500 border-red-500/20 text-red-500 [&[data-active=true]]:bg-red-500/10" }
+}
 
 // Haversine formula to calculate distance between two lat/lng points
 const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
@@ -37,7 +47,8 @@ const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => 
 };
 
 export function UpdatesFeed({ allUpdates, filteredUpdates, setFilteredUpdates, setUpdates }: UpdatesFeedProps) {
-    const [activeFilter, setActiveFilter] = React.useState<DisasterType>('All');
+    const [activeDisasterType, setActiveDisasterType] = React.useState<DisasterType>('All');
+    const [activeStatusFilter, setActiveStatusFilter] = React.useState<StatusFilter>('All');
     const [isSheetOpen, setIsSheetOpen] = React.useState(false);
     const [sortOrder, setSortOrder] = React.useState<SortOrder>('recent');
     const [userLocation, setUserLocation] = React.useState<{latitude: number, longitude: number} | null>(null);
@@ -108,8 +119,13 @@ export function UpdatesFeed({ allUpdates, filteredUpdates, setFilteredUpdates, s
         let updatesToFilter = [...sortedUpdates];
         
         // Filter by disaster type
-        if (activeFilter !== 'All') {
-            updatesToFilter = updatesToFilter.filter(u => u.disasterType === activeFilter);
+        if (activeDisasterType !== 'All') {
+            updatesToFilter = updatesToFilter.filter(u => u.disasterType === activeDisasterType);
+        }
+
+        // Filter by status
+        if (activeStatusFilter !== 'All') {
+            updatesToFilter = updatesToFilter.filter(u => u.status === activeStatusFilter);
         }
 
         // Filter by city search
@@ -120,23 +136,24 @@ export function UpdatesFeed({ allUpdates, filteredUpdates, setFilteredUpdates, s
         }
 
         setFilteredUpdates(updatesToFilter);
-    }, [sortedUpdates, activeFilter, citySearch, setFilteredUpdates]);
+    }, [sortedUpdates, activeDisasterType, activeStatusFilter, citySearch, setFilteredUpdates]);
     
     React.useEffect(() => {
         applyFilters();
-    }, [allUpdates, sortedUpdates, activeFilter, citySearch, applyFilters]);
+    }, [allUpdates, sortedUpdates, activeDisasterType, activeStatusFilter, citySearch, applyFilters]);
 
-    const addUpdate = (newUpdate: Omit<DisasterUpdate, 'id' | 'timestamp' | 'replies'>) => {
+    const addUpdate = (newUpdate: Omit<DisasterUpdate, 'id' | 'timestamp' | 'replies' | 'status'>) => {
         const updateToAdd: DisasterUpdate = {
             ...newUpdate,
             id: allUpdates.length + 1,
             timestamp: new Date().toISOString(),
             replies: [],
+            status: 'Under Investigation',
         };
         const newUpdates = [updateToAdd, ...allUpdates];
         setUpdates(newUpdates);
         setSortOrder('recent'); // Reset sort to show new update first
-        setActiveFilter('All');
+        setActiveDisasterType('All');
         setCitySearch('');
         setIsSheetOpen(false);
         toast({
@@ -209,13 +226,38 @@ export function UpdatesFeed({ allUpdates, filteredUpdates, setFilteredUpdates, s
                     </Sheet>
                 </div>
             </div>
+            
+            <div className="flex flex-col sm:flex-row gap-4 mb-4">
+                <div className="flex space-x-2 p-1 bg-muted rounded-lg">
+                    {(Object.keys(statusConfig) as StatusFilter[]).map(status => (
+                        status !== 'All' && 
+                        <Button 
+                            key={status}
+                            variant={activeStatusFilter === status ? 'secondary' : 'ghost'}
+                            data-active={activeStatusFilter === status}
+                            onClick={() => setActiveStatusFilter(status)}
+                            className={cn("flex-1 justify-center", statusConfig[status].className)}
+                        >
+                            {statusConfig[status].icon}
+                            {status.replace(/([A-Z])/g, ' $1').trim()}
+                        </Button>
+                    ))}
+                </div>
+                 <Button 
+                    variant={activeStatusFilter === 'All' ? 'secondary' : 'ghost'}
+                    onClick={() => setActiveStatusFilter('All')}
+                >
+                    Show All
+                </Button>
+            </div>
+
             <div className="flex flex-col sm:flex-row gap-2 mb-4">
                 <div className="flex space-x-2 overflow-x-auto pb-2 sm:pb-0">
                     {allFilterTypes.map(type => (
                         <Button 
                             key={type}
-                            variant={activeFilter === type ? 'default' : 'outline'}
-                            onClick={() => setActiveFilter(type as DisasterType)}
+                            variant={activeDisasterType === type ? 'default' : 'outline'}
+                            onClick={() => setActiveDisasterType(type as DisasterType)}
                             className="capitalize shrink-0"
                         >
                             {
