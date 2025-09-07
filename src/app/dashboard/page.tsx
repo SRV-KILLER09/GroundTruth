@@ -10,7 +10,7 @@ import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import type { DisasterUpdateReply } from "@/lib/mock-data";
 import { UpdatesFeed } from "@/components/dashboard/UpdatesFeed";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Megaphone, X } from "lucide-react";
+import { Bell, X } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
@@ -92,11 +92,11 @@ export default function DashboardPage() {
     <div className="w-full max-w-4xl mx-auto space-y-6">
        {latestAnnouncement && isAnnouncementVisible && (
         <Alert className="relative pr-10">
-          <Megaphone className="h-4 w-4" />
-          <AlertTitle>Latest Announcement</AlertTitle>
+          <Bell className="h-4 w-4" />
+          <AlertTitle>Latest Notification</AlertTitle>
           <AlertDescription>
             {latestAnnouncement.message}
-            <Link href="/dashboard/announcements" className="ml-2 font-semibold underline text-primary">
+            <Link href="/dashboard/notifications" className="ml-2 font-semibold underline text-primary">
               View all
             </Link>
           </AlertDescription>
@@ -107,7 +107,7 @@ export default function DashboardPage() {
             onClick={handleDismissAnnouncement}
           >
             <X className="h-4 w-4" />
-            <span className="sr-only">Close announcement</span>
+            <span className="sr-only">Close notification</span>
           </Button>
         </Alert>
       )}

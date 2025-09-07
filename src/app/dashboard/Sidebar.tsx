@@ -3,22 +3,28 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Mountain, Home, Map, LifeBuoy, BarChart3, Shield, Rss, Tv, MessageSquare } from "lucide-react";
+import { Mountain, Home, Map, LifeBuoy, BarChart3, Shield, Rss, Tv, MessageSquare, Info, Users, Bell } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const navLinks = [
-    { href: "/dashboard/home", label: "Home", icon: <Home className="h-5 w-5" /> },
-    { href: "/dashboard", label: "Live Feed", icon: <Tv className="h-5 w-5" /> },
-    { href: "/dashboard/map", label: "Map View", icon: <Map className="h-5 w-5" /> },
-    { href: "/dashboard/reports", label: "Reports", icon: <BarChart3 className="h-5 w-5" /> },
-    { href: "/dashboard/news", label: "News", icon: <Rss className="h-5 w-5" /> },
-    { href: "/dashboard/directory", label: "Directory", icon: <Shield className="h-5 w-5" /> },
-    { href: "/dashboard/chat", label: "Community Chat", icon: <MessageSquare className="h-5 w-5" /> },
-    { href: "/dashboard/resources", label: "Safety Resources", icon: <LifeBuoy className="h-5 w-5" /> },
-];
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Sidebar({ isMobile = false }: { isMobile?: boolean }) {
   const pathname = usePathname();
+  const { user } = useAuth();
+  const adminEmails = ['vardaansaxena096@gmail.com', 'saranshwadhwa0102@gmail.com'];
+  const isAdmin = user?.email ? adminEmails.includes(user.email) : false;
+
+  const navLinks = [
+    { href: "/dashboard", label: "Live Feed", icon: <Tv className="h-5 w-5" />, admin: false },
+    { href: "/dashboard/map", label: "Map View", icon: <Map className="h-5 w-5" />, admin: false },
+    { href: "/dashboard/reports", label: "Reports", icon: <BarChart3 className="h-5 w-5" />, admin: false },
+    { href: "/dashboard/notifications", label: "Notifications", icon: <Bell className="h-5 w-5" />, admin: false },
+    { href: "/dashboard/news", label: "News", icon: <Rss className="h-5 w-5" />, admin: false },
+    { href: "/dashboard/directory", label: "Directory", icon: <Shield className="h-5 w-5" />, admin: false },
+    { href: "/dashboard/chat", label: "Community Chat", icon: <MessageSquare className="h-5 w-5" />, admin: false },
+    { href: "/dashboard/updates", label: "User Activity", icon: <Users className="h-5 w-5" />, admin: true },
+    { href: "/dashboard/resources", label: "Safety Resources", icon: <LifeBuoy className="h-5 w-5" />, admin: false },
+    { href: "/dashboard/home", label: "About Us", icon: <Info className="h-5 w-5" />, admin: false },
+  ];
 
   const NavContent = () => (
     <nav className={cn("flex flex-col items-stretch gap-4 px-2", isMobile ? "sm:py-5" : "py-5")}>
@@ -34,6 +40,9 @@ export default function Sidebar({ isMobile = false }: { isMobile?: boolean }) {
       </Link>
       
       {navLinks.map((link) => {
+        if (link.admin && !isAdmin) {
+          return null;
+        }
         const isActive = pathname === link.href || (link.href === "/dashboard" && pathname.startsWith("/dashboard/profile"));
         return (
           <Link

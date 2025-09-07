@@ -8,12 +8,12 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Megaphone, PlusCircle, Send, Trash2 } from "lucide-react";
+import { Bell, PlusCircle, Send, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 
-export default function AnnouncementsPage() {
+export default function NotificationsPage() {
   const { user } = useAuth();
   const { toast } = useToast();
   const { announcements, addAnnouncement, deleteAnnouncement } = useAnnouncements();
@@ -26,8 +26,8 @@ export default function AnnouncementsPage() {
       addAnnouncement(newAnnouncement);
       setNewAnnouncement("");
       toast({
-        title: "Announcement Posted",
-        description: "Your announcement is now live for all users.",
+        title: "Notification Posted",
+        description: "Your notification is now live for all users.",
       });
     }
   };
@@ -35,8 +35,8 @@ export default function AnnouncementsPage() {
   const handleDeleteAnnouncement = (id: number) => {
     deleteAnnouncement(id);
     toast({
-        title: "Announcement Deleted",
-        description: "The announcement has been successfully removed.",
+        title: "Notification Deleted",
+        description: "The notification has been successfully removed.",
     });
   }
 
@@ -54,14 +54,14 @@ export default function AnnouncementsPage() {
                 <AlertDialogTrigger asChild>
                     <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive flex-shrink-0">
                         <Trash2 className="h-4 w-4" />
-                        <span className="sr-only">Delete Announcement</span>
+                        <span className="sr-only">Delete Notification</span>
                     </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                     <AlertDialogHeader>
                         <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            This action cannot be undone. This will permanently delete the announcement.
+                            This action cannot be undone. This will permanently delete the notification.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -82,8 +82,8 @@ export default function AnnouncementsPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center">
-            <Megaphone className="mr-2 h-6 w-6 text-primary" />
-            Announcements
+            <Bell className="mr-2 h-6 w-6 text-primary" />
+            Notifications
           </CardTitle>
           <CardDescription>
             Official communications and alerts from the administrative team.
@@ -94,17 +94,17 @@ export default function AnnouncementsPage() {
             <div className="space-y-4 p-4 border rounded-lg bg-card">
                <h3 className="font-semibold text-lg flex items-center">
                    <PlusCircle className="mr-2 h-5 w-5" />
-                   Make a New Announcement
+                   Post a New Notification
                 </h3>
               <Textarea
-                placeholder="Type your announcement here..."
+                placeholder="Type your notification here..."
                 value={newAnnouncement}
                 onChange={(e) => setNewAnnouncement(e.target.value)}
                 rows={4}
               />
               <Button onClick={handlePostAnnouncement} disabled={!newAnnouncement.trim()}>
                 <Send className="mr-2 h-4 w-4" />
-                Post Announcement
+                Post Notification
               </Button>
             </div>
           )}
@@ -114,7 +114,7 @@ export default function AnnouncementsPage() {
             ))}
              {announcements.length === 0 && (
                 <div className="text-center p-8 text-muted-foreground">
-                    <p>No announcements yet.</p>
+                    <p>No notifications yet.</p>
                 </div>
              )}
           </div>

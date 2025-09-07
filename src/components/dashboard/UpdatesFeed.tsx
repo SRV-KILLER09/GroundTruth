@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Flame, Droplets, Zap, Wind, AlertTriangle, MapPin, Loader2, Search, CheckCircle, HelpCircle, XCircle, Megaphone, Users } from 'lucide-react';
+import { PlusCircle, Flame, Droplets, Zap, Wind, AlertTriangle, MapPin, Loader2, Search, CheckCircle, HelpCircle, XCircle, Bell, Users } from 'lucide-react';
 import { UpdateCard } from './UpdateCard';
 import type { DisasterUpdate, DisasterUpdateReply, DisasterStatus } from '@/lib/mock-data';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -190,9 +190,9 @@ export function UpdatesFeed({ allUpdates, setUpdates, onReply, onDelete }: Updat
                     {isAdmin && (
                         <>
                             <Button asChild variant="outline">
-                                <Link href="/dashboard/announcements">
-                                    <Megaphone className="mr-2 h-4 w-4" />
-                                    Announcements
+                                <Link href="/dashboard/notifications">
+                                    <Bell className="mr-2 h-4 w-4" />
+                                    Notifications
                                 </Link>
                             </Button>
                             <Button asChild variant="outline">
