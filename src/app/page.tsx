@@ -26,13 +26,10 @@ export default function LandingPage() {
             <span className="text-xs text-red-200/80">by TitanicX</span>
           </div>
         </Link>
-        <nav className="ml-auto hidden lg:flex gap-4 sm:gap-6">
-          <Link
-            href="#about"
-            className="text-sm font-medium hover:underline underline-offset-4 text-red-200"
-          >
-            About Us
-          </Link>
+        <nav className="ml-auto hidden lg:flex gap-4 sm:gap-6 items-center">
+           <Button asChild variant="ghost" className="text-red-200 hover:bg-red-900/50 hover:text-red-100">
+                <Link href="#about">About Us</Link>
+            </Button>
           <Button asChild variant="outline" className="border-red-400 text-red-300 hover:bg-red-400 hover:text-black">
             <Link href="/login">Login</Link>
           </Button>
