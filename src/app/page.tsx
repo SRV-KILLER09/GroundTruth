@@ -19,9 +19,12 @@ export default function LandingPage() {
     <div className="bg-black text-red-400 min-h-screen flex flex-col font-headline">
       {/* Header */}
       <header className="sticky top-0 z-50 px-4 lg:px-6 h-14 flex items-center bg-black/80 backdrop-blur-sm border-b border-red-900">
-        <Link href="#" className="flex items-center justify-center">
+        <Link href="#" className="flex items-center justify-center gap-2">
           <Mountain className="h-6 w-6 text-red-400" />
-          <span className="sr-only">TitanicX</span>
+          <div className="flex flex-col">
+            <span className="text-lg font-semibold leading-tight text-white">GroundTruth</span>
+            <span className="text-xs text-red-200/80">by TitanicX</span>
+          </div>
         </Link>
         <nav className="ml-auto hidden lg:flex gap-4 sm:gap-6">
           <Link
@@ -29,24 +32,6 @@ export default function LandingPage() {
             className="text-sm font-medium hover:underline underline-offset-4 text-red-200"
           >
             About Us
-          </Link>
-          <Link
-            href="#features"
-            className="text-sm font-medium hover:underline underline-offset-4 text-red-200"
-          >
-            Features
-          </Link>
-          <Link
-            href="#developers"
-            className="text-sm font-medium hover:underline underline-offset-4 text-red-200"
-          >
-            Developers
-          </Link>
-          <Link
-            href="#contact"
-            className="text-sm font-medium hover:underline underline-offset-4 text-red-200"
-          >
-            Contact
           </Link>
           <Button asChild variant="outline" className="border-red-400 text-red-300 hover:bg-red-400 hover:text-black">
             <Link href="/login">Login</Link>
@@ -64,15 +49,6 @@ export default function LandingPage() {
               <nav className="grid gap-6 text-lg font-medium mt-10">
                 <Link href="#about" className="hover:underline underline-offset-4">
                   About Us
-                </Link>
-                <Link href="#features" className="hover:underline underline-offset-4">
-                  Features
-                </Link>
-                <Link href="#developers" className="hover:underline underline-offset-4">
-                  Developers
-                </Link>
-                <Link href="#contact" className="hover:underline underline-offset-4">
-                  Contact
                 </Link>
                 <Button asChild variant="outline" className="border-red-400 text-red-300 hover:bg-red-400 hover:text-black mt-4">
                   <Link href="/login">Login</Link>
