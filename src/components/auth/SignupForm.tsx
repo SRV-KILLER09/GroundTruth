@@ -56,7 +56,7 @@ export function SignupForm() {
     <Card className="w-full max-w-sm bg-card/80 backdrop-blur-sm border-white/20 shadow-2xl shadow-primary/20">
       <CardHeader className="text-center">
         <div className="flex justify-center items-center mb-4 gap-3">
-            <Image src="https://picsum.photos/seed/logo/40/40" alt="GroundTruth Logo" width={40} height={40} className="rounded-full" data-ai-hint="logo"/>
+            <Image src="https://picsum.photos/seed/logo/40/40" alt="GroundTruth™ Logo" width={40} height={40} className="rounded-full" data-ai-hint="logo"/>
             <h1 className="text-4xl font-headline">TitanicX</h1>
         </div>
         <CardTitle className="text-3xl font-headline font-bold">Create an Account</CardTitle>
