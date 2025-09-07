@@ -4,13 +4,18 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Phone, Siren, Flame, Ambulance, Loader2 } from 'lucide-react';
+import { Phone, Siren, Flame, Hospital, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
+interface Contact {
+    name: string;
+    number: string;
+}
+
 interface Contacts {
-    police: string;
-    ambulance: string;
-    fire: string;
+    police: Contact;
+    hospital: Contact;
+    fire: Contact;
     location: string;
 }
 
@@ -38,9 +43,9 @@ export function EmergencyContacts() {
                 // use mock data and a timeout to simulate an API call.
                 setTimeout(() => {
                     setContacts({
-                        police: "100",
-                        ambulance: "102",
-                        fire: "101",
+                        police: { name: "City Police Dept.", number: "100" },
+                        hospital: { name: "General Hospital", number: "102" },
+                        fire: { name: "Central Fire Station", number: "101" },
                         location: `Near you (${position.coords.latitude.toFixed(2)}, ${position.coords.longitude.toFixed(2)})`
                     });
                     setIsLoading(false);
@@ -89,18 +94,18 @@ export function EmergencyContacts() {
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
                             <div className="bg-muted p-4 rounded-lg">
                                 <Siren className="h-8 w-8 text-blue-500 mx-auto mb-2" />
-                                <h3 className="font-semibold">Police</h3>
-                                <p className="text-lg font-bold text-primary">{contacts.police}</p>
+                                <h3 className="font-semibold">{contacts.police.name}</h3>
+                                <p className="text-lg font-bold text-primary">{contacts.police.number}</p>
                             </div>
                              <div className="bg-muted p-4 rounded-lg">
-                                <Ambulance className="h-8 w-8 text-green-500 mx-auto mb-2" />
-                                <h3 className="font-semibold">Ambulance</h3>
-                                <p className="text-lg font-bold text-primary">{contacts.ambulance}</p>
+                                <Hospital className="h-8 w-8 text-green-500 mx-auto mb-2" />
+                                <h3 className="font-semibold">{contacts.hospital.name}</h3>
+                                <p className="text-lg font-bold text-primary">{contacts.hospital.number}</p>
                             </div>
                             <div className="bg-muted p-4 rounded-lg">
                                 <Flame className="h-8 w-8 text-orange-500 mx-auto mb-2" />
-                                <h3 className="font-semibold">Fire Brigade</h3>
-                                <p className="text-lg font-bold text-primary">{contacts.fire}</p>
+                                <h3 className="font-semibold">{contacts.fire.name}</h3>
+                                <p className="text-lg font-bold text-primary">{contacts.fire.number}</p>
                             </div>
                         </div>
                          <Button variant="outline" size="sm" onClick={handleFetchContacts} disabled={isLoading} className="mt-4 mx-auto flex">
