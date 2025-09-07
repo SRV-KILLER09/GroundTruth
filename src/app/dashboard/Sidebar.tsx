@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Mountain, Home, Map, LifeBuoy, BarChart3, Shield, Rss, Tv } from "lucide-react";
+import { Mountain, Home, Map, LifeBuoy, BarChart3, Shield, Rss, Tv, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
@@ -13,6 +13,7 @@ const navLinks = [
     { href: "/dashboard/reports", label: "Reports", icon: <BarChart3 className="h-5 w-5" /> },
     { href: "/dashboard/news", label: "News", icon: <Rss className="h-5 w-5" /> },
     { href: "/dashboard/directory", label: "Directory", icon: <Shield className="h-5 w-5" /> },
+    { href: "/dashboard/chat", label: "Community Chat", icon: <MessageSquare className="h-5 w-5" /> },
     { href: "/dashboard/resources", label: "Safety Resources", icon: <LifeBuoy className="h-5 w-5" /> },
 ];
 
