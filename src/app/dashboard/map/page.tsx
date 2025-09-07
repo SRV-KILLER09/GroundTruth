@@ -98,7 +98,9 @@ export default function MapViewPage() {
 
     const mapBounds = useMemo(() => getMapBounds(mockDisasterUpdates), []);
 
-    const mapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${mapBounds.minLng},${mapBounds.minLat},${mapBounds.maxLng},${mapBounds.maxLat}&layer=mapnik`;
+    // Add a small buffer to the bounds to prevent markers from being on the very edge
+    const buffer = 0.5;
+    const mapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${mapBounds.minLng - buffer},${mapBounds.minLat - buffer},${mapBounds.maxLng + buffer},${mapBounds.maxLat + buffer}&layer=mapnik`;
     
     const handleSelectUpdate = (update: DisasterUpdate) => {
       setSelectedUpdate(update);
@@ -134,6 +136,13 @@ export default function MapViewPage() {
                                         const info = disasterInfo[update.disasterType] || disasterInfo['Default'];
                                         const status = statusConfig[update.status];
                                         const isSelected = selectedUpdate && update.id === selectedUpdate.id;
+                                        
+                                        const latRange = (mapBounds.maxLat + buffer) - (mapBounds.minLat - buffer);
+                                        const lonRange = (mapBounds.maxLng + buffer) - (mapBounds.minLng - buffer);
+
+                                        const leftPercent = ((update.location.longitude - (mapBounds.minLng - buffer)) / lonRange) * 100;
+                                        const topPercent = 100 - (((update.location.latitude - (mapBounds.minLat - buffer)) / latRange) * 100);
+
                                         return (
                                         <TooltipProvider key={update.id}>
                                             <Tooltip>
@@ -141,8 +150,8 @@ export default function MapViewPage() {
                                                     <div
                                                         className="absolute cursor-pointer"
                                                         style={{
-                                                            left: `${((update.location.longitude - mapBounds.minLng) / (mapBounds.maxLng - mapBounds.minLng)) * 100}%`,
-                                                            top: `${100 - ((update.location.latitude - mapBounds.minLat) / (mapBounds.maxLat - mapBounds.minLat)) * 100}%`,
+                                                            left: `${leftPercent}%`,
+                                                            top: `${topPercent}%`,
                                                             transform: 'translate(-50%, -50%)',
                                                             zIndex: isSelected ? 10 : 1,
                                                         }}
@@ -222,5 +231,5 @@ export default function MapViewPage() {
             </main>
         </div>
     );
-}
 
+    
