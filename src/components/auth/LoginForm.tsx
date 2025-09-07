@@ -1,5 +1,7 @@
+
 "use client";
 
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,6 +19,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import { Mountain } from "lucide-react";
+import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
@@ -25,6 +28,7 @@ const formSchema = z.object({
 
 export function LoginForm() {
   const { login } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -34,7 +38,15 @@ export function LoginForm() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsSubmitting(true);
+    // Wait for 1 second to show the spinner
+    await new Promise(resolve => setTimeout(resolve, 1000));
     await login(values.email, values.password);
+    // No need to set isSubmitting back to false as the user will be redirected
+  }
+
+  if (isSubmitting) {
+    return <LoadingSpinner />;
   }
 
   return (

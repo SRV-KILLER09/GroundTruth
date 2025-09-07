@@ -1,5 +1,7 @@
+
 "use client";
 
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,6 +19,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import { Mountain } from "lucide-react";
+import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
 const formSchema = z.object({
   username: z.string().min(2, { message: "Username must be at least 2 characters." }),
@@ -26,6 +29,8 @@ const formSchema = z.object({
 
 export function SignupForm() {
   const { signup } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -36,7 +41,14 @@ export function SignupForm() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsSubmitting(true);
+    await new Promise(resolve => setTimeout(resolve, 1000));
     await signup(values.email, values.password, values.username);
+    // No need to set isSubmitting back to false as the user will be redirected
+  }
+
+  if (isSubmitting) {
+    return <LoadingSpinner />;
   }
 
   return (
