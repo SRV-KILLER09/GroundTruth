@@ -93,13 +93,20 @@ export default function MapViewPage() {
             update.disasterType.toLowerCase().includes(searchTerm.toLowerCase())
         );
     }, [searchTerm]);
-
-    const mapBounds = useMemo(() => getMapBounds(mockDisasterUpdates), []);
-
-    // Add a small buffer to the bounds to prevent markers from being on the very edge
-    const buffer = 0.5;
-    const mapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${mapBounds.minLng - buffer},${mapBounds.minLat - buffer},${mapBounds.maxLng + buffer},${mapBounds.maxLat + buffer}&layer=mapnik`;
     
+    const mapBounds = useMemo(() => getMapBounds(filteredUpdates), [filteredUpdates]);
+
+    const mapUrl = useMemo(() => {
+        const { minLat, maxLat, minLng, maxLng } = mapBounds;
+        const markers = filteredUpdates
+          .map(update => `marker=${update.location.latitude},${update.location.longitude}`)
+          .join('&');
+        
+        const buffer = 0.5;
+        // The bbox parameter is what sets the initial view of the map.
+        return `https://www.openstreetmap.org/export/embed.html?bbox=${minLng - buffer},${minLat - buffer},${maxLng + buffer},${maxLat + buffer}&layer=mapnik&${markers}`;
+    }, [filteredUpdates, mapBounds]);
+
     const handleSelectUpdate = (update: DisasterUpdate) => {
       setSelectedUpdate(update);
     }
