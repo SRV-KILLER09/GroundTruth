@@ -9,7 +9,7 @@ export default function LandingPage() {
   const developers = [
     { name: 'VARDAAN', imageUrl: 'https://picsum.photos/seed/VARDAAN/200' },
     { name: 'SIMRAN', imageUrl: 'https://picsum.photos/seed/SIMRAN/200' },
-    { name: 'ADITI', imageUrl: 'https://images.unsplash.com/photo-1541595532321-014a600d8d73?q=80&w=200&h=200&auto=format&fit=crop&crop=faces&facepad=4' },
+    { name: 'ADITI', imageUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=200&h=200&auto=format&fit=crop&crop=faces' },
     { name: 'SHAMBHAVI', imageUrl: 'https://picsum.photos/seed/SHAMBHAVI/200' },
     { name: 'PULKIT', imageUrl: 'https://picsum.photos/seed/PULKIT/200' },
     { name: 'SARANSH', imageUrl: 'https://picsum.photos/seed/SARANSH/200' },
@@ -114,6 +114,14 @@ export default function LandingPage() {
         {/* Our Mission Section */}
         <section id="about" className="w-full py-12 md:py-24 lg:py-32 bg-gray-900/50">
           <div className="container grid items-center gap-6 px-4 md:px-6 lg:grid-cols-2 lg:gap-12">
+            <Image
+              src="https://images.unsplash.com/photo-1618494720182-563a01594d40?q=80&w=1800&auto=format&fit=crop"
+              width={800}
+              height={600}
+              alt="Mission Image"
+              className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center sm:w-full"
+              data-ai-hint="disaster response team"
+            />
             <div className="flex flex-col justify-center space-y-4 text-center lg:text-left">
               <div className="space-y-2">
                 <div className="inline-block rounded-lg bg-red-900 px-3 py-1 text-sm text-red-100">Our Mission</div>
@@ -123,14 +131,6 @@ export default function LandingPage() {
                 </p>
               </div>
             </div>
-            <Image
-              src="https://images.unsplash.com/photo-1618494720182-563a01594d40?q=80&w=1800&auto=format&fit=crop"
-              width={800}
-              height={600}
-              alt="Mission Image"
-              className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center sm:w-full"
-              data-ai-hint="disaster response team"
-            />
           </div>
         </section>
 
