@@ -22,7 +22,7 @@ export default function LandingPage() {
         <Link href="#" className="flex items-center justify-center gap-2">
           <Mountain className="h-6 w-6 text-red-400" />
           <div className="flex flex-col">
-            <span className="text-lg font-semibold leading-tight text-white">GroundTruth</span>
+            <span className="text-lg font-semibold leading-tight text-white">GroundTruth™</span>
             <span className="text-xs text-red-200/80">by TitanicX</span>
           </div>
         </Link>
