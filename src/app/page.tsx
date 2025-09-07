@@ -114,7 +114,7 @@ export default function LandingPage() {
         {/* Our Mission Section */}
         <section id="about" className="w-full py-12 md:py-24 lg:py-32 bg-gray-900/50">
           <div className="container grid items-center gap-6 px-4 md:px-6 lg:grid-cols-2 lg:gap-12">
-            <div className="order-last lg:order-first flex flex-col justify-center space-y-4 text-center lg:text-left">
+            <div className="flex flex-col justify-center space-y-4 text-center lg:text-left">
               <div className="space-y-2">
                 <div className="inline-block rounded-lg bg-red-900 px-3 py-1 text-sm text-red-100">Our Mission</div>
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-white drop-shadow-lg [text-shadow:_0_2px_4px_rgb(0_0_0_/_50%)]">Strength in Unity</h2>
