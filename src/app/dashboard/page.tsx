@@ -9,8 +9,9 @@ import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import type { DisasterUpdateReply } from "@/lib/mock-data";
 import { UpdatesFeed } from "@/components/dashboard/UpdatesFeed";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Megaphone } from "lucide-react";
+import { Megaphone, X } from "lucide-react";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 
 export default function DashboardPage() {
@@ -18,6 +19,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const [updates, setUpdates] = useState<DisasterUpdate[]>(mockDisasterUpdates);
   const latestAnnouncement = mockAnnouncements.length > 0 ? mockAnnouncements[0] : null;
+  const [isAnnouncementVisible, setIsAnnouncementVisible] = useState(true);
   
   useEffect(() => {
     if (!loading && !isAuthenticated) {
@@ -69,8 +71,8 @@ export default function DashboardPage() {
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6">
-       {latestAnnouncement && (
-        <Alert>
+       {latestAnnouncement && isAnnouncementVisible && (
+        <Alert className="relative">
           <Megaphone className="h-4 w-4" />
           <AlertTitle>Latest Announcement</AlertTitle>
           <AlertDescription>
@@ -79,6 +81,15 @@ export default function DashboardPage() {
               View all
             </Link>
           </AlertDescription>
+           <Button 
+            variant="ghost" 
+            size="icon" 
+            className="absolute top-2 right-2 h-6 w-6"
+            onClick={() => setIsAnnouncementVisible(false)}
+          >
+            <X className="h-4 w-4" />
+            <span className="sr-only">Close announcement</span>
+          </Button>
         </Alert>
       )}
       <UpdatesFeed allUpdates={updates} setUpdates={setUpdates} onReply={addReply} onDelete={deleteUpdate} />
