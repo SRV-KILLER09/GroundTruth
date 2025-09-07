@@ -97,6 +97,10 @@ export default function MapViewPage() {
     const mapBounds = useMemo(() => getMapBounds(filteredUpdates), [filteredUpdates]);
 
     const mapUrl = useMemo(() => {
+        if (filteredUpdates.length === 0) {
+            return `https://www.openstreetmap.org/export/embed.html?bbox=68.1,6.5,97.4,35.5&layer=mapnik`;
+        }
+
         const { minLat, maxLat, minLng, maxLng } = mapBounds;
         const markers = filteredUpdates
           .map(update => `marker=${update.location.latitude},${update.location.longitude}`)
