@@ -2,7 +2,6 @@
 "use client";
 
 import { useState } from "react";
-import Header from "@/components/dashboard/Header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { mockAnnouncements, type Announcement } from "@/lib/mock-data";
 import { useAuth } from "@/contexts/AuthContext";
@@ -48,48 +47,43 @@ export default function AnnouncementsPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
-      <Header />
-      <main className="flex-1 p-4 md:p-6">
-        <div className="w-full max-w-4xl mx-auto space-y-8">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Megaphone className="mr-2 h-6 w-6 text-primary" />
-                Announcements
-              </CardTitle>
-              <CardDescription>
-                Official communications and alerts from the administrative team.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {isAdmin && (
-                <div className="space-y-4 p-4 border rounded-lg bg-card">
-                   <h3 className="font-semibold text-lg flex items-center">
-                       <PlusCircle className="mr-2 h-5 w-5" />
-                       Make a New Announcement
-                    </h3>
-                  <Textarea
-                    placeholder="Type your announcement here..."
-                    value={newAnnouncement}
-                    onChange={(e) => setNewAnnouncement(e.target.value)}
-                    rows={4}
-                  />
-                  <Button onClick={handlePostAnnouncement} disabled={!newAnnouncement.trim()}>
-                    <Send className="mr-2 h-4 w-4" />
-                    Post Announcement
-                  </Button>
-                </div>
-              )}
-              <div className="space-y-4">
-                {announcements.map((announcement) => (
-                  <AnnouncementCard key={announcement.id} announcement={announcement} />
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </main>
+    <div className="w-full max-w-4xl mx-auto space-y-8">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <Megaphone className="mr-2 h-6 w-6 text-primary" />
+            Announcements
+          </CardTitle>
+          <CardDescription>
+            Official communications and alerts from the administrative team.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {isAdmin && (
+            <div className="space-y-4 p-4 border rounded-lg bg-card">
+               <h3 className="font-semibold text-lg flex items-center">
+                   <PlusCircle className="mr-2 h-5 w-5" />
+                   Make a New Announcement
+                </h3>
+              <Textarea
+                placeholder="Type your announcement here..."
+                value={newAnnouncement}
+                onChange={(e) => setNewAnnouncement(e.target.value)}
+                rows={4}
+              />
+              <Button onClick={handlePostAnnouncement} disabled={!newAnnouncement.trim()}>
+                <Send className="mr-2 h-4 w-4" />
+                Post Announcement
+              </Button>
+            </div>
+          )}
+          <div className="space-y-4">
+            {announcements.map((announcement) => (
+              <AnnouncementCard key={announcement.id} announcement={announcement} />
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

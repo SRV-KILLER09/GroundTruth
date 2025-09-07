@@ -2,7 +2,6 @@
 "use client";
 
 import React, { useMemo, useState, useEffect } from 'react';
-import Header from "@/components/dashboard/Header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
@@ -106,133 +105,128 @@ export default function ReportsPage() {
     };
     
     return (
-        <div className="flex flex-col min-h-screen bg-background">
-            <Header />
-            <main className="flex-1 p-4 md:p-6">
-                <div className="w-full max-w-6xl mx-auto grid gap-6">
-                    <Card>
-                        <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
-                            <div>
-                                <CardTitle className="flex items-center">
-                                    <BarChart3 className="mr-2 h-6 w-6 text-primary" />
-                                    Hazard Reports Trend
-                                </CardTitle>
-                                <CardDescription>
-                                    An overview of reported disaster types. Select a time range to view trends.
-                                </CardDescription>
-                            </div>
-                            <div className="flex items-center gap-2 mt-4 sm:mt-0">
-                                {(Object.keys(timeRangeConfig) as TimeRange[]).map(range => (
-                                     <Button
-                                        key={range}
-                                        variant={timeRange === range ? 'default' : 'outline'}
-                                        size="sm"
-                                        onClick={() => setTimeRange(range)}
-                                        className={cn("whitespace-nowrap")}
-                                    >
-                                        {timeRangeConfig[range].label}
-                                    </Button>
-                                ))}
-                            </div>
-                        </CardHeader>
-                        <CardContent>
-                            <ChartContainer config={chartConfig} className="min-h-[300px] w-full">
-                                <BarChart data={chartData} accessibilityLayer>
-                                    <CartesianGrid vertical={false} />
-                                    <XAxis
-                                        dataKey="name"
-                                        tickLine={false}
-                                        tickMargin={10}
-                                        axisLine={false}
-                                        tickFormatter={(value, index) => {
-                                            const { days } = timeRangeConfig[timeRange];
-                                            const interval = Math.ceil(days / 7); // Show ~7 labels
-                                            if (index % interval === 0) {
-                                                return value.slice(0, 6);
-                                            }
-                                            return "";
-                                        }}
-                                    />
-                                    <YAxis tickLine={false} axisLine={false} allowDecimals={false}/>
-                                    <ChartTooltip
-                                        cursor={false}
-                                        content={<ChartTooltipContent />}
-                                    />
-                                    <Bar dataKey="Flood" fill="var(--color-Flood)" radius={4} stackId="a" />
-                                    <Bar dataKey="Fire" fill="var(--color-Fire)" radius={4} stackId="a" />
-                                    <Bar dataKey="Earthquake" fill="var(--color-Earthquake)" radius={4} stackId="a" />
-                                    <Bar dataKey="Hurricane" fill="var(--color-Hurricane)" radius={4} stackId="a" />
-                                    <Bar dataKey="Other" fill="var(--color-Other)" radius={4} stackId="a" />
-                                </BarChart>
-                            </ChartContainer>
-                        </CardContent>
-                    </Card>
+        <div className="w-full max-w-6xl mx-auto grid gap-6">
+            <Card>
+                <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                    <div>
+                        <CardTitle className="flex items-center">
+                            <BarChart3 className="mr-2 h-6 w-6 text-primary" />
+                            Hazard Reports Trend
+                        </CardTitle>
+                        <CardDescription>
+                            An overview of reported disaster types. Select a time range to view trends.
+                        </CardDescription>
+                    </div>
+                    <div className="flex items-center gap-2 mt-4 sm:mt-0">
+                        {(Object.keys(timeRangeConfig) as TimeRange[]).map(range => (
+                             <Button
+                                key={range}
+                                variant={timeRange === range ? 'default' : 'outline'}
+                                size="sm"
+                                onClick={() => setTimeRange(range)}
+                                className={cn("whitespace-nowrap")}
+                            >
+                                {timeRangeConfig[range].label}
+                            </Button>
+                        ))}
+                    </div>
+                </CardHeader>
+                <CardContent>
+                    <ChartContainer config={chartConfig} className="min-h-[300px] w-full">
+                        <BarChart data={chartData} accessibilityLayer>
+                            <CartesianGrid vertical={false} />
+                            <XAxis
+                                dataKey="name"
+                                tickLine={false}
+                                tickMargin={10}
+                                axisLine={false}
+                                tickFormatter={(value, index) => {
+                                    const { days } = timeRangeConfig[timeRange];
+                                    const interval = Math.ceil(days / 7); // Show ~7 labels
+                                    if (index % interval === 0) {
+                                        return value.slice(0, 6);
+                                    }
+                                    return "";
+                                }}
+                            />
+                            <YAxis tickLine={false} axisLine={false} allowDecimals={false}/>
+                            <ChartTooltip
+                                cursor={false}
+                                content={<ChartTooltipContent />}
+                            />
+                            <Bar dataKey="Flood" fill="var(--color-Flood)" radius={4} stackId="a" />
+                            <Bar dataKey="Fire" fill="var(--color-Fire)" radius={4} stackId="a" />
+                            <Bar dataKey="Earthquake" fill="var(--color-Earthquake)" radius={4} stackId="a" />
+                            <Bar dataKey="Hurricane" fill="var(--color-Hurricane)" radius={4} stackId="a" />
+                            <Bar dataKey="Other" fill="var(--color-Other)" radius={4} stackId="a" />
+                        </BarChart>
+                    </ChartContainer>
+                </CardContent>
+            </Card>
 
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center">
-                                <List className="mr-2 h-6 w-6 text-primary" />
-                                Live Reports Feed
-                            </CardTitle>
-                             <CardDescription>
-                                The latest reports from the community, updating automatically.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                           <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Type</TableHead>
-                                        <TableHead>Location</TableHead>
-                                        <TableHead>Message</TableHead>
-                                        <TableHead>Status</TableHead>
-                                        <TableHead>Reported By</TableHead>
-                                        <TableHead>Authority</TableHead>
-                                        <TableHead className="text-right">Time</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {liveUpdates.map((update) => (
-                                        <TableRow key={update.id} className="transition-opacity duration-500">
-                                            <TableCell>
-                                                <div className="flex items-center gap-2 font-medium">
-                                                    {disasterIcons[update.disasterType] || DefaultIcon}
-                                                    {update.disasterType}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="font-medium">{update.location.name}</div>
-                                                <div className="text-xs text-muted-foreground">
-                                                    {update.location.latitude.toFixed(4)}, {update.location.longitude.toFixed(4)}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="max-w-xs truncate">{update.message}</TableCell>
-                                            <TableCell>
-                                                <Badge variant={update.status === 'Verified' ? 'default' : 'secondary'}>
-                                                    {update.status}
-                                                </Badge>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="flex items-center gap-2">
-                                                    <User className="h-4 w-4 text-muted-foreground" />
-                                                    {update.user.name}
-                                                </div>
-                                            </TableCell>
-                                             <TableCell>
-                                                <div className="flex items-center gap-2">
-                                                    <Shield className="h-4 w-4 text-muted-foreground" />
-                                                    {update.authority}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="text-right text-muted-foreground">{format(parseISO(update.timestamp), "HH:mm:ss")}</TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </CardContent>
-                    </Card>
-                </div>
-            </main>
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center">
+                        <List className="mr-2 h-6 w-6 text-primary" />
+                        Live Reports Feed
+                    </CardTitle>
+                     <CardDescription>
+                        The latest reports from the community, updating automatically.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                   <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Type</TableHead>
+                                <TableHead>Location</TableHead>
+                                <TableHead>Message</TableHead>
+                                <TableHead>Status</TableHead>
+                                <TableHead>Reported By</TableHead>
+                                <TableHead>Authority</TableHead>
+                                <TableHead className="text-right">Time</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {liveUpdates.map((update) => (
+                                <TableRow key={update.id} className="transition-opacity duration-500">
+                                    <TableCell>
+                                        <div className="flex items-center gap-2 font-medium">
+                                            {disasterIcons[update.disasterType] || DefaultIcon}
+                                            {update.disasterType}
+                                        </div>
+                                    </TableCell>
+                                    <TableCell>
+                                        <div className="font-medium">{update.location.name}</div>
+                                        <div className="text-xs text-muted-foreground">
+                                            {update.location.latitude.toFixed(4)}, {update.location.longitude.toFixed(4)}
+                                        </div>
+                                    </TableCell>
+                                    <TableCell className="max-w-xs truncate">{update.message}</TableCell>
+                                    <TableCell>
+                                        <Badge variant={update.status === 'Verified' ? 'default' : 'secondary'}>
+                                            {update.status}
+                                        </Badge>
+                                    </TableCell>
+                                    <TableCell>
+                                        <div className="flex items-center gap-2">
+                                            <User className="h-4 w-4 text-muted-foreground" />
+                                            {update.user.name}
+                                        </div>
+                                    </TableCell>
+                                     <TableCell>
+                                        <div className="flex items-center gap-2">
+                                            <Shield className="h-4 w-4 text-muted-foreground" />
+                                            {update.authority}
+                                        </div>
+                                    </TableCell>
+                                    <TableCell className="text-right text-muted-foreground">{format(parseISO(update.timestamp), "HH:mm:ss")}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </CardContent>
+            </Card>
         </div>
     );
 }

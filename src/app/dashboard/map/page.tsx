@@ -1,11 +1,9 @@
 
 "use client"
 
-import Header from "@/components/dashboard/Header";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Map, Flame, Droplets, Zap, Wind, AlertTriangle, Search, CheckCircle, HelpCircle, XCircle, Clock, User, Shield, MapPin } from "lucide-react";
 import { mockDisasterUpdates, DisasterStatus, DisasterUpdate } from "@/lib/mock-data";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import React, { useState, useMemo } from 'react';
 import { Input } from "@/components/ui/input";
@@ -107,85 +105,80 @@ export default function MapViewPage() {
     }
 
     return (
-        <div className="flex flex-col min-h-screen bg-background">
-            <Header />
-            <main className="flex-1 p-4 md:p-6">
-                <div className="w-full max-w-7xl mx-auto">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center">
-                                <Map className="mr-2 h-6 w-6 text-primary" />
-                                Interactive Geospatial Feed
-                            </CardTitle>
-                            <CardDescription>
-                                An interactive map displaying disaster reports. Select a report to view details.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                                <div className="lg:col-span-2 relative w-full aspect-[16/10] bg-muted rounded-lg overflow-hidden border-2 border-primary/20">
-                                    <iframe
-                                        width="100%"
-                                        height="100%"
-                                        src={mapUrl}
-                                        className="border-0"
-                                        title="Interactive Map of Disaster Reports"
-                                    ></iframe>
-                                </div>
-                                <div className="lg:col-span-1 h-[500px] flex flex-col gap-3">
-                                    <div className="relative">
-                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                                        <Input
-                                            type="text"
-                                            placeholder="Search by location or type..."
-                                            value={searchTerm}
-                                            onChange={(e) => setSearchTerm(e.target.value)}
-                                            className="pl-10 w-full"
-                                        />
-                                    </div>
-                                    <div className="flex-1 space-y-2 overflow-y-auto pr-2">
-                                        <h3 className="text-lg font-semibold sticky top-0 bg-background/80 backdrop-blur-sm py-2">Reports ({filteredUpdates.length})</h3>
-                                        {filteredUpdates.map((update) => {
-                                            const info = disasterInfo[update.disasterType] || disasterInfo['Default'];
-                                            return (
-                                                <button
-                                                    key={update.id}
-                                                    onClick={() => handleSelectUpdate(update)}
-                                                    className={cn(
-                                                        "w-full text-left p-3 rounded-lg border transition-colors",
-                                                        selectedUpdate && selectedUpdate.id === update.id ? "bg-primary/10 border-primary" : "bg-muted/50 hover:bg-muted"
-                                                    )}
-                                                >
-                                                    <div className="flex items-center gap-3">
-                                                        <div className={cn("h-8 w-8 rounded-full flex-shrink-0 flex items-center justify-center text-primary-foreground", info.class)}>
-                                                            {info.icon}
-                                                        </div>
-                                                        <div className="flex-1">
-                                                            <p className="font-semibold truncate">{update.disasterType} - {update.location.name}</p>
-                                                            <p className="text-sm text-muted-foreground">{format(new Date(update.timestamp), "MMM d, HH:mm")}</p>
-                                                        </div>
-                                                    </div>
-                                                </button>
-                                            )
-                                        })}
-                                         {filteredUpdates.length === 0 && (
-                                            <div className="text-center p-8 text-muted-foreground">
-                                                <p>No matching reports found.</p>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
+        <div className="w-full max-w-7xl mx-auto">
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center">
+                        <Map className="mr-2 h-6 w-6 text-primary" />
+                        Interactive Geospatial Feed
+                    </CardTitle>
+                    <CardDescription>
+                        An interactive map displaying disaster reports. Select a report to view details.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div className="lg:col-span-2 relative w-full aspect-[16/10] bg-muted rounded-lg overflow-hidden border-2 border-primary/20">
+                            <iframe
+                                width="100%"
+                                height="100%"
+                                src={mapUrl}
+                                className="border-0"
+                                title="Interactive Map of Disaster Reports"
+                            ></iframe>
+                        </div>
+                        <div className="lg:col-span-1 h-[500px] flex flex-col gap-3">
+                            <div className="relative">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                                <Input
+                                    type="text"
+                                    placeholder="Search by location or type..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="pl-10 w-full"
+                                />
                             </div>
-                            {selectedUpdate && (
-                                <div className="mt-6">
-                                    <h2 className="text-2xl font-bold font-headline mb-4">Incident Details</h2>
-                                    <IncidentDetailCard update={selectedUpdate} />
-                                </div>
-                            )}
-                        </CardContent>
-                    </Card>
-                </div>
-            </main>
+                            <div className="flex-1 space-y-2 overflow-y-auto pr-2">
+                                <h3 className="text-lg font-semibold sticky top-0 bg-background/80 backdrop-blur-sm py-2">Reports ({filteredUpdates.length})</h3>
+                                {filteredUpdates.map((update) => {
+                                    const info = disasterInfo[update.disasterType] || disasterInfo['Default'];
+                                    return (
+                                        <button
+                                            key={update.id}
+                                            onClick={() => handleSelectUpdate(update)}
+                                            className={cn(
+                                                "w-full text-left p-3 rounded-lg border transition-colors",
+                                                selectedUpdate && selectedUpdate.id === update.id ? "bg-primary/10 border-primary" : "bg-muted/50 hover:bg-muted"
+                                            )}
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <div className={cn("h-8 w-8 rounded-full flex-shrink-0 flex items-center justify-center text-primary-foreground", info.class)}>
+                                                    {info.icon}
+                                                </div>
+                                                <div className="flex-1">
+                                                    <p className="font-semibold truncate">{update.disasterType} - {update.location.name}</p>
+                                                    <p className="text-sm text-muted-foreground">{format(new Date(update.timestamp), "MMM d, HH:mm")}</p>
+                                                </div>
+                                            </div>
+                                        </button>
+                                    )
+                                })}
+                                 {filteredUpdates.length === 0 && (
+                                    <div className="text-center p-8 text-muted-foreground">
+                                        <p>No matching reports found.</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                    {selectedUpdate && (
+                        <div className="mt-6">
+                            <h2 className="text-2xl font-bold font-headline mb-4">Incident Details</h2>
+                            <IncidentDetailCard update={selectedUpdate} />
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
         </div>
     );
 

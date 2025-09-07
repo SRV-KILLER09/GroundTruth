@@ -12,107 +12,72 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { LogOut, Mountain, Home, Map, LifeBuoy, BarChart3, Shield, Rss, Award, Megaphone } from "lucide-react";
+import { LogOut, Award, Menu, Mountain } from "lucide-react";
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { cn } from '@/lib/utils';
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import Sidebar from "./Sidebar";
+
 
 export default function Header() {
   const { user, logout } = useAuth();
-  const pathname = usePathname();
   const honorScore = 100; // Hardcoded score as per request
 
-  const navLinks = [
-    { href: "/dashboard", label: "Dashboard", icon: <Home className="h-4 w-4" /> },
-    { href: "/dashboard/map", label: "Map View", icon: <Map className="h-4 w-4" /> },
-    { href: "/dashboard/reports", label: "Reports", icon: <BarChart3 className="h-4 w-4" /> },
-    { href: "/dashboard/news", label: "News", icon: <Rss className="h-4 w-4" /> },
-    { href: "/dashboard/directory", label: "Directory", icon: <Shield className="h-4 w-4" /> },
-    { href: "/dashboard/resources", label: "Safety Resources", icon: <LifeBuoy className="h-4 w-4" /> },
-  ];
-
-  const mobileNavLinks = [
-    ...navLinks,
-    { href: "/dashboard/announcements", label: "Announcements", icon: <Megaphone className="h-4 w-4" /> },
-  ]
-
-
   return (
-    <header className="sticky top-0 z-50 flex h-16 items-center justify-between border-b bg-card px-4 md:px-6 shadow-sm">
-      <Link href="/dashboard" className="flex items-center gap-2">
-        <Mountain className="h-6 w-6 text-primary" />
-        <span className="text-xl font-bold font-headline tracking-tighter text-foreground">
-          TitanicX
-        </span>
-      </Link>
-      
-      <nav className="hidden md:flex items-center gap-2">
-        {navLinks.map((link) => (
-          <Button key={link.href} variant={pathname === link.href ? 'secondary' : 'ghost'} asChild>
-            <Link href={link.href}>
-              {link.icon}
-              <span className="ml-2">{link.label}</span>
-            </Link>
+    <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
+      <Sheet>
+        <SheetTrigger asChild>
+          <Button size="icon" variant="outline" className="sm:hidden">
+            <Menu className="h-5 w-5" />
+            <span className="sr-only">Toggle Menu</span>
           </Button>
-        ))}
-      </nav>
+        </SheetTrigger>
+        <SheetContent side="left" className="sm:max-w-xs">
+           <Sidebar isMobile={true}/>
+        </SheetContent>
+      </Sheet>
 
-      <div className="flex items-center gap-4">
-        <Button variant="outline" asChild className="hidden md:flex">
-          <Link href="/">
-            <Home className="h-4 w-4" />
-            <span className="ml-2">Home</span>
-          </Link>
-        </Button>
-        {user && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src={`https://picsum.photos/seed/${user.email}/40/40`} alt={user.displayName || ''} />
-                  <AvatarFallback>
-                    {user.displayName?.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end" forceMount>
-              <DropdownMenuLabel className="font-normal md:hidden">
-                 <div className="flex flex-col space-y-2">
-                    {mobileNavLinks.map((link) => (
-                        <Link key={link.href} href={link.href} className={cn("flex items-center gap-2 rounded-md p-2", pathname === link.href ? 'bg-secondary' : '')}>
-                             {link.icon}
-                            <span>{link.label}</span>
-                        </Link>
-                    ))}
-                 </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator className="md:hidden"/>
-              <DropdownMenuLabel className="font-normal">
-                <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">{user.displayName}</p>
-                  <p className="text-xs leading-none text-muted-foreground">
-                    {user.email}
-                  </p>
-                </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-               <DropdownMenuItem disabled className="cursor-default">
-                 <Award className="mr-2 h-4 w-4 text-yellow-500" />
-                 <div className="flex justify-between w-full">
-                    <span>Honor Score</span>
-                    <span className="font-semibold">{honorScore}</span>
-                 </div>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={logout}>
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Log out</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
-      </div>
+      <div className="flex-1" />
+
+      {user && (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+              <Avatar className="h-10 w-10">
+                <AvatarImage src={`https://picsum.photos/seed/${user.email}/40/40`} alt={user.displayName || ''} />
+                <AvatarFallback>
+                  {user.displayName?.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56" align="end" forceMount>
+            <DropdownMenuLabel className="font-normal">
+              <div className="flex flex-col space-y-1">
+                <p className="text-sm font-medium leading-none">{user.displayName}</p>
+                <p className="text-xs leading-none text-muted-foreground">
+                  {user.email}
+                </p>
+              </div>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+             <DropdownMenuItem disabled className="cursor-default">
+               <Award className="mr-2 h-4 w-4 text-yellow-500" />
+               <div className="flex justify-between w-full">
+                  <span>Honor Score</span>
+                  <span className="font-semibold">{honorScore}</span>
+               </div>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link href="/">Home</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={logout}>
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Log out</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
     </header>
   );
 }

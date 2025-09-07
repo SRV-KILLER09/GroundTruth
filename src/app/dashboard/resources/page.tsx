@@ -1,5 +1,4 @@
 
-import Header from "@/components/dashboard/Header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { LifeBuoy, Zap, Droplets, Flame, Wind, ShieldCheck } from "lucide-react";
@@ -34,40 +33,35 @@ export default function SafetyResourcesPage() {
   ];
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
-      <Header />
-      <main className="flex-1 p-4 md:p-6">
-        <div className="w-full max-w-4xl mx-auto">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <LifeBuoy className="mr-2 h-6 w-6 text-primary" />
-                Safety Resources & Guidelines
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground mb-6">
-                Knowledge is your best defense in an emergency. Review these safety tips to prepare for various disaster scenarios.
-              </p>
-              <Accordion type="single" collapsible className="w-full">
-                {resources.map((resource, index) => (
-                  <AccordionItem key={index} value={`item-${index}`}>
-                    <AccordionTrigger className="text-lg font-semibold hover:no-underline">
-                      <div className="flex items-center">
-                        {resource.icon}
-                        {resource.title}
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent className="text-base text-muted-foreground pl-8">
-                      {resource.content}
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
-            </CardContent>
-          </Card>
-        </div>
-      </main>
+    <div className="w-full max-w-4xl mx-auto">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <LifeBuoy className="mr-2 h-6 w-6 text-primary" />
+            Safety Resources & Guidelines
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground mb-6">
+            Knowledge is your best defense in an emergency. Review these safety tips to prepare for various disaster scenarios.
+          </p>
+          <Accordion type="single" collapsible className="w-full">
+            {resources.map((resource, index) => (
+              <AccordionItem key={index} value={`item-${index}`}>
+                <AccordionTrigger className="text-lg font-semibold hover:no-underline">
+                  <div className="flex items-center">
+                    {resource.icon}
+                    {resource.title}
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="text-base text-muted-foreground pl-8">
+                  {resource.content}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </CardContent>
+      </Card>
     </div>
   );
 }
