@@ -12,7 +12,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { LogOut, Mountain, Home, Map, LifeBuoy, BarChart3, Shield, Rss } from "lucide-react";
+import { LogOut, Mountain, Home, Map, LifeBuoy, BarChart3, Shield, Rss, Award } from "lucide-react";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -20,6 +20,7 @@ import { cn } from '@/lib/utils';
 export default function Header() {
   const { user, logout } = useAuth();
   const pathname = usePathname();
+  const honorScore = 100; // Hardcoded score as per request
 
   const navLinks = [
     { href: "/dashboard", label: "Dashboard", icon: <Home className="h-4 w-4" /> },
@@ -89,6 +90,14 @@ export default function Header() {
                   </p>
                 </div>
               </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+               <DropdownMenuItem disabled className="cursor-default">
+                 <Award className="mr-2 h-4 w-4 text-yellow-500" />
+                 <div className="flex justify-between w-full">
+                    <span>Honor Score</span>
+                    <span className="font-semibold">{honorScore}</span>
+                 </div>
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={logout}>
                 <LogOut className="mr-2 h-4 w-4" />
