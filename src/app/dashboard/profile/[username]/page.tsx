@@ -4,18 +4,22 @@
 import { useParams } from "next/navigation";
 import Header from "@/components/dashboard/Header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { mockDisasterUpdates, DisasterUpdate } from "@/lib/mock-data";
+import { mockDisasterUpdates, DisasterUpdate, mockUserActivity } from "@/lib/mock-data";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Award, User, List } from "lucide-react";
+import { Award, Mail, List } from "lucide-react";
 import { UpdateCard } from "@/components/dashboard/UpdateCard";
-import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { useState } from "react";
 import type { DisasterUpdateReply } from "@/lib/mock-data";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function UserProfilePage() {
   const params = useParams();
+  const { user: currentUser } = useAuth();
   const username = params.username as string;
   
+  const adminEmails = ['vardaansaxena096@gmail.com', 'saranshwadhwa0102@gmail.com'];
+  const isAdmin = currentUser?.email ? adminEmails.includes(currentUser.email) : false;
+
   // A simple way to find the user's data from the mock updates.
   // In a real app, you would fetch this from a user service.
   const userUpdates = mockDisasterUpdates.filter(
@@ -64,6 +68,8 @@ export default function UserProfilePage() {
 
   const user = updates[0].user;
   const honorScore = 100; // Hardcoded as per previous requirements.
+  const userProfileData = mockUserActivity.find(u => u.username.toLowerCase() === username.toLowerCase());
+
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -79,6 +85,12 @@ export default function UserProfilePage() {
               <div>
                 <CardTitle className="text-3xl font-bold font-headline">{user.name}</CardTitle>
                 <CardDescription>@{user.username}</CardDescription>
+                 {isAdmin && userProfileData && (
+                    <div className="flex items-center justify-center gap-2 mt-2 text-sm text-muted-foreground">
+                        <Mail className="h-4 w-4" />
+                        <span>{userProfileData.email}</span>
+                    </div>
+                )}
               </div>
               <div className="flex items-center gap-2 text-yellow-500 bg-yellow-500/10 px-4 py-2 rounded-full border border-yellow-500/20">
                 <Award className="h-5 w-5" />
