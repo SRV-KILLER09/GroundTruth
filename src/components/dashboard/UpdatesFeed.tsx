@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Flame, Droplets, Zap, Wind, AlertTriangle, MapPin, Loader2, Search, CheckCircle, HelpCircle, XCircle } from 'lucide-react';
+import { PlusCircle, Flame, Droplets, Zap, Wind, AlertTriangle, MapPin, Loader2, Search, CheckCircle, HelpCircle, XCircle, Megaphone, Users } from 'lucide-react';
 import { UpdateCard } from './UpdateCard';
 import type { DisasterUpdate, DisasterUpdateReply, DisasterStatus } from '@/lib/mock-data';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -12,6 +12,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import Link from 'next/link';
+import { useAuth } from '@/contexts/AuthContext';
+
 
 interface UpdatesFeedProps {
     allUpdates: DisasterUpdate[];
@@ -44,6 +47,7 @@ const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => 
 };
 
 export function UpdatesFeed({ allUpdates, setUpdates, onReply }: UpdatesFeedProps) {
+    const { user } = useAuth();
     const [filteredUpdates, setFilteredUpdates] = React.useState<DisasterUpdate[]>(allUpdates);
     const [activeDisasterType, setActiveDisasterType] = React.useState<DisasterType>('All');
     const [activeStatusFilter, setActiveStatusFilter] = React.useState<DisasterStatus | 'All'>('All');
@@ -53,6 +57,9 @@ export function UpdatesFeed({ allUpdates, setUpdates, onReply }: UpdatesFeedProp
     const [isLocating, setIsLocating] = React.useState(false);
     const [citySearch, setCitySearch] = React.useState("");
     const { toast } = useToast();
+
+    const adminEmails = ['vardaansaxena096@gmail.com', 'saranshwadhwa0102@gmail.com'];
+    const isAdmin = user?.email ? adminEmails.includes(user.email) : false;
 
     const handleSortChange = (value: SortOrder) => {
         if (value === 'closest' && !userLocation) {
@@ -140,15 +147,16 @@ export function UpdatesFeed({ allUpdates, setUpdates, onReply }: UpdatesFeedProp
         applyFilters();
     }, [allUpdates, sortedUpdates, activeDisasterType, activeStatusFilter, citySearch, applyFilters]);
 
-    const addUpdate = (newUpdate: Omit<DisasterUpdate, 'id' | 'timestamp' | 'replies' | 'status'>) => {
-        const updateToAdd: DisasterUpdate = {
-            ...newUpdate,
+    const addUpdate = (newUpdateData: Omit<DisasterUpdate, 'id' | 'timestamp' | 'replies' | 'status' | 'authority'>) => {
+        const newUpdate: DisasterUpdate = {
+            ...newUpdateData,
             id: allUpdates.length + 1,
             timestamp: new Date().toISOString(),
             replies: [],
             status: 'Under Investigation',
+            authority: 'Local Police', // Default authority
         };
-        const newUpdates = [updateToAdd, ...allUpdates];
+        const newUpdates = [newUpdate, ...allUpdates];
         setUpdates(newUpdates);
         setSortOrder('recent'); // Reset sort to show new update first
         setActiveDisasterType('All');
@@ -176,25 +184,27 @@ export function UpdatesFeed({ allUpdates, setUpdates, onReply }: UpdatesFeedProp
     return (
         <div className="flex flex-col h-full">
             <div className="flex justify-between items-center mb-4 flex-wrap gap-4">
-                <h2 className="text-2xl font-headline font-bold">Community Updates</h2>
-                <div className="flex items-center gap-4">
-                    <Select onValueChange={(value: SortOrder) => handleSortChange(value)} value={sortOrder}>
-                        <SelectTrigger className="w-[180px]">
-                            <SelectValue placeholder="Sort by..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="recent">Most Recent</SelectItem>
-                            <SelectItem value="closest">
-                                <div className="flex items-center">
-                                    {isLocating && sortOrder !== 'closest' ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <MapPin className="mr-2 h-4 w-4" />}
-                                    Closest to Me
-                                </div>
-                            </SelectItem>
-                        </SelectContent>
-                    </Select>
+                <h1 className="text-3xl font-bold font-headline">Live Feed</h1>
+                <div className="flex items-center gap-2">
+                    {isAdmin && (
+                        <>
+                            <Button asChild variant="outline">
+                                <Link href="/dashboard/announcements">
+                                    <Megaphone className="mr-2 h-4 w-4" />
+                                    Announcements
+                                </Link>
+                            </Button>
+                            <Button asChild variant="outline">
+                                <Link href="/dashboard/updates">
+                                    <Users className="mr-2 h-4 w-4" />
+                                    User Activity
+                                </Link>
+                            </Button>
+                        </>
+                    )}
                     <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                         <SheetTrigger asChild>
-                            <Button className="bg-accent text-accent-foreground hover:bg-accent/90">
+                            <Button>
                                 <PlusCircle className="mr-2 h-4 w-4" />
                                 New Update
                             </Button>
@@ -211,58 +221,57 @@ export function UpdatesFeed({ allUpdates, setUpdates, onReply }: UpdatesFeedProp
                     </Sheet>
                 </div>
             </div>
-            
-            <div className="flex flex-col sm:flex-row gap-4 mb-4">
-                <div className="flex space-x-2 p-1 bg-muted rounded-lg">
-                    {(Object.keys(statusConfig) as DisasterStatus[]).map(status => (
-                        <Button 
-                            key={status}
-                            variant={activeStatusFilter === status ? 'secondary' : 'ghost'}
-                            data-active={activeStatusFilter === status}
-                            onClick={() => setActiveStatusFilter(status)}
-                            className={cn("flex-1 justify-center", statusConfig[status].className)}
-                        >
-                            {statusConfig[status].icon}
-                            {status.replace(/([A-Z])/g, ' $1').trim()}
-                        </Button>
-                    ))}
-                </div>
-                 <Button 
-                    variant={activeStatusFilter === 'All' ? 'secondary' : 'ghost'}
-                    onClick={() => setActiveStatusFilter('All')}
-                >
-                    Show All
-                </Button>
-            </div>
 
-            <div className="flex flex-col sm:flex-row gap-2 mb-4">
-                <div className="flex space-x-2 overflow-x-auto pb-2 sm:pb-0">
-                    {allFilterTypes.map(type => (
-                        <Button 
-                            key={type}
-                            variant={activeDisasterType === type ? 'default' : 'outline'}
-                            onClick={() => setActiveDisasterType(type as DisasterType)}
-                            className="capitalize shrink-0"
-                        >
-                            {
-                                //@ts-ignore
-                                disasterIcons[type] ? disasterIcons[type] : (type !== 'All' ? <AlertTriangle className="mr-2 h-4 w-4" /> : null)
-                            }
-                            {type}
-                        </Button>
-                    ))}
-                </div>
-                <div className="relative sm:ml-auto sm:w-auto w-full">
+            <div className="flex flex-col sm:flex-row gap-4 mb-4">
+                 <div className="flex-1 relative">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
                         type="search"
-                        placeholder="Search by city..."
-                        className="pl-8 sm:w-64"
+                        placeholder="Search by city or location..."
+                        className="pl-8 w-full"
                         value={citySearch}
                         onChange={(e) => setCitySearch(e.target.value)}
                     />
                 </div>
+                <Select onValueChange={(value: SortOrder) => handleSortChange(value)} value={sortOrder}>
+                    <SelectTrigger className="w-full sm:w-[180px]">
+                        <SelectValue placeholder="Sort by..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="recent">Most Recent</SelectItem>
+                        <SelectItem value="closest">
+                            <div className="flex items-center">
+                                {isLocating && sortOrder !== 'closest' ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <MapPin className="mr-2 h-4 w-4" />}
+                                Closest to Me
+                            </div>
+                        </SelectItem>
+                    </SelectContent>
+                </Select>
             </div>
+            
+            <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
+                 <Button 
+                    variant={activeStatusFilter === 'All' ? 'default' : 'outline'}
+                    onClick={() => setActiveStatusFilter('All')}
+                    className="shrink-0"
+                >
+                    All Statuses
+                </Button>
+                {(Object.keys(statusConfig) as DisasterStatus[]).map(status => (
+                    <Button 
+                        key={status}
+                        variant={activeStatusFilter === status ? 'default' : 'outline'}
+                        data-active={activeStatusFilter === status}
+                        onClick={() => setActiveStatusFilter(status)}
+                        className={cn("shrink-0", activeStatusFilter === status ? statusConfig[status].className.replace("hover:", "") : "")}
+                    >
+                        {statusConfig[status].icon}
+                        {status}
+                    </Button>
+                ))}
+            </div>
+
+
             <div className="space-y-4">
                 {filteredUpdates.length > 0 ? (
                     filteredUpdates.map(update => (

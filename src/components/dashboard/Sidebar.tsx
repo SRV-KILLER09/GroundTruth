@@ -3,12 +3,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Mountain, Home, Map, LifeBuoy, BarChart3, Shield, Rss, LayoutDashboard } from "lucide-react";
+import { Mountain, Home, Map, LifeBuoy, BarChart3, Shield, Rss, Tv } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
-    { href: "/", label: "Home", icon: <Home className="h-5 w-5" /> },
-    { href: "/dashboard", label: "Dashboard", icon: <LayoutDashboard className="h-5 w-5" /> },
+    { href: "/dashboard/home", label: "Home", icon: <Home className="h-5 w-5" /> },
+    { href: "/dashboard", label: "Live Feed", icon: <Tv className="h-5 w-5" /> },
     { href: "/dashboard/map", label: "Map View", icon: <Map className="h-5 w-5" /> },
     { href: "/dashboard/reports", label: "Reports", icon: <BarChart3 className="h-5 w-5" /> },
     { href: "/dashboard/news", label: "News", icon: <Rss className="h-5 w-5" /> },
@@ -22,7 +22,7 @@ export default function Sidebar({ isMobile = false }: { isMobile?: boolean }) {
   const NavContent = () => (
     <nav className={cn("flex flex-col items-stretch gap-4 px-2", isMobile ? "sm:py-5" : "py-5")}>
       <Link
-        href="/dashboard"
+        href="/dashboard/home"
         className="group flex items-center gap-2 rounded-lg px-3 py-2 text-foreground"
       >
         <Mountain className="h-6 w-6 text-primary transition-all group-hover:scale-110" />
@@ -33,7 +33,7 @@ export default function Sidebar({ isMobile = false }: { isMobile?: boolean }) {
       </Link>
       
       {navLinks.map((link) => {
-        const isActive = pathname === link.href;
+        const isActive = pathname === link.href || (link.href === "/dashboard" && pathname.startsWith("/dashboard/profile"));
         return (
           <Link
               key={link.href}
