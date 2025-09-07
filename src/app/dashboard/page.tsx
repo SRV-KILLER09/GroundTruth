@@ -47,6 +47,15 @@ export default function DashboardPage() {
 
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    // Simulate checking if the announcement is "new"
+    // In a real app, you'd check localStorage or a backend flag.
+    const hasSeenAnnouncement = sessionStorage.getItem(`seen_announcement_${latestAnnouncement.id}`);
+    if (hasSeenAnnouncement) {
+        setIsAnnouncementVisible(false);
+    }
+  }, [latestAnnouncement.id]);
   
   const addReply = (updateId: number, reply: DisasterUpdateReply) => {
     setUpdates(currentUpdates => 
@@ -80,6 +89,12 @@ export default function DashboardPage() {
         description: "Thank you for contributing to community safety.",
     });
   }
+
+  const handleDismissAnnouncement = () => {
+    setIsAnnouncementVisible(false);
+    // Mark this announcement as "seen" for the current session
+    sessionStorage.setItem(`seen_announcement_${latestAnnouncement.id}`, 'true');
+  };
 
 
   if (loading || !isAuthenticated) {
@@ -136,7 +151,7 @@ export default function DashboardPage() {
               <Alert className="relative border-primary/50 bg-primary/10">
                 <Megaphone className="h-4 w-4 text-primary" />
                 <button 
-                  onClick={() => setIsAnnouncementVisible(false)}
+                  onClick={handleDismissAnnouncement}
                   className="absolute top-2 right-2 p-1 rounded-md hover:bg-primary/20"
                 >
                   <X className="h-4 w-4" />
