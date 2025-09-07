@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import Header from "@/components/dashboard/Header";
 import { UpdatesFeed } from "@/components/dashboard/UpdatesFeed";
-import { mockDisasterUpdates, DisasterUpdate } from "@/lib/mock-data";
+import { mockDisasterUpdates, DisasterUpdate, createNewMockUpdate } from "@/lib/mock-data";
 import { EmergencyContacts } from "@/components/dashboard/EmergencyContacts";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
@@ -21,6 +21,17 @@ export default function DashboardPage() {
       router.push("/login");
     }
   }, [isAuthenticated, loading, router]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setUpdates(prevUpdates => {
+        const newUpdate = createNewMockUpdate(prevUpdates.length + 1);
+        return [newUpdate, ...prevUpdates];
+      });
+    }, 15000); // Add a new update every 15 seconds
+
+    return () => clearInterval(interval);
+  }, []);
 
   if (loading || !isAuthenticated) {
     return <LoadingSpinner />;

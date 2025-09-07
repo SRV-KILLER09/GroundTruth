@@ -117,3 +117,43 @@ export const mockDisasterUpdates: DisasterUpdate[] = [
     ],
   }
 ];
+
+// Helper function to create a new mock update for the live feed simulation
+const sampleUsers = [
+    { name: "Suresh", avatarId: "1011" },
+    { name: "Deepa", avatarId: "1025" },
+    { name: "Kiran", avatarId: "10" },
+    { name: "Amit", avatarId: "100" },
+];
+
+const sampleDisasters = [
+    { type: 'Flood', location: { name: "Patna, BR", latitude: 25.5941, longitude: 85.1376 }, message: "River Ganges is overflowing its banks. Water has entered several residential areas." },
+    { type: 'Fire', location: { name: "Bangalore, KA", latitude: 12.9716, longitude: 77.5946 }, message: "A fire has broken out in a factory in the Peenya industrial area. Multiple fire tenders at the spot." },
+    { type: 'Earthquake', location: { name: "Guwahati, AS", latitude: 26.1445, longitude: 91.7362 }, message: "Tremors felt in the city. People are rushing out of their homes. No reports of damage yet." },
+    { type: 'Cyclone', location: { name: "Bhubaneswar, OD", latitude: 20.2961, longitude: 85.8245 }, message: "Cyclone alert issued for the coastal areas. Fishermen are advised not to venture into the sea." },
+];
+
+const sampleImages = [
+    'https://images.unsplash.com/photo-1567611295982-84323360742f?q=80&w=600&h=400&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1549463207-3c973a6a188f?q=80&w=600&h=400&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1599408013233-a335f6311110?q=80&w=600&h=400&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1529429402839-a46f6b0b8e73?q=80&w=600&h=400&auto=format&fit=crop',
+]
+
+export const createNewMockUpdate = (id: number): DisasterUpdate => {
+    const randomUser = sampleUsers[Math.floor(Math.random() * sampleUsers.length)];
+    const randomDisaster = sampleDisasters[Math.floor(Math.random() * sampleDisasters.length)];
+    const randomImage = sampleImages[Math.floor(Math.random() * sampleImages.length)];
+    
+    return {
+        id,
+        user: { name: randomUser.name, avatarUrl: `https://picsum.photos/id/${randomUser.avatarId}/40/40` },
+        timestamp: new Date().toISOString(),
+        disasterType: randomDisaster.type,
+        location: randomDisaster.location,
+        message: randomDisaster.message,
+        mediaUrl: randomImage,
+        history: [randomDisaster.message],
+        replies: [],
+    };
+};

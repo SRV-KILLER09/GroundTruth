@@ -4,14 +4,17 @@
 import React, { useMemo, useState } from 'react';
 import Header from "@/components/dashboard/Header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer, LabelList } from "recharts";
-import { mockDisasterUpdates, DisasterUpdate } from "@/lib/mock-data";
-import { BarChart3, List } from 'lucide-react';
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer } from "recharts";
+import { mockDisasterUpdates } from "@/lib/mock-data";
+import { BarChart3, List, Flame, Droplets, Zap, Wind, AlertTriangle } from 'lucide-react';
 import { subDays, format, parseISO, differenceInDays, startOfDay } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import Image from 'next/image';
+import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
+import Autoplay from "embla-carousel-autoplay";
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 type TimeRange = '7d' | '30d' | '3m' | '6m';
 
@@ -22,6 +25,15 @@ const timeRangeConfig = {
     '6m': { days: 180, label: 'Last 6 Months' },
 };
 
+const disasterIcons: Record<string, React.ReactNode> = {
+    'Flood': <Droplets className="h-4 w-4" />,
+    'Earthquake': <Zap className="h-4 w-4" />,
+    'Fire': <Flame className="h-4 w-4" />,
+    'Hurricane': <Wind className="h-4 w-4" />
+};
+
+const DefaultIcon = <AlertTriangle className="h-4 w-4" />;
+
 
 export default function ReportsPage() {
     const [timeRange, setTimeRange] = useState<TimeRange>('7d');
@@ -31,13 +43,11 @@ export default function ReportsPage() {
         const today = startOfDay(new Date());
         const startDate = subDays(today, days - 1);
 
-        // Filter updates within the selected time range
         const updatesInRange = mockDisasterUpdates.filter(update => {
             const updateDate = parseISO(update.timestamp);
             return differenceInDays(today, updateDate) < days && updateDate >= startDate;
         });
 
-        // Generate date entries for the range
         const dateEntries = Array.from({ length: days }, (_, i) => {
             const date = subDays(today, i);
             return {
@@ -153,32 +163,51 @@ export default function ReportsPage() {
                                 Live Reports Feed
                             </CardTitle>
                              <CardDescription>
-                                The latest 5 reports from the community.
+                                The latest reports from the community, updating automatically.
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Location</TableHead>
-                                        <TableHead>Disaster Type</TableHead>
-                                        <TableHead>Reporter</TableHead>
-                                        <TableHead>Timestamp</TableHead>
-                                        <TableHead className="text-right">Message</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
+                            <Carousel
+                                opts={{
+                                    align: "start",
+                                    loop: true,
+                                }}
+                                plugins={[
+                                    Autoplay({
+                                        delay: 5000,
+                                        stopOnInteraction: false,
+                                    }),
+                                ]}
+                                className="w-full"
+                            >
+                                <CarouselContent>
                                     {recentUpdates.map((update) => (
-                                        <TableRow key={update.id}>
-                                            <TableCell className="font-medium">{update.location.name}</TableCell>
-                                            <TableCell>{update.disasterType}</TableCell>
-                                            <TableCell>{update.user.name}</TableCell>
-                                            <TableCell>{format(parseISO(update.timestamp), "PPp")}</TableCell>
-                                            <TableCell className="text-right text-muted-foreground truncate max-w-xs">{update.message}</TableCell>
-                                        </TableRow>
+                                        <CarouselItem key={update.id}>
+                                            <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
+                                                {update.mediaUrl && (
+                                                    <div className="relative aspect-video md:col-span-2 rounded-lg overflow-hidden">
+                                                        <Image src={update.mediaUrl} alt={update.disasterType} fill className="object-cover" data-ai-hint={`${update.disasterType} disaster`} />
+                                                    </div>
+                                                )}
+                                                <div className={cn("md:col-span-3", !update.mediaUrl && "md:col-span-5")}>
+                                                    <div className="flex items-center gap-3 mb-2">
+                                                        <Avatar className="h-10 w-10">
+                                                            <AvatarImage src={update.user.avatarUrl} alt={update.user.name} />
+                                                            <AvatarFallback>{update.user.name.charAt(0)}</AvatarFallback>
+                                                        </Avatar>
+                                                        <div>
+                                                            <p className="font-semibold">{update.user.name}</p>
+                                                            <p className="text-xs text-muted-foreground">{format(parseISO(update.timestamp), "PPp")}</p>
+                                                        </div>
+                                                    </div>
+                                                    <p className="font-bold text-lg mb-1">{update.disasterType} in {update.location.name}</p>
+                                                    <p className="text-muted-foreground text-sm">{update.message}</p>
+                                                </div>
+                                            </div>
+                                        </CarouselItem>
                                     ))}
-                                </TableBody>
-                            </Table>
+                                </CarouselContent>
+                            </Carousel>
                         </CardContent>
                     </Card>
                 </div>
