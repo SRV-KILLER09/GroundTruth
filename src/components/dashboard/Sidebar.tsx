@@ -3,11 +3,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Mountain, Home, Map, LifeBuoy, BarChart3, Shield, Rss, Tv, MessageSquare } from "lucide-react";
+import { Mountain, Home, Map, LifeBuoy, BarChart3, Shield, Rss, Tv, MessageSquare, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
-    { href: "/dashboard/home", label: "Home", icon: <Home className="h-5 w-5" /> },
     { href: "/dashboard", label: "Live Feed", icon: <Tv className="h-5 w-5" /> },
     { href: "/dashboard/map", label: "Map View", icon: <Map className="h-5 w-5" /> },
     { href: "/dashboard/reports", label: "Reports", icon: <BarChart3 className="h-5 w-5" /> },
@@ -15,6 +14,7 @@ const navLinks = [
     { href: "/dashboard/directory", label: "Directory", icon: <Shield className="h-5 w-5" /> },
     { href: "/dashboard/chat", label: "Community Chat", icon: <MessageSquare className="h-5 w-5" /> },
     { href: "/dashboard/resources", label: "Safety Resources", icon: <LifeBuoy className="h-5 w-5" /> },
+    { href: "/dashboard/home", label: "About Us", icon: <Info className="h-5 w-5" /> },
 ];
 
 export default function Sidebar({ isMobile = false }: { isMobile?: boolean }) {
