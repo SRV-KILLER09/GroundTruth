@@ -151,6 +151,7 @@ export function SubmitUpdateForm({ onSubmit }: SubmitUpdateFormProps) {
     const newUpdate = {
         user: {
             name: user.displayName,
+            username: user.displayName.toLowerCase(),
             avatarUrl: `https://picsum.photos/seed/${user.email}/40/40`
         },
         disasterType: disasterType,

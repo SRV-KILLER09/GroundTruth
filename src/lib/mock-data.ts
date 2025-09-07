@@ -7,12 +7,15 @@ export type DisasterUpdateReply = {
 
 export type DisasterStatus = 'Verified' | 'Under Investigation' | 'Fake';
 
+export type UserProfile = {
+  name: string;
+  username: string;
+  avatarUrl: string;
+};
+
 export type DisasterUpdate = {
   id: number;
-  user: {
-    name: string;
-    avatarUrl: string;
-  };
+  user: UserProfile;
   timestamp: string;
   disasterType: 'Flood' | 'Earthquake' | 'Fire' | 'Hurricane' | string; // Allow custom strings
   location: {
@@ -89,7 +92,7 @@ export const mockAnnouncements: Announcement[] = [
 export const mockDisasterUpdates: DisasterUpdate[] = [
     {
     id: 5,
-    user: { name: "Anonymous", avatarUrl: "https://picsum.photos/id/404/40/40" },
+    user: { name: "Anonymous", username: "anonymous", avatarUrl: "https://picsum.photos/id/404/40/40" },
     timestamp: "2025-07-23T14:00:00Z",
     disasterType: 'Fire',
     location: { latitude: 28.6139, longitude: 77.2090, name: "New Delhi" },
@@ -104,7 +107,7 @@ export const mockDisasterUpdates: DisasterUpdate[] = [
   },
   {
     id: 1,
-    user: { name: "Priya", avatarUrl: "https://picsum.photos/id/237/40/40" },
+    user: { name: "Priya", username: "priya", avatarUrl: "https://picsum.photos/id/237/40/40" },
     timestamp: "2025-07-29T10:00:00Z",
     disasterType: 'Flood',
     location: { latitude: 19.0760, longitude: 72.8777, name: "Mumbai, MH" },
@@ -119,7 +122,7 @@ export const mockDisasterUpdates: DisasterUpdate[] = [
   },
   {
     id: 2,
-    user: { name: "Rohan", avatarUrl: "https://picsum.photos/id/238/40/40" },
+    user: { name: "Rohan", username: "rohan", avatarUrl: "https://picsum.photos/id/238/40/40" },
     timestamp: "2025-07-29T09:30:00Z",
     disasterType: 'Earthquake',
     location: { latitude: 13.0827, longitude: 80.2707, name: "Chennai, TN" },
@@ -134,7 +137,7 @@ export const mockDisasterUpdates: DisasterUpdate[] = [
   },
   {
     id: 8,
-    user: { name: "ConcernedCitizen", avatarUrl: "https://picsum.photos/id/512/40/40" },
+    user: { name: "ConcernedCitizen", username: "concernedcitizen", avatarUrl: "https://picsum.photos/id/512/40/40" },
     timestamp: "2025-07-25T11:00:00Z",
     disasterType: 'Tsunami',
     location: { latitude: 13.0827, longitude: 80.2707, name: "Chennai, TN" },
@@ -149,7 +152,7 @@ export const mockDisasterUpdates: DisasterUpdate[] = [
   },
   {
     id: 6,
-    user: { name: "Aisha", avatarUrl: "https://picsum.photos/id/1027/40/40" },
+    user: { name: "Aisha", username: "aisha", avatarUrl: "https://picsum.photos/id/1027/40/40" },
     timestamp: "2025-07-28T22:00:00Z",
     disasterType: 'Landslide',
     location: { latitude: 31.1048, longitude: 77.1734, name: "Shimla, HP" },
@@ -164,7 +167,7 @@ export const mockDisasterUpdates: DisasterUpdate[] = [
   },
   {
     id: 3,
-    user: { name: "Anjali", avatarUrl: "https://picsum.photos/id/239/40/40" },
+    user: { name: "Anjali", username: "anjali", avatarUrl: "https://picsum.photos/id/239/40/40" },
     timestamp: "2025-07-29T08:00:00Z",
     disasterType: 'Fire',
     location: { latitude: 22.5726, longitude: 88.3639, name: "Kolkata, WB" },
@@ -179,7 +182,7 @@ export const mockDisasterUpdates: DisasterUpdate[] = [
   },
     {
     id: 4,
-    user: { name: "Vikram", avatarUrl: "https://picsum.photos/id/240/40/40" },
+    user: { name: "Vikram", username: "vikram", avatarUrl: "https://picsum.photos/id/240/40/40" },
     timestamp: "2025-07-28T18:00:00Z",
     disasterType: 'Hurricane',
     location: { latitude: 15.2993, longitude: 74.1240, name: "Goa" },
@@ -194,7 +197,7 @@ export const mockDisasterUpdates: DisasterUpdate[] = [
   },
   {
     id: 7,
-    user: { name: "Sameer", avatarUrl: "https://picsum.photos/id/1005/40/40" },
+    user: { name: "Sameer", username: "sameer", avatarUrl: "https://picsum.photos/id/1005/40/40" },
     timestamp: "2025-07-27T11:45:00Z",
     disasterType: 'Power Outage',
     location: { latitude: 26.9124, longitude: 75.7873, name: "Jaipur, RJ" },
@@ -269,10 +272,10 @@ export const mockNewsItems: MockNewsItem[] = [
 
 // Helper function to create a new mock update for the live feed simulation
 const sampleUsers = [
-    { name: "Suresh", avatarId: "1011" },
-    { name: "Deepa", avatarId: "1025" },
-    { name: "Kiran", avatarId: "10" },
-    { name: "Amit", avatarId: "100" },
+    { name: "Suresh", username: "suresh", avatarId: "1011" },
+    { name: "Deepa", username: "deepa", avatarId: "1025" },
+    { name: "Kiran", username: "kiran", avatarId: "10" },
+    { name: "Amit", username: "amit", avatarId: "100" },
 ];
 
 const sampleDisasters = [
@@ -296,7 +299,7 @@ export const createNewMockUpdate = (id: number): DisasterUpdate => {
     
     return {
         id,
-        user: { name: randomUser.name, avatarUrl: `https://picsum.photos/id/${randomUser.avatarId}/40/40` },
+        user: { name: randomUser.name, username: randomUser.username, avatarUrl: `https://picsum.photos/id/${randomUser.avatarId}/40/40` },
         timestamp: new Date().toISOString(),
         disasterType: randomDisaster.type,
         location: randomDisaster.location,

@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import Link from "next/link";
 
 
 interface UpdateCardProps {
@@ -82,19 +83,24 @@ export function UpdateCard({ update, onReply }: UpdateCardProps) {
 
   const icon = disasterIcons[update.disasterType] || DefaultIcon;
   const currentStatus = statusConfig[update.status];
+  const profileUrl = `/dashboard/profile/${update.user.username}`;
 
   return (
     <>
     <Card className="overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
       <CardHeader className="flex flex-row items-start gap-3 space-y-0 p-4">
-        <Avatar>
-          <AvatarImage src={update.user.avatarUrl} alt={update.user.name} />
-          <AvatarFallback>{update.user.name.charAt(0)}</AvatarFallback>
-        </Avatar>
+        <Link href={profileUrl}>
+            <Avatar>
+            <AvatarImage src={update.user.avatarUrl} alt={update.user.name} />
+            <AvatarFallback>{update.user.name.charAt(0)}</AvatarFallback>
+            </Avatar>
+        </Link>
         <div className="grid gap-1 flex-1">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-                <p className="font-semibold">{update.user.name}</p>
+                <Link href={profileUrl} className="font-semibold hover:underline">
+                    {update.user.name}
+                </Link>
                 {isAdmin && (
                     <AlertDialog>
                         <AlertDialogTrigger asChild>

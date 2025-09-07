@@ -1,0 +1,105 @@
+
+"use client";
+
+import { useParams } from "next/navigation";
+import Header from "@/components/dashboard/Header";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { mockDisasterUpdates, DisasterUpdate } from "@/lib/mock-data";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Award, User, List } from "lucide-react";
+import { UpdateCard } from "@/components/dashboard/UpdateCard";
+import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import { useState } from "react";
+import type { DisasterUpdateReply } from "@/lib/mock-data";
+
+export default function UserProfilePage() {
+  const params = useParams();
+  const username = params.username as string;
+  
+  // A simple way to find the user's data from the mock updates.
+  // In a real app, you would fetch this from a user service.
+  const userUpdates = mockDisasterUpdates.filter(
+    (update) => update.user.username.toLowerCase() === username.toLowerCase()
+  );
+  
+  const [updates, setUpdates] = useState<DisasterUpdate[]>(userUpdates);
+
+  const addReply = (updateId: number, reply: DisasterUpdateReply) => {
+    setUpdates(currentUpdates => 
+      currentUpdates.map(update => {
+        if (update.id === updateId) {
+          return {
+            ...update,
+            replies: [...update.replies, reply],
+            status: 'Verified', 
+          };
+        }
+        return update;
+      })
+    );
+  };
+
+
+  if (updates.length === 0) {
+    // This could be a loading state or a "user not found" state.
+    // For now, we'll assume if there are no updates, we're still "loading" or the user is invalid.
+    return (
+       <div className="flex flex-col min-h-screen bg-background">
+        <Header />
+        <main className="flex-1 p-4 md:p-6">
+            <div className="w-full max-w-4xl mx-auto text-center">
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>User Not Found</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p>The user profile you are looking for does not exist or has not posted any updates.</p>
+                    </CardContent>
+                </Card>
+            </div>
+        </main>
+      </div>
+    )
+  }
+
+  const user = updates[0].user;
+  const honorScore = 100; // Hardcoded as per previous requirements.
+
+  return (
+    <div className="flex flex-col min-h-screen bg-background">
+      <Header />
+      <main className="flex-1 p-4 md:p-6">
+        <div className="w-full max-w-4xl mx-auto space-y-8">
+          <Card className="overflow-hidden">
+            <CardHeader className="flex flex-col items-center text-center space-y-4 p-6 bg-muted/50">
+              <Avatar className="h-24 w-24 border-4 border-primary">
+                <AvatarImage src={user.avatarUrl} alt={user.name} />
+                <AvatarFallback className="text-4xl">{user.name.charAt(0)}</AvatarFallback>
+              </Avatar>
+              <div>
+                <CardTitle className="text-3xl font-bold font-headline">{user.name}</CardTitle>
+                <CardDescription>@{user.username}</CardDescription>
+              </div>
+              <div className="flex items-center gap-2 text-yellow-500 bg-yellow-500/10 px-4 py-2 rounded-full border border-yellow-500/20">
+                <Award className="h-5 w-5" />
+                <span className="font-bold text-lg">{honorScore}</span>
+                <span className="font-medium text-sm">Honor Score</span>
+              </div>
+            </CardHeader>
+            <CardContent className="p-6">
+                 <h2 className="text-2xl font-headline font-bold flex items-center mb-4">
+                    <List className="mr-3 h-6 w-6 text-primary"/>
+                    User's Reports
+                </h2>
+                <div className="space-y-4">
+                    {updates.map((update) => (
+                        <UpdateCard key={update.id} update={update} onReply={addReply} />
+                    ))}
+                </div>
+            </CardContent>
+          </Card>
+        </div>
+      </main>
+    </div>
+  );
+}
