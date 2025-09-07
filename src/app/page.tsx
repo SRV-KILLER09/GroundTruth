@@ -106,12 +106,12 @@ export default function LandingPage() {
         <section id="about" className="w-full py-12 md:py-24 lg:py-32 bg-gray-900/50">
           <div className="container grid items-center gap-6 px-4 md:px-6 lg:grid-cols-2 lg:gap-12">
              <Image
-              src="https://images.unsplash.com/photo-1504368262-5555448b3758?q=80&w=1800&auto=format&fit=crop"
+              src="https://images.unsplash.com/photo-1618494720182-563a01594d40?q=80&w=1800&auto=format&fit=crop"
               width={800}
               height={600}
               alt="Mission Image"
               className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center sm:w-full"
-              data-ai-hint="helping hand"
+              data-ai-hint="disaster response team"
             />
             <div className="flex flex-col justify-center space-y-4 text-center lg:text-left">
               <div className="space-y-2">
