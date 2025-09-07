@@ -13,6 +13,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Bell, X } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { EmergencyContacts } from "@/components/dashboard/EmergencyContacts";
 
 
 export default function DashboardPage() {
@@ -111,6 +112,7 @@ export default function DashboardPage() {
           </Button>
         </Alert>
       )}
+      <EmergencyContacts />
       <UpdatesFeed allUpdates={updates} setUpdates={setUpdates} onReply={addReply} onDelete={deleteUpdate} />
     </div>
   );
