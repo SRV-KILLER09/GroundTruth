@@ -4,11 +4,11 @@
 import type { ReactNode } from "react";
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { onAuthStateChanged, User as FirebaseUser, Auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile } from "firebase/auth";
+import { onAuthStateChanged, User as FirebaseUser, Auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
 import { sendWelcomeEmail } from "@/ai/flows/send-welcome-email";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 interface User {
   uid: string;
@@ -21,6 +21,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string, username: string) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   logout: () => void;
   loading: boolean;
 }
@@ -37,8 +38,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       try {
         if (firebaseUser) {
-          // Test read to Firestore to check permissions early
-          await getDoc(doc(db, "users", firebaseUser.uid)); 
+          const userDocRef = doc(db, "users", firebaseUser.uid);
+          const userDoc = await getDoc(userDocRef);
+          
+          if (!userDoc.exists()) {
+             // This can happen if a user signs in with Google for the first time
+             // or if their user document was somehow deleted.
+             await setDoc(userDocRef, {
+                displayName: firebaseUser.displayName,
+                email: firebaseUser.email,
+                createdAt: new Date().toISOString(),
+             });
+          }
 
           setUser({
             uid: firebaseUser.uid,
@@ -53,7 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             toast({
                 variant: "destructive",
                 title: "Database Permission Error",
-                description: "Your app does not have permission to access Firestore. Please update your security rules.",
+                description: "Your app does not have permission to access Firestore. Please update your security rules in the Admin Panel.",
                 duration: 10000,
             });
             console.error("Firestore Permission Denied:", error);
@@ -65,7 +76,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             });
             console.error("Auth State Change Error:", error);
          }
-        // If there's an error (e.g., permission denied), we log them out to be safe.
         setUser(null);
       } finally {
         setLoading(false);
@@ -81,10 +91,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(userCredential.user, { displayName: username });
       
-      // Send welcome emails
+      await setDoc(doc(db, "users", userCredential.user.uid), {
+        username: username,
+        email: email,
+        createdAt: new Date().toISOString(),
+      });
+
       await sendWelcomeEmail({ email, username });
 
-      // Refresh the user to get the updated profile information
       const refreshedUser = auth.currentUser;
       if (refreshedUser) {
         setUser({
@@ -115,7 +129,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await signInWithEmailAndPassword(auth, email, password);
       router.push("/dashboard");
        toast({
-          title: "Welcome back to TitanicX",
+          title: "Welcome back!",
       });
     } catch (error: any) {
       toast({
@@ -127,6 +141,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     }
   };
+
+  const signInWithGoogle = async () => {
+    setLoading(true);
+    const provider = new GoogleAuthProvider();
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      const userDocRef = doc(db, "users", user.uid);
+      const userDoc = await getDoc(userDocRef);
+
+      if (!userDoc.exists() && user.email && user.displayName) {
+        await setDoc(userDocRef, {
+            username: user.displayName,
+            email: user.email,
+            createdAt: new Date().toISOString(),
+        });
+        await sendWelcomeEmail({ email: user.email, username: user.displayName });
+         toast({
+            title: `Welcome, ${user.displayName}!`,
+            description: "Your account has been created."
+        });
+      } else {
+         toast({
+            title: `Welcome back, ${user.displayName}!`,
+        });
+      }
+
+      router.push("/dashboard");
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Google Sign-In Error",
+        description: error.message,
+      });
+    } finally {
+        setLoading(false);
+    }
+  }
 
   const logout = async () => {
     setLoading(true);
@@ -146,7 +199,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, isAuthenticated: !!user, login, signup, logout, loading }}
+      value={{ user, isAuthenticated: !!user, login, signup, signInWithGoogle, logout, loading }}
     >
       {children}
     </AuthContext.Provider>

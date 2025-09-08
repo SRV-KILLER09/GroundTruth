@@ -29,7 +29,7 @@ const formSchema = z.object({
 });
 
 export function SignupForm() {
-  const { signup } = useAuth();
+  const { signup, signInWithGoogle } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -43,9 +43,14 @@ export function SignupForm() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
     await signup(values.email, values.password, values.username);
-    // No need to set isSubmitting back to false as the user will be redirected
+    setIsSubmitting(false); // Only set to false if signup fails, otherwise redirected
+  }
+
+  async function handleGoogleSignIn() {
+    setIsSubmitting(true);
+    await signInWithGoogle();
+    // Don't set isSubmitting to false, as user will be redirected on success.
   }
 
   if (isSubmitting) {
@@ -63,6 +68,20 @@ export function SignupForm() {
         <CardDescription className="text-base font-medium">Join our community to share and receive disaster updates.</CardDescription>
       </CardHeader>
       <CardContent>
+         <Button variant="outline" className="w-full" onClick={handleGoogleSignIn}>
+          <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512"><path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 126 21.2 170.8 58.2L325 150.5C300.7 128 276.3 116.5 248 116.5c-70.3 0-127.5 57.2-127.5 127.5s57.2 127.5 127.5 127.5c82.3 0 112.5-52.5 115.8-78.5H248V261.8h239.2z"></path></svg>
+          Continue with Google
+        </Button>
+         <div className="relative my-4">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-card px-2 text-muted-foreground">
+              Or continue with
+            </span>
+          </div>
+        </div>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
@@ -105,7 +124,7 @@ export function SignupForm() {
               )}
             />
             <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting ? "Signing up..." : "Sign Up"}
+              Sign Up
             </Button>
           </form>
         </Form>
