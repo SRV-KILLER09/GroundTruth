@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import Image from "next/image";
-import { collection, onSnapshot, query, orderBy, limit } from "firebase/firestore";
+import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
@@ -51,7 +51,7 @@ export default function MapViewPage() {
     const [searchTerm, setSearchTerm] = useState("");
     
     useEffect(() => {
-        const q = query(collection(db, "disaster_updates"), orderBy("timestamp", "desc"), limit(100)); // Limit to most recent 100
+        const q = query(collection(db, "disaster_updates"), orderBy("timestamp", "desc"));
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
             const updatesData: DisasterUpdate[] = [];
             querySnapshot.forEach((doc) => {
@@ -109,7 +109,7 @@ export default function MapViewPage() {
                         Interactive Geospatial Feed
                     </CardTitle>
                     <CardDescription>
-                        An interactive map displaying the 100 most recent disaster reports. All reports are pinned on the map.
+                        An interactive map displaying all disaster reports. All reports are pinned on the map.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
