@@ -15,9 +15,12 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>('light');
 
+  // This useEffect will run once when the component mounts on the client-side.
+  // It ensures that if a user has previously selected a theme, it's applied,
+  // but the initial server render and first client paint will be 'light'.
   useEffect(() => {
     const storedTheme = localStorage.getItem('theme') as Theme | null;
-    if (storedTheme) {
+    if (storedTheme && storedTheme !== theme) {
       setTheme(storedTheme);
     }
   }, []);
