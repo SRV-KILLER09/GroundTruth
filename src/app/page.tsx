@@ -16,38 +16,38 @@ export default function LandingPage() {
   ];
 
   return (
-    <div className="bg-black text-red-400 min-h-screen flex flex-col font-headline">
+    <div className="bg-background text-foreground min-h-screen flex flex-col font-headline">
       {/* Header */}
-      <header className="sticky top-0 z-50 px-4 lg:px-6 h-14 flex items-center bg-black/80 backdrop-blur-sm border-b border-red-900">
+      <header className="sticky top-0 z-50 px-4 lg:px-6 h-14 flex items-center bg-background/80 backdrop-blur-sm border-b">
         <Link href="#" className="flex items-center justify-center gap-2">
             <Image src="https://picsum.photos/seed/newlogo/40/40" alt="GroundTruth™ Logo" width={32} height={32} className="rounded-full" data-ai-hint="logo" />
           <div className="flex flex-col">
-            <span className="text-lg font-semibold leading-tight text-white">GroundTruth™</span>
+            <span className="text-lg font-semibold leading-tight">GroundTruth™</span>
             <span className="text-xs text-primary font-semibold">by TitanicX</span>
           </div>
         </Link>
         <nav className="ml-auto hidden lg:flex gap-4 sm:gap-6 items-center">
-           <Button asChild variant="ghost" className="text-red-200 hover:bg-red-900/50 hover:text-red-100">
+           <Button asChild variant="ghost">
                 <Link href="#about">About Us</Link>
             </Button>
-          <Button asChild variant="outline" className="border-red-400 text-red-300 hover:bg-red-400 hover:text-black">
+          <Button asChild>
             <Link href="/login">Login</Link>
           </Button>
         </nav>
         <div className="ml-auto lg:hidden">
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <Menu className="h-6 w-6 text-red-300" />
+              <Button variant="outline" size="icon">
+                <Menu className="h-6 w-6" />
                 <span className="sr-only">Toggle navigation menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="bg-black/90 border-red-900 text-red-200">
+            <SheetContent side="left">
               <nav className="grid gap-6 text-lg font-medium mt-10">
                 <Link href="#about" className="hover:underline underline-offset-4">
                   About Us
                 </Link>
-                <Button asChild variant="outline" className="border-red-400 text-red-300 hover:bg-red-400 hover:text-black mt-4">
+                <Button asChild className="mt-4">
                   <Link href="/login">Login</Link>
                 </Button>
               </nav>
@@ -59,9 +59,9 @@ export default function LandingPage() {
       <main className="flex-1">
         {/* Hero Section */}
         <section className="relative w-full py-24 md:py-32 lg:py-48 flex items-center justify-center text-center">
-          <div className="absolute inset-0 bg-black/60 z-10" />
+          <div className="absolute inset-0 bg-black/50 z-10" />
           <Image
-            src="https://picsum.photos/1800/900?grayscale"
+            src="https://picsum.photos/1800/900"
             alt="Hero Background"
             fill
             className="object-cover"
@@ -72,11 +72,11 @@ export default function LandingPage() {
               <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none text-white drop-shadow-xl [text-shadow:_0_2px_4px_rgb(0_0_0_/_50%)]">
                 Coordinating Rescue. Saving Lives.
               </h1>
-              <p className="max-w-[600px] text-red-100 md:text-xl mx-auto drop-shadow-lg">
+              <p className="max-w-[600px] text-primary-foreground md:text-xl mx-auto drop-shadow-lg">
                 Your lifeline in times of crisis. Real-time updates, resource coordination, and community support when it matters most.
               </p>
               <div className="flex justify-center">
-                <Button asChild size="lg" className="bg-red-500 text-white hover:bg-red-600">
+                <Button asChild size="lg">
                   <Link href="/signup">Join the Network</Link>
                 </Button>
               </div>
@@ -85,13 +85,13 @@ export default function LandingPage() {
         </section>
 
         {/* Our Mission Section */}
-        <section id="about" className="w-full py-12 md:py-24 lg:py-32 bg-gray-900/50">
+        <section id="about" className="w-full py-12 md:py-24 lg:py-32 bg-muted/50">
           <div className="container grid items-center gap-6 px-4 md:px-6 lg:grid-cols-2 lg:gap-12">
             <div className="flex flex-col justify-center space-y-4 text-center lg:text-left">
               <div className="space-y-2">
-                <div className="inline-block rounded-lg bg-red-900 px-3 py-1 text-sm text-red-100">Our Mission</div>
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-white drop-shadow-lg [text-shadow:_0_2px_4px_rgb(0_0_0_/_50%)]">Strength in Unity</h2>
-                <p className="max-w-[900px] text-red-100 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                <div className="inline-block rounded-lg bg-primary/10 text-primary px-3 py-1 text-sm font-semibold">Our Mission</div>
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">Strength in Unity</h2>
+                <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
                   In the face of adversity, information and coordination are our most powerful tools. TitanicX is dedicated to bridging the gap between affected communities, rescue teams, and authorities, ensuring a swift, efficient, and unified response to natural disasters.
                 </p>
               </div>
@@ -111,31 +111,31 @@ export default function LandingPage() {
         <section id="features" className="w-full py-12 md:py-24 lg:py-32">
           <div className="container grid items-center gap-6 px-4 md:px-6 lg:grid-cols-2 lg:gap-10">
             <div className="space-y-4">
-              <div className="inline-block rounded-lg bg-red-900 px-3 py-1 text-sm text-red-100">Key Features</div>
-              <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight text-white drop-shadow-lg [text-shadow:_0_2px_4px_rgb(0_0_0_/_50%)]">The Platform for Disaster Response</h2>
-              <p className="max-w-[600px] text-red-100 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+              <div className="inline-block rounded-lg bg-primary/10 text-primary px-3 py-1 text-sm font-semibold">Key Features</div>
+              <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">The Platform for Disaster Response</h2>
+              <p className="max-w-[600px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
                 Empowering communities and first responders with the tools they need to act decisively.
               </p>
               <ul className="grid gap-4">
                 <li className="flex items-start gap-3">
-                  <Zap className="mt-1 h-5 w-5 text-red-400" />
+                  <Zap className="mt-1 h-5 w-5 text-primary" />
                   <div>
-                    <h3 className="text-lg font-bold text-white">Real-Time Community Alerts</h3>
-                    <p className="text-red-200">Submit and receive live updates from the ground, keeping everyone informed of the evolving situation.</p>
+                    <h3 className="text-lg font-bold">Real-Time Community Alerts</h3>
+                    <p className="text-muted-foreground">Submit and receive live updates from the ground, keeping everyone informed of the evolving situation.</p>
                   </div>
                 </li>
                 <li className="flex items-start gap-3">
-                  <Users className="mt-1 h-5 w-5 text-red-400" />
+                  <Users className="mt-1 h-5 w-5 text-primary" />
                   <div>
-                    <h3 className="text-lg font-bold text-white">Emergency Contact Directory</h3>
-                    <p className="text-red-200">Instantly access geo-located contact numbers for the nearest police, ambulance, and fire services.</p>
+                    <h3 className="text-lg font-bold">Emergency Contact Directory</h3>
+                    <p className="text-muted-foreground">Instantly access geo-located contact numbers for the nearest police, ambulance, and fire services.</p>
                   </div>
                 </li>
                 <li className="flex items-start gap-3">
-                  <ShieldCheck className="mt-1 h-5 w-5 text-red-400" />
+                  <ShieldCheck className="mt-1 h-5 w-5 text-primary" />
                   <div>
-                    <h3 className="text-lg font-bold text-white">Admin Dispatch System</h3>
-                    <p className="text-red-200">Admins can verify reports and dispatch AI-summarized alerts to official authorities for immediate action.</p>
+                    <h3 className="text-lg font-bold">Admin Dispatch System</h3>
+                    <p className="text-muted-foreground">Admins can verify reports and dispatch AI-summarized alerts to official authorities for immediate action.</p>
                   </div>
                 </li>
               </ul>
@@ -152,12 +152,12 @@ export default function LandingPage() {
         </section>
 
         {/* Meet the Developers Section */}
-        <section id="developers" className="w-full py-12 md:py-24 lg:py-32 bg-gray-900/50">
+        <section id="developers" className="w-full py-12 md:py-24 lg:py-32 bg-muted/50">
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
-              <div className="inline-block rounded-lg bg-red-900 px-3 py-1 text-sm text-red-100">Our Team</div>
-              <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-white drop-shadow-lg [text-shadow:_0_2px_4px_rgb(0_0_0_/_50%)]">Meet the Developers</h2>
-              <p className="max-w-[900px] text-red-100 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+              <div className="inline-block rounded-lg bg-primary/10 text-primary px-3 py-1 text-sm font-semibold">Our Team</div>
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">Meet the Developers</h2>
+              <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
                 The passionate minds behind TitanicX, dedicated to using technology for good.
               </p>
             </div>
@@ -169,10 +169,10 @@ export default function LandingPage() {
                     alt={`Developer ${dev.name}`}
                     width={120}
                     height={120}
-                    className="rounded-full border-4 border-red-800 object-cover"
+                    className="rounded-full border-4 border-primary/50 object-cover"
                     data-ai-hint="person portrait"
                   />
-                  <h3 className="text-lg font-bold text-white mt-2">{dev.name}</h3>
+                  <h3 className="text-lg font-bold mt-2">{dev.name}</h3>
                 </div>
               ))}
             </div>
@@ -182,13 +182,13 @@ export default function LandingPage() {
       </main>
 
       {/* Footer */}
-      <footer id="contact" className="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t border-red-900 bg-gray-900/50">
-        <p className="text-xs text-red-200">&copy; 2025 TitanicX. All rights reserved.</p>
+      <footer id="contact" className="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t bg-muted/50">
+        <p className="text-xs text-muted-foreground">&copy; 2025 TitanicX. All rights reserved.</p>
         <nav className="sm:ml-auto flex gap-4 sm:gap-6">
-          <Link href="#" className="text-xs hover:underline underline-offset-4 text-red-100">
+          <Link href="#" className="text-xs hover:underline underline-offset-4 text-primary">
             Terms of Service
           </Link>
-          <Link href="#" className="text-xs hover:underline underline-offset-4 text-red-100">
+          <Link href="#" className="text-xs hover:underline underline-offset-4 text-primary">
             Privacy
           </Link>
         </nav>
