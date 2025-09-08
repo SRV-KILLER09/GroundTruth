@@ -105,7 +105,7 @@ export default function LandingPage() {
               height={600}
               alt="Mission Image"
               className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center sm:w-full"
-              data-ai-hint="disaster response team"
+              data-ai-hint="firefighters working"
             />
           </div>
         </section>
