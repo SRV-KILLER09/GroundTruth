@@ -3,13 +3,17 @@
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Map, Flame, Droplets, Zap, Wind, AlertTriangle, Search, CheckCircle, HelpCircle, XCircle, Clock, User, Shield, MapPin } from "lucide-react";
-import { mockDisasterUpdates, DisasterStatus, DisasterUpdate } from "@/lib/mock-data";
+import { type DisasterUpdate, type DisasterStatus } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import Image from "next/image";
+import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+
 
 const disasterInfo: Record<string, { icon: React.ReactNode; color: string; class: string }> = {
     'Fire': { icon: <Flame className="h-5 w-5" />, color: "#ef4444", class: "bg-red-500" },
@@ -25,7 +29,7 @@ const statusConfig: Record<DisasterStatus, { icon: React.ReactNode; text: string
   'Fake': { icon: <XCircle className="h-3 w-3 mr-1" />, text: "Fake", className: "bg-red-500/10 text-red-500 border-red-500/20" },
 };
 
-const getMapBounds = (updates: typeof mockDisasterUpdates) => {
+const getMapBounds = (updates: DisasterUpdate[]) => {
     if (updates.length === 0) {
         return { lat: 20.5937, lon: 78.9629, zoom: 4 }; // Default to India
     }
@@ -84,15 +88,39 @@ const IncidentDetailCard = ({ update }: { update: DisasterUpdate }) => {
 }
 
 export default function MapViewPage() {
+    const [allUpdates, setAllUpdates] = useState<DisasterUpdate[]>([]);
+    const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
-    const [selectedUpdate, setSelectedUpdate] = useState<DisasterUpdate | null>(mockDisasterUpdates[0]);
+    const [selectedUpdate, setSelectedUpdate] = useState<DisasterUpdate | null>(null);
+
+    useEffect(() => {
+        const q = query(collection(db, "disaster_updates"), orderBy("timestamp", "desc"));
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+            const updatesData: DisasterUpdate[] = [];
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                updatesData.push({ 
+                    ...data as Omit<DisasterUpdate, 'id' | 'timestamp'>,
+                    id: doc.id,
+                    timestamp: data.timestamp?.toDate().toISOString() || new Date().toISOString(),
+                });
+            });
+            setAllUpdates(updatesData);
+            if (updatesData.length > 0 && !selectedUpdate) {
+                setSelectedUpdate(updatesData[0]);
+            }
+            setLoading(false);
+        });
+
+        return () => unsubscribe();
+    }, [selectedUpdate]);
 
     const filteredUpdates = useMemo(() => {
-        return mockDisasterUpdates.filter(update =>
+        return allUpdates.filter(update =>
             update.location.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             update.disasterType.toLowerCase().includes(searchTerm.toLowerCase())
         );
-    }, [searchTerm]);
+    }, [searchTerm, allUpdates]);
     
     const mapBounds = useMemo(() => getMapBounds(filteredUpdates), [filteredUpdates]);
 
@@ -113,6 +141,10 @@ export default function MapViewPage() {
 
     const handleSelectUpdate = (update: DisasterUpdate) => {
       setSelectedUpdate(update);
+    }
+    
+    if (loading) {
+        return <LoadingSpinner />;
     }
 
     return (
@@ -192,6 +224,4 @@ export default function MapViewPage() {
             </Card>
         </div>
     );
-
-    
 }

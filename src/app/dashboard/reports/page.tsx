@@ -5,13 +5,17 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
-import { mockDisasterUpdates, createNewMockUpdate, DisasterUpdate } from "@/lib/mock-data";
+import type { DisasterUpdate } from "@/lib/mock-data";
 import { BarChart3, List, Flame, Droplets, Zap, Wind, AlertTriangle, User, Shield } from 'lucide-react';
 import { subDays, format, parseISO, differenceInDays, startOfDay } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from '@/components/ui/badge';
+import { db } from '@/lib/firebase';
+import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+
 
 type TimeRange = '7d' | '30d' | '3m' | '6m';
 
@@ -33,25 +37,33 @@ const DefaultIcon = <AlertTriangle className="h-4 w-4 text-red-500" />;
 
 
 export default function ReportsPage() {
-    const [timeRange, setTimeRange] = useState<TimeRange>('7d');
-    const [allUpdates, setAllUpdates] = useState<DisasterUpdate[]>(mockDisasterUpdates);
+    const [timeRange, setTimeRange] = useState<TimeRange>('30d');
+    const [allUpdates, setAllUpdates] = useState<DisasterUpdate[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const q = query(collection(db, "disaster_updates"), orderBy("timestamp", "desc"));
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+            const updatesData: DisasterUpdate[] = [];
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                updatesData.push({ 
+                    ...data as Omit<DisasterUpdate, 'id' | 'timestamp'>,
+                    id: doc.id,
+                    timestamp: data.timestamp?.toDate().toISOString() || new Date().toISOString(),
+                });
+            });
+            setAllUpdates(updatesData);
+            setLoading(false);
+        });
+
+        return () => unsubscribe();
+    }, []);
 
     const liveUpdates = useMemo(() => {
-        return allUpdates
-            .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-            .slice(0, 5);
+        return allUpdates.slice(0, 5);
     }, [allUpdates]);
     
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setAllUpdates(prevUpdates => {
-                const newUpdate = createNewMockUpdate(prevUpdates.length + 100); // use a high ID to avoid collisions
-                return [newUpdate, ...prevUpdates];
-            });
-        }, 5000); // Add a new update every 5 seconds
-
-        return () => clearInterval(interval);
-    }, []);
 
     const chartData = useMemo(() => {
         const { days } = timeRangeConfig[timeRange];
@@ -104,6 +116,10 @@ export default function ReportsPage() {
         Other: { label: "Other", color: "hsl(var(--chart-5))" },
     };
     
+    if (loading) {
+        return <LoadingSpinner />;
+    }
+
     return (
         <div className="w-full max-w-6xl mx-auto grid gap-6">
             <Card>
@@ -171,7 +187,7 @@ export default function ReportsPage() {
                         Live Reports Feed
                     </CardTitle>
                      <CardDescription>
-                        The latest reports from the community, updating automatically.
+                        The latest reports from the community, updating in real-time.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -223,6 +239,13 @@ export default function ReportsPage() {
                                     <TableCell className="text-right text-muted-foreground">{format(parseISO(update.timestamp), "HH:mm:ss")}</TableCell>
                                 </TableRow>
                             ))}
+                             {liveUpdates.length === 0 && (
+                                <TableRow>
+                                    <TableCell colSpan={7} className="h-24 text-center">
+                                        No reports found.
+                                    </TableCell>
+                                </TableRow>
+                            )}
                         </TableBody>
                     </Table>
                 </CardContent>
@@ -230,3 +253,4 @@ export default function ReportsPage() {
         </div>
     );
 }
+
