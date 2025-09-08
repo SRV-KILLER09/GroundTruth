@@ -83,6 +83,7 @@ export default function MapViewPage() {
 
     const mapUrl = useMemo(() => {
         if (filteredUpdates.length === 0) {
+            // Default view of India if no reports
             return `https://www.openstreetmap.org/export/embed.html?bbox=68.1,6.5,97.4,35.5&layer=mapnik`;
         }
 
@@ -91,8 +92,10 @@ export default function MapViewPage() {
           .map(update => `marker=${update.location.latitude},${update.location.longitude}`)
           .join('&');
         
-        const buffer = 0.5;
-        // The bbox parameter is what sets the initial view of the map.
+        // Add a small buffer to the bounding box so markers aren't on the edge
+        const buffer = Math.max((maxLat - minLat) * 0.1, (maxLng - minLng) * 0.1, 0.1);
+        
+        // The bbox parameter sets the initial view of the map.
         return `https://www.openstreetmap.org/export/embed.html?bbox=${minLng - buffer},${minLat - buffer},${maxLng + buffer},${maxLat + buffer}&layer=mapnik&${markers}`;
     }, [filteredUpdates, mapBounds]);
     
@@ -121,7 +124,7 @@ export default function MapViewPage() {
                                 src={mapUrl}
                                 className="border-0"
                                 title="Interactive Map of Disaster Reports"
-                                key={mapUrl}
+                                key={mapUrl} // Re-render iframe when URL changes
                             ></iframe>
                         </div>
                         <div className="lg:col-span-1 h-[500px] flex flex-col gap-3">
