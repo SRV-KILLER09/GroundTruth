@@ -45,54 +45,11 @@ const getMapBounds = (updates: DisasterUpdate[]) => {
     };
 };
 
-const IncidentDetailCard = ({ update }: { update: DisasterUpdate }) => {
-    const status = statusConfig[update.status];
-    const info = disasterInfo[update.disasterType] || disasterInfo['Default'];
-
-    return (
-        <Card className="bg-muted/50 border-primary/20">
-            <CardHeader className="pb-4">
-                <CardTitle className="flex items-center gap-3">
-                    <div className={cn("h-10 w-10 rounded-full flex-shrink-0 flex items-center justify-center text-primary-foreground", info.class)}>
-                        {info.icon}
-                    </div>
-                    <span>{update.disasterType} in {update.location.name}</span>
-                </CardTitle>
-                <CardDescription>
-                    <Badge variant="outline" className={status.className}>{status.icon} {status.text}</Badge>
-                </CardDescription>
-            </CardHeader>
-            <CardContent>
-                {update.mediaUrl && (
-                    <div className="relative aspect-video w-full overflow-hidden rounded-lg mb-4 border">
-                        <Image 
-                            src={update.mediaUrl} 
-                            alt={`Update from ${update.user.name}`} 
-                            fill 
-                            className="object-cover" 
-                            data-ai-hint={`${update.disasterType} disaster`}
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        />
-                    </div>
-                )}
-                 <p className="mb-4 text-foreground/90">{update.message}</p>
-                 <ul className="space-y-2 text-sm text-muted-foreground">
-                    <li className="flex items-center"><Clock className="h-4 w-4 mr-2 text-primary"/> {format(new Date(update.timestamp), "PPp")}</li>
-                    <li className="flex items-center"><User className="h-4 w-4 mr-2 text-primary"/> Reported by {update.user.name}</li>
-                    <li className="flex items-center"><Shield className="h-4 w-4 mr-2 text-primary"/> Authority: {update.authority}</li>
-                    <li className="flex items-center"><MapPin className="h-4 w-4 mr-2 text-primary"/> Coords: {update.location.latitude.toFixed(4)}, {update.location.longitude.toFixed(4)}</li>
-                </ul>
-            </CardContent>
-        </Card>
-    )
-}
-
 export default function MapViewPage() {
     const [allUpdates, setAllUpdates] = useState<DisasterUpdate[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
-    const [selectedUpdate, setSelectedUpdate] = useState<DisasterUpdate | null>(null);
-
+    
     useEffect(() => {
         const q = query(collection(db, "disaster_updates"), orderBy("timestamp", "desc"), limit(100)); // Limit to most recent 100
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
@@ -106,9 +63,6 @@ export default function MapViewPage() {
                 });
             });
             setAllUpdates(updatesData);
-            if (updatesData.length > 0 && !selectedUpdate) {
-                setSelectedUpdate(updatesData[0]);
-            }
             setLoading(false);
         }, (error) => {
             console.error("Firestore error: ", error);
@@ -116,7 +70,7 @@ export default function MapViewPage() {
         });
 
         return () => unsubscribe();
-    }, [selectedUpdate]);
+    }, []);
 
     const filteredUpdates = useMemo(() => {
         return allUpdates.filter(update =>
@@ -141,10 +95,6 @@ export default function MapViewPage() {
         // The bbox parameter is what sets the initial view of the map.
         return `https://www.openstreetmap.org/export/embed.html?bbox=${minLng - buffer},${minLat - buffer},${maxLng + buffer},${maxLat + buffer}&layer=mapnik&${markers}`;
     }, [filteredUpdates, mapBounds]);
-
-    const handleSelectUpdate = (update: DisasterUpdate) => {
-      setSelectedUpdate(update);
-    }
     
     if (loading) {
         return <LoadingSpinner />;
@@ -159,7 +109,7 @@ export default function MapViewPage() {
                         Interactive Geospatial Feed
                     </CardTitle>
                     <CardDescription>
-                        An interactive map displaying the 100 most recent disaster reports. Select a report to view details.
+                        An interactive map displaying the 100 most recent disaster reports. All reports are pinned on the map.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -190,13 +140,9 @@ export default function MapViewPage() {
                                 {filteredUpdates.map((update) => {
                                     const info = disasterInfo[update.disasterType] || disasterInfo['Default'];
                                     return (
-                                        <button
+                                        <div
                                             key={update.id}
-                                            onClick={() => handleSelectUpdate(update)}
-                                            className={cn(
-                                                "w-full text-left p-3 rounded-lg border transition-colors",
-                                                selectedUpdate && selectedUpdate.id === update.id ? "bg-primary/10 border-primary" : "bg-muted/50 hover:bg-muted"
-                                            )}
+                                            className="w-full text-left p-3 rounded-lg border bg-muted/50"
                                         >
                                             <div className="flex items-center gap-3">
                                                 <div className={cn("h-8 w-8 rounded-full flex-shrink-0 flex items-center justify-center text-primary-foreground", info.class)}>
@@ -207,7 +153,7 @@ export default function MapViewPage() {
                                                     <p className="text-sm text-muted-foreground">{format(new Date(update.timestamp), "MMM d, HH:mm")}</p>
                                                 </div>
                                             </div>
-                                        </button>
+                                        </div>
                                     )
                                 })}
                                  {filteredUpdates.length === 0 && (
@@ -218,12 +164,6 @@ export default function MapViewPage() {
                             </div>
                         </div>
                     </div>
-                    {selectedUpdate && (
-                        <div className="mt-6">
-                            <h2 className="text-2xl font-bold font-headline mb-4">Incident Details</h2>
-                            <IncidentDetailCard update={selectedUpdate} />
-                        </div>
-                    )}
                 </CardContent>
             </Card>
         </div>
