@@ -14,7 +14,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { EmergencyContacts } from "@/components/dashboard/EmergencyContacts";
 import { db } from "@/lib/firebase";
-import { collection, onSnapshot, query, orderBy, doc, updateDoc, arrayUnion, deleteDoc, getDocs, limit, startAfter, DocumentData, QueryDocumentSnapshot } from "firebase/firestore";
+import { collection, onSnapshot, query, orderBy, doc, updateDoc, arrayUnion, deleteDoc, getDocs, limit, startAfter, DocumentData, QueryDocumentSnapshot, increment } from "firebase/firestore";
 
 
 export default function DashboardPage() {
@@ -126,6 +126,14 @@ export default function DashboardPage() {
     await deleteDoc(doc(db, "disaster_updates", updateId));
     setUpdates(prev => prev.filter(u => u.id !== updateId));
   };
+  
+  const handleInteraction = async (updateId: string, interactionType: 'like' | 'dislike') => {
+      const updateRef = doc(db, "disaster_updates", updateId);
+      const fieldToIncrement = interactionType === 'like' ? 'likes' : 'dislikes';
+      await updateDoc(updateRef, {
+          [fieldToIncrement]: increment(1)
+      });
+  }
 
   const handleDismissNotification = () => {
     if (latestNotification) {
@@ -167,11 +175,10 @@ export default function DashboardPage() {
         allUpdates={updates} 
         onReply={addReply} 
         onDelete={deleteUpdate}
+        onInteraction={handleInteraction}
         loadMore={fetchMoreUpdates}
         hasMore={hasMore}
       />
     </div>
   );
 }
-
-    

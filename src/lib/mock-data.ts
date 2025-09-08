@@ -29,6 +29,8 @@ export type DisasterUpdate = {
   replies: DisasterUpdateReply[];
   status: DisasterStatus;
   authority: 'NDRF' | 'Local Police' | 'Fire Dept.' | 'Medical Team';
+  likes?: number;
+  dislikes?: number;
 };
 
 export type MockNewsItem = {

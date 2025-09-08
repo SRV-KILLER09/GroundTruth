@@ -23,6 +23,7 @@ interface UpdateCardProps {
   update: DisasterUpdate;
   onReply: (updateId: string, reply: DisasterUpdateReply) => void;
   onDelete: (updateId: string) => void;
+  onInteraction: (updateId: string, interactionType: 'like' | 'dislike') => void;
 }
 
 const disasterIcons: Record<string, React.ReactNode> = {
@@ -40,14 +41,12 @@ const statusConfig = {
 
 const DefaultIcon = <AlertTriangle className="h-4 w-4 text-muted-foreground" />;
 
-export function UpdateCard({ update, onReply, onDelete }: UpdateCardProps) {
+export function UpdateCard({ update, onReply, onDelete, onInteraction }: UpdateCardProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const [replyText, setReplyText] = useState("");
   const [isDispatching, setIsDispatching] = useState(false);
-  const [interaction, setInteraction] = useState<'like' | 'dislike' | null>(null);
-  const [showComment, setShowComment] = useState(false);
-  const [commentText, setCommentText] = useState("");
+  const [localInteraction, setLocalInteraction] = useState<'like' | 'dislike' | null>(null);
 
   const adminEmails = ['vardaansaxena096@gmail.com', 'saranshwadhwa0102@gmail.com'];
   const isAdmin = user?.email ? adminEmails.includes(user.email) : false;
@@ -63,14 +62,21 @@ export function UpdateCard({ update, onReply, onDelete }: UpdateCardProps) {
       setReplyText("");
     }
   };
-  
-  const handleCommentSubmit = () => {
-    if (commentText.trim() && user) {
-        console.log(`Comment by ${user.displayName}: ${commentText}`);
-        setCommentText("");
-        setShowComment(false);
+
+  const handleInteraction = (interactionType: 'like' | 'dislike') => {
+    if (!update.id) return;
+    if (localInteraction === interactionType) {
+        // User is un-doing their vote. For simplicity, we don't support this yet.
+        toast({
+            title: "Already Voted",
+            description: "You have already cast your vote on this post.",
+        });
+        return;
     }
-  };
+    setLocalInteraction(interactionType);
+    onInteraction(update.id, interactionType);
+  }
+
   
   const handleReportUser = () => {
     toast({
@@ -223,24 +229,6 @@ export function UpdateCard({ update, onReply, onDelete }: UpdateCardProps) {
             </div>
           ))}
         </div>
-        
-        {showComment && (
-            <div className="mt-4 space-y-2">
-                <Textarea
-                    placeholder={`Replying as ${user?.displayName || 'user'}...`}
-                    value={commentText}
-                    onChange={(e) => setCommentText(e.target.value)}
-                    rows={2}
-                />
-                <div className="flex justify-end gap-2">
-                    <Button variant="ghost" size="sm" onClick={() => setShowComment(false)}>Cancel</Button>
-                    <Button size="sm" onClick={handleCommentSubmit} disabled={!commentText.trim()}>
-                        <CornerDownRight className="mr-2 h-4 w-4"/>
-                        Submit
-                    </Button>
-                </div>
-            </div>
-        )}
 
         {isAdmin && (
             <div className="mt-4 flex items-start gap-4">
@@ -269,17 +257,13 @@ export function UpdateCard({ update, onReply, onDelete }: UpdateCardProps) {
             <span className="ml-1.5">{update.disasterType}</span>
         </div>
         <div className="flex items-center gap-1">
-            <Button variant="ghost" size="sm" onClick={() => setInteraction(interaction === 'like' ? null : 'like')}>
-                <ThumbsUp className={cn("mr-2 h-4 w-4", interaction === 'like' && "text-primary fill-primary/20")} />
-                Like
+            <Button variant="ghost" size="sm" onClick={() => handleInteraction('like')} disabled={!!localInteraction}>
+                <ThumbsUp className={cn("mr-2 h-4 w-4", localInteraction === 'like' && "text-primary fill-primary/20")} />
+                {update.likes || 0}
             </Button>
-            <Button variant="ghost" size="sm" onClick={() => setInteraction(interaction === 'dislike' ? null : 'dislike')}>
-                <ThumbsDown className={cn("mr-2 h-4 w-4", interaction === 'dislike' && "text-destructive fill-destructive/20")} />
-                Dislike
-            </Button>
-            <Button variant="ghost" size="sm" onClick={() => setShowComment(!showComment)}>
-                <MessageSquare className="mr-2 h-4 w-4" />
-                Comment
+            <Button variant="ghost" size="sm" onClick={() => handleInteraction('dislike')} disabled={!!localInteraction}>
+                <ThumbsDown className={cn("mr-2 h-4 w-4", localInteraction === 'dislike' && "text-destructive fill-destructive/20")} />
+                {update.dislikes || 0}
             </Button>
         </div>
       </CardFooter>

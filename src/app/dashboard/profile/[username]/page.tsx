@@ -11,7 +11,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { db } from "@/lib/firebase";
-import { collection, query, where, onSnapshot, orderBy, doc, updateDoc, arrayUnion, deleteDoc } from "firebase/firestore";
+import { collection, query, where, onSnapshot, orderBy, doc, updateDoc, arrayUnion, deleteDoc, increment } from "firebase/firestore";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { mockUserActivity } from "@/lib/mock-data";
 
@@ -70,6 +70,14 @@ export default function UserProfilePage() {
   const deleteUpdate = async (updateId: string) => {
     await deleteDoc(doc(db, "disaster_updates", updateId));
   };
+  
+  const handleInteraction = async (updateId: string, interactionType: 'like' | 'dislike') => {
+      const updateRef = doc(db, "disaster_updates", updateId);
+      const fieldToIncrement = interactionType === 'like' ? 'likes' : 'dislikes';
+      await updateDoc(updateRef, {
+          [fieldToIncrement]: increment(1)
+      });
+  }
 
 
   if (loading) {
@@ -136,7 +144,7 @@ export default function UserProfilePage() {
               </h2>
               <div className="space-y-4">
                   {updates.map((update) => (
-                      <UpdateCard key={update.id} update={update} onReply={addReply} onDelete={deleteUpdate} />
+                      <UpdateCard key={update.id} update={update} onReply={addReply} onDelete={deleteUpdate} onInteraction={handleInteraction}/>
                   ))}
               </div>
           </CardContent>

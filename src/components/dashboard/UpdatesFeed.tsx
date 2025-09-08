@@ -20,6 +20,7 @@ interface UpdatesFeedProps {
     allUpdates: DisasterUpdate[];
     onReply: (updateId: string, reply: DisasterUpdateReply) => void;
     onDelete: (updateId: string) => void;
+    onInteraction: (updateId: string, interactionType: 'like' | 'dislike') => void;
     loadMore: () => void;
     hasMore: boolean;
 }
@@ -48,7 +49,7 @@ const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => 
   return R * c; // Distance in km
 };
 
-export function UpdatesFeed({ allUpdates, onReply, onDelete, loadMore, hasMore }: UpdatesFeedProps) {
+export function UpdatesFeed({ allUpdates, onReply, onDelete, onInteraction, loadMore, hasMore }: UpdatesFeedProps) {
     const { user } = useAuth();
     const [filteredUpdates, setFilteredUpdates] = React.useState<DisasterUpdate[]>(allUpdates);
     const [activeDisasterType, setActiveDisasterType] = React.useState<DisasterType>('All');
@@ -264,7 +265,7 @@ export function UpdatesFeed({ allUpdates, onReply, onDelete, loadMore, hasMore }
             <div className="space-y-4">
                 {filteredUpdates.length > 0 ? (
                     filteredUpdates.map(update => (
-                        <UpdateCard key={update.id} update={update} onReply={onReply} onDelete={onDelete} />
+                        <UpdateCard key={update.id} update={update} onReply={onReply} onDelete={onDelete} onInteraction={onInteraction} />
                     ))
                 ) : (
                     <div className="text-center text-muted-foreground py-10">
@@ -280,5 +281,3 @@ export function UpdatesFeed({ allUpdates, onReply, onDelete, loadMore, hasMore }
         </div>
     );
 }
-
-    
