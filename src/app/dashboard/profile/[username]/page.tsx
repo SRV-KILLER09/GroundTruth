@@ -155,7 +155,7 @@ export default function UserProfilePage() {
                      <Button 
                         variant="outline" 
                         size="icon" 
-                        className="absolute bottom-0 right-0 h-8 w-8 rounded-full bg-background group-hover:opacity-100 md:opacity-0 transition-opacity"
+                        className="absolute bottom-0 right-0 h-8 w-8 rounded-full bg-background"
                         onClick={handleChangeProfilePicture}
                      >
                         <Edit className="h-4 w-4" />
