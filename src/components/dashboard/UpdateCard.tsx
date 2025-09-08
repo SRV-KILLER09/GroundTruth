@@ -172,9 +172,11 @@ export function UpdateCard({ update, onReply, onDelete, onInteraction }: UpdateC
                 )}
              </div>
           </div>
-          <p className="text-sm text-muted-foreground flex items-center">
+          <p className="text-sm text-muted-foreground flex items-center flex-wrap gap-x-1.5">
             <span>{timeAgo}</span>
-            <span className="mx-1.5">·</span>
+            <span className="text-muted-foreground/50">·</span>
+            <span className="flex items-center gap-1">{icon} {update.disasterType}</span>
+            <span className="text-muted-foreground/50">·</span>
             <span className="truncate">{update.location.name}</span>
           </p>
         </div>
@@ -253,8 +255,7 @@ export function UpdateCard({ update, onReply, onDelete, onInteraction }: UpdateC
       </CardContent>
       <CardFooter className="flex justify-between items-center bg-muted/50 p-2 text-sm text-muted-foreground">
         <div className="flex items-center pl-2">
-            {icon}
-            <span className="ml-1.5">{update.disasterType}</span>
+            
         </div>
         <div className="flex items-center gap-1">
             <Button variant="ghost" size="sm" onClick={() => handleInteraction('like')} disabled={!!localInteraction}>

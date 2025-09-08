@@ -24,8 +24,8 @@ const formSchema = z.object({
   disasterType: z.enum(['Flood', 'Earthquake', 'Fire', 'Hurricane', 'Other']),
   otherDisasterType: z.string().optional(),
   locationName: z.string().min(1, { message: "Location is required." }),
-  latitude: z.coerce.number().min(-90).max(90),
-  longitude: z.coerce.number().min(-180).max(180),
+  latitude: z.coerce.number().min(-90, "Must be > -90").max(90, "Must be < 90"),
+  longitude: z.coerce.number().min(-180, "Must be > -180").max(180, "Must be < 180"),
   message: z.string().min(10, { message: "Update message must be at least 10 characters." }),
 }).refine((data) => {
     if (data.disasterType === 'Other') {
@@ -293,15 +293,36 @@ export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) 
                 ) : (
                     <MapPin className="mr-2 h-4 w-4" />
                 )}
-                {form.getValues().latitude ? 'Re-acquire Location' : 'Acquire My Location'}
+                Acquire My Location
             </Button>
-            {form.formState.errors.latitude && <p className="text-sm font-medium text-destructive">{form.formState.errors.latitude.message}</p>}
-            {form.formState.errors.longitude && <p className="text-sm font-medium text-destructive">{form.formState.errors.longitude.message}</p>}
-             {form.getValues().latitude && (
-                <div className="text-sm text-muted-foreground p-2 bg-muted rounded-md">
-                    Lat: {form.getValues().latitude?.toFixed(4)}, Lng: {form.getValues().longitude?.toFixed(4)}
-                </div>
-            )}
+            <div className="grid grid-cols-2 gap-4">
+                <FormField
+                control={form.control}
+                name="latitude"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Latitude</FormLabel>
+                    <FormControl>
+                        <Input type="number" step="any" placeholder="-23.5505" {...field} disabled={isSubmitting}/>
+                    </FormControl>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+                <FormField
+                control={form.control}
+                name="longitude"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Longitude</FormLabel>
+                    <FormControl>
+                        <Input type="number" step="any" placeholder="-46.6333" {...field} disabled={isSubmitting}/>
+                    </FormControl>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+            </div>
         </div>
         
         <Button type="submit" className="w-full" disabled={isSubmitting}>
