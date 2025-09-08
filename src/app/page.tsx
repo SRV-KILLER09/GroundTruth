@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Mountain, LifeBuoy, Users, Zap, ShieldCheck, Menu } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 export default function LandingPage() {
   const developers = [
@@ -43,6 +43,9 @@ export default function LandingPage() {
               </Button>
             </SheetTrigger>
             <SheetContent side="left">
+                <SheetHeader>
+                    <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+                </SheetHeader>
               <nav className="grid gap-6 text-lg font-medium mt-10">
                 <Link href="#about" className="hover:underline underline-offset-4">
                   About Us
