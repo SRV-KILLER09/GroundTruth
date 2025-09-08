@@ -1,15 +1,29 @@
+
+"use client";
 import Header from "@/components/dashboard/Header";
 import Sidebar from "@/components/dashboard/Sidebar";
 import ThemeToggle from "@/components/dashboard/ThemeToggle";
+import { useTheme } from "@/contexts/ThemeContext";
 import { cn } from "@/lib/utils";
+import { useEffect } from "react";
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { theme } = useTheme();
+
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [theme]);
+  
   return (
-    <div className="flex min-h-screen w-full flex-col bg-muted/40">
+    <div className={cn("flex min-h-screen w-full flex-col bg-muted/40", theme)}>
       <Sidebar />
       <div className={cn("flex flex-col sm:gap-4 sm:py-4 sm:pl-60")}>
         <Header />
