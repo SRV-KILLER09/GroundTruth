@@ -148,9 +148,10 @@ export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) 
     try {
         await addDoc(collection(db, "disaster_updates"), {
             user: {
+                uid: user.uid,
                 name: user.displayName,
                 username: user.displayName.toLowerCase(),
-                avatarUrl: `https://picsum.photos/seed/${user.email}/40/40`
+                avatarUrl: user.photoURL || `https://picsum.photos/seed/${user.email}/40/40`
             },
             disasterType: disasterType,
             location: {

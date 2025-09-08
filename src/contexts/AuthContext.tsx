@@ -14,6 +14,7 @@ interface User {
   uid: string;
   displayName: string | null;
   email: string | null;
+  photoURL: string | null;
 }
 
 interface AuthContextType {
@@ -47,6 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
              await setDoc(userDocRef, {
                 displayName: firebaseUser.displayName,
                 email: firebaseUser.email,
+                photoURL: firebaseUser.photoURL,
                 createdAt: new Date().toISOString(),
              });
           }
@@ -55,6 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             uid: firebaseUser.uid,
             displayName: firebaseUser.displayName,
             email: firebaseUser.email,
+            photoURL: firebaseUser.photoURL,
           });
         } else {
           setUser(null);
@@ -89,11 +92,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      await updateProfile(userCredential.user, { displayName: username });
+      const defaultAvatar = `https://picsum.photos/seed/${userCredential.user.uid}/40/40`;
+      await updateProfile(userCredential.user, { 
+          displayName: username,
+          photoURL: defaultAvatar,
+       });
       
       await setDoc(doc(db, "users", userCredential.user.uid), {
         username: username,
         email: email,
+        photoURL: defaultAvatar,
         createdAt: new Date().toISOString(),
       });
 
@@ -105,6 +113,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           uid: refreshedUser.uid,
           displayName: refreshedUser.displayName,
           email: refreshedUser.email,
+          photoURL: refreshedUser.photoURL,
         });
       }
       router.push("/dashboard");
@@ -156,6 +165,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await setDoc(userDocRef, {
             username: user.displayName,
             email: user.email,
+            photoURL: user.photoURL,
             createdAt: new Date().toISOString(),
         });
         await sendWelcomeEmail({ email: user.email, username: user.displayName });

@@ -10,14 +10,18 @@ import { UpdateCard } from "@/components/dashboard/UpdateCard";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
-import { db } from "@/lib/firebase";
+import { db, updateUserAvatarInFirestore } from "@/lib/firebase";
 import { collection, query, where, onSnapshot, orderBy, doc, updateDoc, arrayUnion, deleteDoc, increment } from "firebase/firestore";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { mockUserActivity } from "@/lib/mock-data";
+import { useToast } from "@/hooks/use-toast";
+import { updateProfile } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 export default function UserProfilePage() {
   const params = useParams();
   const { user: currentUser } = useAuth();
+  const { toast } = useToast();
   const username = params.username as string;
   
   const [updates, setUpdates] = useState<DisasterUpdate[]>([]);
@@ -26,6 +30,7 @@ export default function UserProfilePage() {
 
   const adminEmails = ['vardaansaxena096@gmail.com', 'saranshwadhwa0102@gmail.com'];
   const isAdmin = currentUser?.email ? adminEmails.includes(currentUser.email) : false;
+  const isOwnProfile = currentUser?.displayName?.toLowerCase() === username?.toLowerCase();
 
   useEffect(() => {
     if (username) {
@@ -79,12 +84,45 @@ export default function UserProfilePage() {
       });
   }
 
+  const handleChangeProfilePicture = async () => {
+    if (!auth.currentUser || !currentUser) return;
+
+    // Simulate file upload by generating a new random image URL
+    const newAvatarUrl = `https://picsum.photos/seed/${currentUser.uid}/${Date.now()}/40/40`;
+
+    try {
+        setLoading(true);
+        // Update Firebase Auth profile
+        await updateProfile(auth.currentUser, { photoURL: newAvatarUrl });
+
+        // Update user's avatar in all their disaster_updates documents
+        await updateUserAvatarInFirestore(currentUser.uid, newAvatarUrl);
+        
+        // Update local state to reflect change immediately
+        setUserProfile((prev: any) => ({ ...prev, avatarUrl: newAvatarUrl }));
+
+        toast({
+            title: "Profile Picture Updated",
+            description: "Your new profile picture is now live.",
+        });
+    } catch (error) {
+        console.error("Error updating profile picture:", error);
+        toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Could not update your profile picture.",
+        });
+    } finally {
+        setLoading(false);
+    }
+  };
+
 
   if (loading) {
       return <LoadingSpinner />;
   }
 
-  if (!loading && updates.length === 0) {
+  if (!loading && updates.length === 0 && !userProfile) {
     return (
        <div className="w-full max-w-4xl mx-auto text-center">
              <Card>
@@ -101,7 +139,6 @@ export default function UserProfilePage() {
 
   const honorScore = 100; // This can be moved to the user profile data in Firestore later
   const userProfileData = mockUserActivity.find(u => u.username.toLowerCase() === username.toLowerCase());
-  const isOwnProfile = currentUser?.displayName?.toLowerCase() === userProfile?.username.toLowerCase();
 
 
   return (
@@ -109,19 +146,26 @@ export default function UserProfilePage() {
       {userProfile && (
         <Card className="overflow-hidden">
           <CardHeader className="flex flex-col items-center text-center space-y-4 p-6 bg-muted/50">
-            <Avatar className="h-24 w-24 border-4 border-primary">
-              <AvatarImage src={userProfile.avatarUrl} alt={userProfile.name} />
-              <AvatarFallback className="text-4xl">{userProfile.name.charAt(0)}</AvatarFallback>
-            </Avatar>
+            <div className="relative group">
+                <Avatar className="h-24 w-24 border-4 border-primary">
+                <AvatarImage src={userProfile.avatarUrl} alt={userProfile.name} key={userProfile.avatarUrl} />
+                <AvatarFallback className="text-4xl">{userProfile.name.charAt(0)}</AvatarFallback>
+                </Avatar>
+                {isOwnProfile && (
+                     <Button 
+                        variant="outline" 
+                        size="icon" 
+                        className="absolute bottom-0 right-0 h-8 w-8 rounded-full bg-background group-hover:opacity-100 md:opacity-0 transition-opacity"
+                        onClick={handleChangeProfilePicture}
+                     >
+                        <Edit className="h-4 w-4" />
+                        <span className="sr-only">Change Profile Picture</span>
+                    </Button>
+                )}
+            </div>
             <div>
               <div className="flex items-center gap-2 justify-center">
                 <CardTitle className="text-3xl font-bold font-headline">{userProfile.name}</CardTitle>
-                {isOwnProfile && (
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <Edit className="h-4 w-4" />
-                    <span className="sr-only">Edit Name</span>
-                  </Button>
-                )}
               </div>
               <CardDescription>@{userProfile.username}</CardDescription>
               {isAdmin && userProfileData && (
@@ -146,6 +190,11 @@ export default function UserProfilePage() {
                   {updates.map((update) => (
                       <UpdateCard key={update.id} update={update} onReply={addReply} onDelete={deleteUpdate} onInteraction={handleInteraction}/>
                   ))}
+                   {updates.length === 0 && (
+                        <div className="text-center p-8 text-muted-foreground">
+                            <p>This user hasn't posted any updates yet.</p>
+                        </div>
+                    )}
               </div>
           </CardContent>
         </Card>
