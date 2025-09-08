@@ -5,9 +5,10 @@ import type { ReactNode } from "react";
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { onAuthStateChanged, User as FirebaseUser, Auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
 import { sendWelcomeEmail } from "@/ai/flows/send-welcome-email";
+import { doc, getDoc } from "firebase/firestore";
 
 interface User {
   uid: string;
@@ -33,21 +34,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      if (firebaseUser) {
-        setUser({
-          uid: firebaseUser.uid,
-          displayName: firebaseUser.displayName,
-          email: firebaseUser.email,
-        });
-      } else {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      try {
+        if (firebaseUser) {
+          // Test read to Firestore to check permissions early
+          await getDoc(doc(db, "users", firebaseUser.uid)); 
+
+          setUser({
+            uid: firebaseUser.uid,
+            displayName: firebaseUser.displayName,
+            email: firebaseUser.email,
+          });
+        } else {
+          setUser(null);
+        }
+      } catch (error: any) {
+         if (error.code === 'permission-denied') {
+            toast({
+                variant: "destructive",
+                title: "Database Permission Error",
+                description: "Your app does not have permission to access Firestore. Please update your security rules.",
+                duration: 10000,
+            });
+            console.error("Firestore Permission Denied:", error);
+         } else {
+            toast({
+                variant: "destructive",
+                title: "Authentication Error",
+                description: "An unexpected error occurred during authentication.",
+            });
+            console.error("Auth State Change Error:", error);
+         }
+        // If there's an error (e.g., permission denied), we log them out to be safe.
         setUser(null);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [toast]);
 
   const signup = async (email: string, password: string, username: string) => {
     setLoading(true);
