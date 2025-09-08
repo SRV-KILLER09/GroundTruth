@@ -18,9 +18,10 @@ import { useAuth } from '@/contexts/AuthContext';
 
 interface UpdatesFeedProps {
     allUpdates: DisasterUpdate[];
-    setUpdates: React.Dispatch<React.SetStateAction<DisasterUpdate[]>>;
     onReply: (updateId: string, reply: DisasterUpdateReply) => void;
     onDelete: (updateId: string) => void;
+    loadMore: () => void;
+    hasMore: boolean;
 }
 
 const disasterTypes = ['All', 'Flood', 'Earthquake', 'Fire', 'Hurricane'] as const;
@@ -47,7 +48,7 @@ const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => 
   return R * c; // Distance in km
 };
 
-export function UpdatesFeed({ allUpdates, setUpdates, onReply, onDelete }: UpdatesFeedProps) {
+export function UpdatesFeed({ allUpdates, onReply, onDelete, loadMore, hasMore }: UpdatesFeedProps) {
     const { user } = useAuth();
     const [filteredUpdates, setFilteredUpdates] = React.useState<DisasterUpdate[]>(allUpdates);
     const [activeDisasterType, setActiveDisasterType] = React.useState<DisasterType>('All');
@@ -270,7 +271,14 @@ export function UpdatesFeed({ allUpdates, setUpdates, onReply, onDelete }: Updat
                         <p>No updates found for the selected filters.</p>
                     </div>
                 )}
+                {hasMore && filteredUpdates.length > 0 && (
+                    <Button variant="outline" className="w-full" onClick={loadMore}>
+                        Load More
+                    </Button>
+                )}
             </div>
         </div>
     );
 }
+
+    

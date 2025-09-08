@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from '@/components/ui/badge';
 import { db } from '@/lib/firebase';
-import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, limit } from 'firebase/firestore';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 
 
@@ -42,7 +42,9 @@ export default function ReportsPage() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const q = query(collection(db, "disaster_updates"), orderBy("timestamp", "desc"));
+        // We fetch up to 500 recent documents for reporting purposes.
+        // For very large datasets, a more advanced aggregation solution (e.g., Cloud Functions) would be needed.
+        const q = query(collection(db, "disaster_updates"), orderBy("timestamp", "desc"), limit(500));
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
             const updatesData: DisasterUpdate[] = [];
             querySnapshot.forEach((doc) => {
@@ -54,6 +56,9 @@ export default function ReportsPage() {
                 });
             });
             setAllUpdates(updatesData);
+            setLoading(false);
+        }, (error) => {
+            console.error("Firestore error: ", error);
             setLoading(false);
         });
 
@@ -130,7 +135,7 @@ export default function ReportsPage() {
                             Hazard Reports Trend
                         </CardTitle>
                         <CardDescription>
-                            An overview of reported disaster types. Select a time range to view trends.
+                            An overview of reported disaster types based on the latest 500 reports.
                         </CardDescription>
                     </div>
                     <div className="flex items-center gap-2 mt-4 sm:mt-0">
@@ -254,3 +259,4 @@ export default function ReportsPage() {
     );
 }
 
+    

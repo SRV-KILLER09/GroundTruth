@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import Image from "next/image";
-import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
+import { collection, onSnapshot, query, orderBy, limit } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
@@ -94,7 +94,7 @@ export default function MapViewPage() {
     const [selectedUpdate, setSelectedUpdate] = useState<DisasterUpdate | null>(null);
 
     useEffect(() => {
-        const q = query(collection(db, "disaster_updates"), orderBy("timestamp", "desc"));
+        const q = query(collection(db, "disaster_updates"), orderBy("timestamp", "desc"), limit(100)); // Limit to most recent 100
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
             const updatesData: DisasterUpdate[] = [];
             querySnapshot.forEach((doc) => {
@@ -109,6 +109,9 @@ export default function MapViewPage() {
             if (updatesData.length > 0 && !selectedUpdate) {
                 setSelectedUpdate(updatesData[0]);
             }
+            setLoading(false);
+        }, (error) => {
+            console.error("Firestore error: ", error);
             setLoading(false);
         });
 
@@ -156,7 +159,7 @@ export default function MapViewPage() {
                         Interactive Geospatial Feed
                     </CardTitle>
                     <CardDescription>
-                        An interactive map displaying disaster reports. Select a report to view details.
+                        An interactive map displaying the 100 most recent disaster reports. Select a report to view details.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -225,3 +228,5 @@ export default function MapViewPage() {
         </div>
     );
 }
+
+    

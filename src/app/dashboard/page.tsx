@@ -14,7 +14,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { EmergencyContacts } from "@/components/dashboard/EmergencyContacts";
 import { db } from "@/lib/firebase";
-import { collection, onSnapshot, query, orderBy, doc, updateDoc, arrayUnion, deleteDoc, serverTimestamp } from "firebase/firestore";
+import { collection, onSnapshot, query, orderBy, doc, updateDoc, arrayUnion, deleteDoc, getDocs, limit, startAfter, DocumentData, QueryDocumentSnapshot } from "firebase/firestore";
 
 
 export default function DashboardPage() {
@@ -23,6 +23,9 @@ export default function DashboardPage() {
   const router = useRouter();
   const [updates, setUpdates] = useState<DisasterUpdate[]>([]);
   const [updatesLoading, setUpdatesLoading] = useState(true);
+  const [lastVisible, setLastVisible] = useState<QueryDocumentSnapshot<DocumentData> | null>(null);
+  const [hasMore, setHasMore] = useState(true);
+
   const latestNotification = notifications.length > 0 ? notifications[0] : null;
   const [isNotificationVisible, setIsNotificationVisible] = useState(false);
   
@@ -42,9 +45,10 @@ export default function DashboardPage() {
   }, [latestNotification]);
   
   useEffect(() => {
-    if (isAuthenticated) {
-        const q = query(collection(db, "disaster_updates"), orderBy("timestamp", "desc"));
-        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+    if (isAuthenticated && updatesLoading) { // Only run initial load once
+        const firstBatch = query(collection(db, "disaster_updates"), orderBy("timestamp", "desc"), limit(10));
+        
+        const unsubscribe = onSnapshot(firstBatch, (querySnapshot) => {
             const updatesData: DisasterUpdate[] = [];
             querySnapshot.forEach((doc) => {
                 const data = doc.data();
@@ -54,13 +58,60 @@ export default function DashboardPage() {
                     timestamp: data.timestamp?.toDate().toISOString() || new Date().toISOString(),
                 });
             });
-            setUpdates(updatesData);
+
+            // For real-time updates, we only update if the new data is different.
+            // This naive check avoids flickering on "Load More". A more robust solution would diff the arrays.
+            setUpdates(currentUpdates => {
+                const newIds = new Set(updatesData.map(u => u.id));
+                const currentIds = new Set(currentUpdates.slice(0, updatesData.length).map(u => u.id));
+                const areSetsEqual = (a: Set<string | undefined>, b: Set<string | undefined>) => a.size === b.size && [...a].every(value => b.has(value));
+
+                if (!areSetsEqual(newIds, currentIds)) {
+                     // The first page of data has changed, so we reset the list.
+                     // This handles new posts being added in real-time.
+                     setLastVisible(querySnapshot.docs[querySnapshot.docs.length - 1]);
+                     setHasMore(querySnapshot.docs.length === 10);
+                     return updatesData;
+                }
+                return currentUpdates;
+            });
+            
+            if (updates.length === 0) {
+                setLastVisible(querySnapshot.docs[querySnapshot.docs.length - 1]);
+                setHasMore(querySnapshot.docs.length === 10);
+            }
             setUpdatesLoading(false);
         });
 
         return () => unsubscribe();
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, updates.length, updatesLoading]);
+
+  const fetchMoreUpdates = async () => {
+    if (!lastVisible) {
+        setHasMore(false);
+        return;
+    };
+
+    const nextBatch = query(collection(db, "disaster_updates"), orderBy("timestamp", "desc"), startAfter(lastVisible), limit(10));
+    
+    const documentSnapshots = await getDocs(nextBatch);
+    const newUpdates: DisasterUpdate[] = [];
+    documentSnapshots.forEach((doc) => {
+        const data = doc.data();
+        newUpdates.push({ 
+            ...data as Omit<DisasterUpdate, 'id' | 'timestamp'>, 
+            id: doc.id,
+            timestamp: data.timestamp?.toDate().toISOString() || new Date().toISOString(),
+        });
+    });
+
+    setUpdates(prevUpdates => [...prevUpdates, ...newUpdates]);
+    setLastVisible(documentSnapshots.docs[documentSnapshots.docs.length-1]);
+    if (documentSnapshots.docs.length < 10) {
+        setHasMore(false);
+    }
+  }
 
   
   const addReply = async (updateId: string, reply: DisasterUpdateReply) => {
@@ -73,6 +124,7 @@ export default function DashboardPage() {
 
   const deleteUpdate = async (updateId: string) => {
     await deleteDoc(doc(db, "disaster_updates", updateId));
+    setUpdates(prev => prev.filter(u => u.id !== updateId));
   };
 
   const handleDismissNotification = () => {
@@ -83,7 +135,7 @@ export default function DashboardPage() {
     }
   }
   
-  if (loading || updatesLoading) {
+  if (loading || (updatesLoading && updates.length === 0)) {
     return <LoadingSpinner />;
   }
 
@@ -111,7 +163,15 @@ export default function DashboardPage() {
         </Alert>
       )}
       <EmergencyContacts />
-      <UpdatesFeed allUpdates={updates} setUpdates={setUpdates} onReply={addReply} onDelete={deleteUpdate} />
+      <UpdatesFeed 
+        allUpdates={updates} 
+        onReply={addReply} 
+        onDelete={deleteUpdate}
+        loadMore={fetchMoreUpdates}
+        hasMore={hasMore}
+      />
     </div>
   );
 }
+
+    
