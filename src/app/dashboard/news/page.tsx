@@ -15,9 +15,13 @@ const categoryStyles = {
 }
 
 export default function NewsPage() {
-  const [newsItems, setNewsItems] = useState<MockNewsItem[]>(mockNewsItems);
+  const [newsItems, setNewsItems] = useState<MockNewsItem[]>([]);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    setIsClient(true);
+    setNewsItems(mockNewsItems);
+
     const interval = setInterval(() => {
       setNewsItems(prevItems => {
         const newItem = createNewMockNewsItem();
@@ -31,6 +35,10 @@ export default function NewsPage() {
 
     return () => clearInterval(interval);
   }, []);
+
+  if (!isClient) {
+    return null; // or a loading skeleton
+  }
 
   return (
     <div className="w-full max-w-4xl mx-auto">
