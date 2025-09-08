@@ -171,6 +171,7 @@ export default function MapViewPage() {
                                 src={mapUrl}
                                 className="border-0"
                                 title="Interactive Map of Disaster Reports"
+                                key={mapUrl}
                             ></iframe>
                         </div>
                         <div className="lg:col-span-1 h-[500px] flex flex-col gap-3">
@@ -228,5 +229,3 @@ export default function MapViewPage() {
         </div>
     );
 }
-
-    
