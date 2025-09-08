@@ -19,8 +19,8 @@ import { useAuth } from '@/contexts/AuthContext';
 interface UpdatesFeedProps {
     allUpdates: DisasterUpdate[];
     setUpdates: React.Dispatch<React.SetStateAction<DisasterUpdate[]>>;
-    onReply: (updateId: number, reply: DisasterUpdateReply) => void;
-    onDelete: (updateId: number) => void;
+    onReply: (updateId: string, reply: DisasterUpdateReply) => void;
+    onDelete: (updateId: string) => void;
 }
 
 const disasterTypes = ['All', 'Flood', 'Earthquake', 'Fire', 'Hurricane'] as const;
@@ -148,26 +148,6 @@ export function UpdatesFeed({ allUpdates, setUpdates, onReply, onDelete }: Updat
         applyFilters();
     }, [allUpdates, sortedUpdates, activeDisasterType, activeStatusFilter, citySearch, applyFilters]);
 
-    const addUpdate = (newUpdateData: Omit<DisasterUpdate, 'id' | 'timestamp' | 'replies' | 'status' | 'authority'>) => {
-        const newUpdate: DisasterUpdate = {
-            ...newUpdateData,
-            id: allUpdates.length + 1,
-            timestamp: new Date().toISOString(),
-            replies: [],
-            status: 'Under Investigation',
-            authority: 'Local Police', // Default authority
-        };
-        const newUpdates = [newUpdate, ...allUpdates];
-        setUpdates(newUpdates);
-        setSortOrder('recent'); // Reset sort to show new update first
-        setActiveDisasterType('All');
-        setCitySearch('');
-        setIsSheetOpen(false);
-        toast({
-            title: "Update Submitted",
-            description: "Thank you for contributing to community safety.",
-        });
-    }
     
     const disasterIcons: Record<Exclude<DisasterType, 'All'>, React.ReactNode> = {
         'Flood': <Droplets className="mr-2 h-4 w-4" />,
@@ -181,6 +161,13 @@ export function UpdatesFeed({ allUpdates, setUpdates, onReply, onDelete }: Updat
         .filter(t => !disasterTypes.includes(t as DisasterType));
     const uniqueOtherTypes = [...new Set(otherDisasterTypes)];
     const allFilterTypes: string[] = [...disasterTypes, ...uniqueOtherTypes];
+    
+    const handleSuccessfulSubmit = () => {
+        setIsSheetOpen(false);
+        setSortOrder('recent');
+        setActiveDisasterType('All');
+        setCitySearch('');
+    }
 
     return (
         <div className="flex flex-col h-full">
@@ -214,10 +201,10 @@ export function UpdatesFeed({ allUpdates, setUpdates, onReply, onDelete }: Updat
                             <SheetHeader>
                                 <SheetTitle>Submit a New Disaster Update</SheetTitle>
                                 <SheetDescription>
-                                    Help your community by providing real-time information. Your report will include an AI-generated image.
+                                    Help your community by providing real-time information. You can add an image or a video to your report.
                                 </SheetDescription>
                             </SheetHeader>
-                            <SubmitUpdateForm onSubmit={addUpdate} />
+                            <SubmitUpdateForm onSuccessfulSubmit={handleSuccessfulSubmit} />
                         </SheetContent>
                     </Sheet>
                 </div>

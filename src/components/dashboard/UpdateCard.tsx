@@ -16,12 +16,13 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useToast } from "@/hooks/use-toast";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import Link from "next/link";
+import { formatDistanceToNow } from 'date-fns';
 
 
 interface UpdateCardProps {
   update: DisasterUpdate;
-  onReply: (updateId: number, reply: DisasterUpdateReply) => void;
-  onDelete: (updateId: number) => void;
+  onReply: (updateId: string, reply: DisasterUpdateReply) => void;
+  onDelete: (updateId: string) => void;
 }
 
 const disasterIcons: Record<string, React.ReactNode> = {
@@ -52,7 +53,7 @@ export function UpdateCard({ update, onReply, onDelete }: UpdateCardProps) {
   const isAdmin = user?.email ? adminEmails.includes(user.email) : false;
 
   const handleReplySubmit = () => {
-    if (replyText.trim() && isAdmin) {
+    if (replyText.trim() && isAdmin && update.id) {
       const newReply: DisasterUpdateReply = {
         author: 'Admin',
         message: replyText,
@@ -79,16 +80,19 @@ export function UpdateCard({ update, onReply, onDelete }: UpdateCardProps) {
   };
 
   const handleDeletePost = () => {
-    onDelete(update.id);
-    toast({
-        title: "Post Deleted",
-        description: "The post has been successfully removed.",
-    });
+    if(update.id) {
+        onDelete(update.id);
+        toast({
+            title: "Post Deleted",
+            description: "The post has been successfully removed.",
+        });
+    }
   };
 
   const icon = disasterIcons[update.disasterType] || DefaultIcon;
   const currentStatus = statusConfig[update.status];
   const profileUrl = `/dashboard/profile/${update.user.username}`;
+  const timeAgo = formatDistanceToNow(new Date(update.timestamp), { addSuffix: true });
 
   return (
     <>
@@ -163,7 +167,7 @@ export function UpdateCard({ update, onReply, onDelete }: UpdateCardProps) {
              </div>
           </div>
           <p className="text-sm text-muted-foreground flex items-center">
-            <span>{new Date(update.timestamp).toLocaleDateString()}</span>
+            <span>{timeAgo}</span>
             <span className="mx-1.5">·</span>
             <span className="truncate">{update.location.name}</span>
           </p>
@@ -212,7 +216,7 @@ export function UpdateCard({ update, onReply, onDelete }: UpdateCardProps) {
               <div className="bg-muted p-3 rounded-lg flex-1">
                 <div className="flex justify-between items-center mb-1">
                   <p className="font-semibold text-sm text-primary">{reply.author}</p>
-                  <p className="text-xs text-muted-foreground">{new Date(reply.timestamp).toLocaleTimeString()}</p>
+                  <p className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(reply.timestamp), { addSuffix: true })}</p>
                 </div>
                 <p className="text-sm text-foreground/80">{reply.message}</p>
               </div>

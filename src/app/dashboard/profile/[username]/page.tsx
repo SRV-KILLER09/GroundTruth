@@ -3,116 +3,145 @@
 
 import { useParams } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { mockDisasterUpdates, DisasterUpdate, mockUserActivity } from "@/lib/mock-data";
+import type { DisasterUpdate, DisasterUpdateReply } from "@/lib/mock-data";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Award, Mail, List, Edit } from "lucide-react";
 import { UpdateCard } from "@/components/dashboard/UpdateCard";
-import { useState } from "react";
-import type { DisasterUpdateReply } from "@/lib/mock-data";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
+import { db } from "@/lib/firebase";
+import { collection, query, where, onSnapshot, orderBy, doc, updateDoc, arrayUnion, deleteDoc } from "firebase/firestore";
+import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import { mockUserActivity } from "@/lib/mock-data";
 
 export default function UserProfilePage() {
   const params = useParams();
   const { user: currentUser } = useAuth();
   const username = params.username as string;
   
+  const [updates, setUpdates] = useState<DisasterUpdate[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [userProfile, setUserProfile] = useState<any | null>(null);
+
   const adminEmails = ['vardaansaxena096@gmail.com', 'saranshwadhwa0102@gmail.com'];
   const isAdmin = currentUser?.email ? adminEmails.includes(currentUser.email) : false;
 
-  const userUpdates = mockDisasterUpdates.filter(
-    (update) => update.user.username.toLowerCase() === username.toLowerCase()
-  );
-  
-  const [updates, setUpdates] = useState<DisasterUpdate[]>(userUpdates);
+  useEffect(() => {
+    if (username) {
+        const q = query(
+            collection(db, "disaster_updates"),
+            where("user.username", "==", username.toLowerCase()),
+            orderBy("timestamp", "desc")
+        );
 
-  const addReply = (updateId: number, reply: DisasterUpdateReply) => {
-    setUpdates(currentUpdates => 
-      currentUpdates.map(update => {
-        if (update.id === updateId) {
-          return {
-            ...update,
-            replies: [...update.replies, reply],
-            status: 'Verified', 
-          };
-        }
-        return update;
-      })
-    );
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+            const updatesData: DisasterUpdate[] = [];
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                if (!userProfile) {
+                    setUserProfile(data.user);
+                }
+                updatesData.push({ 
+                    ...data as Omit<DisasterUpdate, 'id' | 'timestamp'>,
+                    id: doc.id,
+                    timestamp: data.timestamp?.toDate().toISOString() || new Date().toISOString() 
+                });
+            });
+            setUpdates(updatesData);
+            setLoading(false);
+        }, (error) => {
+            console.error("Error fetching user updates:", error);
+            setLoading(false);
+        });
+
+        return () => unsubscribe();
+    }
+  }, [username, userProfile]);
+
+  const addReply = async (updateId: string, reply: DisasterUpdateReply) => {
+    const updateRef = doc(db, "disaster_updates", updateId);
+    await updateDoc(updateRef, {
+      replies: arrayUnion({ ...reply, timestamp: new Date().toISOString() }),
+      status: 'Verified', 
+    });
   };
 
-  const deleteUpdate = (updateId: number) => {
-    setUpdates(currentUpdates => 
-      currentUpdates.filter(update => update.id !== updateId)
-    );
+  const deleteUpdate = async (updateId: string) => {
+    await deleteDoc(doc(db, "disaster_updates", updateId));
   };
 
 
-  if (updates.length === 0) {
+  if (loading) {
+      return <LoadingSpinner />;
+  }
+
+  if (!loading && updates.length === 0) {
     return (
        <div className="w-full max-w-4xl mx-auto text-center">
              <Card>
                 <CardHeader>
-                    <CardTitle>User Not Found</CardTitle>
+                    <CardTitle>User Not Found or No Posts</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <p>The user profile you are looking for does not exist or has not posted any updates.</p>
                 </CardContent>
             </Card>
         </div>
-    )
+    );
   }
 
-  const user = updates[0].user;
-  const honorScore = 100;
+  const honorScore = 100; // This can be moved to the user profile data in Firestore later
   const userProfileData = mockUserActivity.find(u => u.username.toLowerCase() === username.toLowerCase());
-  const isOwnProfile = currentUser?.displayName?.toLowerCase() === user.username.toLowerCase();
+  const isOwnProfile = currentUser?.displayName?.toLowerCase() === userProfile?.username.toLowerCase();
 
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-8">
-      <Card className="overflow-hidden">
-        <CardHeader className="flex flex-col items-center text-center space-y-4 p-6 bg-muted/50">
-          <Avatar className="h-24 w-24 border-4 border-primary">
-            <AvatarImage src={user.avatarUrl} alt={user.name} />
-            <AvatarFallback className="text-4xl">{user.name.charAt(0)}</AvatarFallback>
-          </Avatar>
-          <div>
-            <div className="flex items-center gap-2 justify-center">
-              <CardTitle className="text-3xl font-bold font-headline">{user.name}</CardTitle>
-              {isOwnProfile && (
-                <Button variant="ghost" size="icon" className="h-8 w-8">
-                  <Edit className="h-4 w-4" />
-                  <span className="sr-only">Edit Name</span>
-                </Button>
+      {userProfile && (
+        <Card className="overflow-hidden">
+          <CardHeader className="flex flex-col items-center text-center space-y-4 p-6 bg-muted/50">
+            <Avatar className="h-24 w-24 border-4 border-primary">
+              <AvatarImage src={userProfile.avatarUrl} alt={userProfile.name} />
+              <AvatarFallback className="text-4xl">{userProfile.name.charAt(0)}</AvatarFallback>
+            </Avatar>
+            <div>
+              <div className="flex items-center gap-2 justify-center">
+                <CardTitle className="text-3xl font-bold font-headline">{userProfile.name}</CardTitle>
+                {isOwnProfile && (
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <Edit className="h-4 w-4" />
+                    <span className="sr-only">Edit Name</span>
+                  </Button>
+                )}
+              </div>
+              <CardDescription>@{userProfile.username}</CardDescription>
+              {isAdmin && userProfileData && (
+                  <div className="flex items-center justify-center gap-2 mt-2 text-sm text-muted-foreground">
+                      <Mail className="h-4 w-4" />
+                      <span>{userProfileData.email}</span>
+                  </div>
               )}
             </div>
-            <CardDescription>@{user.username}</CardDescription>
-             {isAdmin && userProfileData && (
-                <div className="flex items-center justify-center gap-2 mt-2 text-sm text-muted-foreground">
-                    <Mail className="h-4 w-4" />
-                    <span>{userProfileData.email}</span>
-                </div>
-            )}
-          </div>
-          <div className="flex items-center gap-2 text-yellow-500 bg-yellow-500/10 px-4 py-2 rounded-full border border-yellow-500/20">
-            <Award className="h-5 w-5" />
-            <span className="font-bold text-lg">{honorScore}</span>
-            <span className="font-medium text-sm">Honor Score</span>
-          </div>
-        </CardHeader>
-        <CardContent className="p-6">
-             <h2 className="text-2xl font-headline font-bold flex items-center mb-4">
-                <List className="mr-3 h-6 w-6 text-primary"/>
-                User's Reports
-            </h2>
-            <div className="space-y-4">
-                {updates.map((update) => (
-                    <UpdateCard key={update.id} update={update} onReply={addReply} onDelete={deleteUpdate} />
-                ))}
+            <div className="flex items-center gap-2 text-yellow-500 bg-yellow-500/10 px-4 py-2 rounded-full border border-yellow-500/20">
+              <Award className="h-5 w-5" />
+              <span className="font-bold text-lg">{honorScore}</span>
+              <span className="font-medium text-sm">Honor Score</span>
             </div>
-        </CardContent>
-      </Card>
+          </CardHeader>
+          <CardContent className="p-6">
+              <h2 className="text-2xl font-headline font-bold flex items-center mb-4">
+                  <List className="mr-3 h-6 w-6 text-primary"/>
+                  User's Reports
+              </h2>
+              <div className="space-y-4">
+                  {updates.map((update) => (
+                      <UpdateCard key={update.id} update={update} onReply={addReply} onDelete={deleteUpdate} />
+                  ))}
+              </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

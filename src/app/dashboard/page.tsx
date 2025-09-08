@@ -4,23 +4,25 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-import { mockDisasterUpdates, DisasterUpdate, createNewMockUpdate } from "@/lib/mock-data";
+import type { DisasterUpdate, DisasterUpdateReply } from "@/lib/mock-data";
 import { useNotifications } from "@/contexts/NotificationsContext";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
-import type { DisasterUpdateReply } from "@/lib/mock-data";
 import { UpdatesFeed } from "@/components/dashboard/UpdatesFeed";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Bell, X } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { EmergencyContacts } from "@/components/dashboard/EmergencyContacts";
+import { db } from "@/lib/firebase";
+import { collection, onSnapshot, query, orderBy, doc, updateDoc, arrayUnion, deleteDoc, serverTimestamp } from "firebase/firestore";
 
 
 export default function DashboardPage() {
   const { isAuthenticated, loading } = useAuth();
   const { notifications } = useNotifications();
   const router = useRouter();
-  const [updates, setUpdates] = useState<DisasterUpdate[]>(mockDisasterUpdates);
+  const [updates, setUpdates] = useState<DisasterUpdate[]>([]);
+  const [updatesLoading, setUpdatesLoading] = useState(true);
   const latestNotification = notifications.length > 0 ? notifications[0] : null;
   const [isNotificationVisible, setIsNotificationVisible] = useState(false);
   
@@ -38,43 +40,39 @@ export default function DashboardPage() {
       }
     }
   }, [latestNotification]);
-
+  
   useEffect(() => {
-    const interval = setInterval(() => {
-      setUpdates(prevUpdates => {
-        const newUpdate = createNewMockUpdate(prevUpdates.length + 1);
-        // Prevent duplicate IDs if updates are added manually
-        if (prevUpdates.some(u => u.id === newUpdate.id)) {
-            newUpdate.id = Math.max(...prevUpdates.map(u => u.id)) + 1;
-        }
-        return [newUpdate, ...prevUpdates];
-      });
-    }, 15000); // Add a new update every 15 seconds
+    if (isAuthenticated) {
+        const q = query(collection(db, "disaster_updates"), orderBy("timestamp", "desc"));
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+            const updatesData: DisasterUpdate[] = [];
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                updatesData.push({ 
+                    ...data as Omit<DisasterUpdate, 'id' | 'timestamp'>, 
+                    id: doc.id,
+                    timestamp: data.timestamp?.toDate().toISOString() || new Date().toISOString(),
+                });
+            });
+            setUpdates(updatesData);
+            setUpdatesLoading(false);
+        });
 
-    return () => clearInterval(interval);
-  }, []);
+        return () => unsubscribe();
+    }
+  }, [isAuthenticated]);
 
   
-  const addReply = (updateId: number, reply: DisasterUpdateReply) => {
-    setUpdates(currentUpdates => 
-      currentUpdates.map(update => {
-        if (update.id === updateId) {
-          // Also update status to Verified when an admin replies
-          return {
-            ...update,
-            replies: [...update.replies, reply],
-            status: 'Verified', 
-          };
-        }
-        return update;
-      })
-    );
+  const addReply = async (updateId: string, reply: DisasterUpdateReply) => {
+    const updateRef = doc(db, "disaster_updates", updateId);
+    await updateDoc(updateRef, {
+      replies: arrayUnion({ ...reply, timestamp: new Date().toISOString() }),
+      status: 'Verified', 
+    });
   };
 
-  const deleteUpdate = (updateId: number) => {
-    setUpdates(currentUpdates => 
-      currentUpdates.filter(update => update.id !== updateId)
-    );
+  const deleteUpdate = async (updateId: string) => {
+    await deleteDoc(doc(db, "disaster_updates", updateId));
   };
 
   const handleDismissNotification = () => {
@@ -85,7 +83,7 @@ export default function DashboardPage() {
     }
   }
   
-  if (loading || !isAuthenticated) {
+  if (loading || updatesLoading) {
     return <LoadingSpinner />;
   }
 

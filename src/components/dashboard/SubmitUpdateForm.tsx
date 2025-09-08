@@ -12,11 +12,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAuth } from "@/contexts/AuthContext";
 import { DisasterUpdate } from "@/lib/mock-data";
 import { useState } from "react";
-import { Loader2, MapPin, Video, FileText } from "lucide-react";
+import { Loader2, MapPin, Video, FileText, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { generateDisasterImage } from "@/ai/flows/generate-disaster-image";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { VideoRecorder } from "./VideoRecorder";
+import { db } from "@/lib/firebase";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 
 const formSchema = z.object({
@@ -39,15 +40,16 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 interface SubmitUpdateFormProps {
-    onSubmit: (data: Omit<DisasterUpdate, 'id' | 'timestamp' | 'replies' | 'status' | 'authority'>) => void;
+    onSuccessfulSubmit: () => void;
 }
 
-export function SubmitUpdateForm({ onSubmit }: SubmitUpdateFormProps) {
+export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const [isLocating, setIsLocating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isVideoSubmitted, setIsVideoSubmitted] = useState(false);
+  const [imageURL, setImageURL] = useState<string | null>(null);
 
 
   const form = useForm<FormValues>({
@@ -96,6 +98,18 @@ export function SubmitUpdateForm({ onSubmit }: SubmitUpdateFormProps) {
       }
     );
   };
+  
+   const handleImageUpload = () => {
+    // In a real app, this would open a file dialog.
+    // For this simulation, we'll use a random placeholder.
+    const seed = Math.random().toString(36).substring(7);
+    const randomImageUrl = `https://picsum.photos/seed/${seed}/600/400`;
+    setImageURL(randomImageUrl);
+    toast({
+        title: "Image Added",
+        description: "A placeholder image has been attached to your report.",
+    });
+  };
 
 
   async function handleFormSubmit(values: FormValues) {
@@ -123,52 +137,56 @@ export function SubmitUpdateForm({ onSubmit }: SubmitUpdateFormProps) {
 
     const disasterType = values.disasterType === 'Other' ? values.otherDisasterType! : values.disasterType;
 
-    let imageUrl;
+    let mediaUrl;
     if (isVideoSubmitted) {
         // Use a placeholder video/image for submitted videos
-        imageUrl = "https://picsum.photos/600/400?blur";
+        mediaUrl = "https://picsum.photos/600/400?blur";
     } else {
-        try {
-            toast({
-                title: "Generating Image...",
-                description: "Our AI is creating an image for your report. Please wait."
-            });
-            const imageResult = await generateDisasterImage({
-                disasterType: disasterType,
-                description: values.message,
-            });
-            imageUrl = imageResult.imageUrl;
-        } catch (error) {
-            console.error("Image generation failed:", error);
-            toast({
-                variant: "destructive",
-                title: "Image Generation Failed",
-                description: "Could not generate an image, but your report will be submitted without one.",
-            });
-        }
+        mediaUrl = imageURL;
     }
 
-    const newUpdate = {
-        user: {
-            name: user.displayName,
-            username: user.displayName.toLowerCase(),
-            avatarUrl: `https://picsum.photos/seed/${user.email}/40/40`
-        },
-        disasterType: disasterType,
-        location: {
-            name: values.locationName,
-            latitude: values.latitude,
-            longitude: values.longitude
-        },
-        message: isVideoSubmitted ? "Video report submitted. Pending review." : values.message,
-        mediaUrl: imageUrl,
-        history: [values.message]
-    };
-    
-    onSubmit(newUpdate);
-    form.reset();
-    setIsSubmitting(false);
-    setIsVideoSubmitted(false);
+    try {
+        await addDoc(collection(db, "disaster_updates"), {
+            user: {
+                name: user.displayName,
+                username: user.displayName.toLowerCase(),
+                avatarUrl: `https://picsum.photos/seed/${user.email}/40/40`
+            },
+            disasterType: disasterType,
+            location: {
+                name: values.locationName,
+                latitude: values.latitude,
+                longitude: values.longitude
+            },
+            message: isVideoSubmitted ? "Video report submitted. Pending review." : values.message,
+            mediaUrl: mediaUrl,
+            history: [values.message],
+            replies: [],
+            status: 'Under Investigation',
+            authority: 'Local Police',
+            timestamp: serverTimestamp(),
+        });
+        
+        toast({
+            title: "Update Submitted",
+            description: "Thank you for contributing to community safety.",
+        });
+        
+        form.reset();
+        setIsVideoSubmitted(false);
+        setImageURL(null);
+        onSuccessfulSubmit();
+
+    } catch (error) {
+        console.error("Error adding document: ", error);
+        toast({
+            variant: "destructive",
+            title: "Submission Error",
+            description: "Could not submit your report. Please try again.",
+        });
+    } finally {
+        setIsSubmitting(false);
+    }
   }
 
   return (
@@ -193,6 +211,19 @@ export function SubmitUpdateForm({ onSubmit }: SubmitUpdateFormProps) {
                         </FormItem>
                     )}
                     />
+                    <div className="space-y-2">
+                      <FormLabel>Attach Image</FormLabel>
+                       <Button type="button" variant="outline" className="w-full" onClick={handleImageUpload} disabled={isSubmitting}>
+                         <Upload className="mr-2 h-4 w-4" />
+                         {imageURL ? 'Change Image' : 'Upload Image'}
+                      </Button>
+                      {imageURL && (
+                          <div className="text-sm text-muted-foreground p-2 bg-muted rounded-md flex items-center gap-2">
+                              <img src={imageURL} alt="placeholder" className="h-10 w-10 rounded object-cover" />
+                              <span>Placeholder image attached.</span>
+                          </div>
+                      )}
+                    </div>
             </TabsContent>
             <TabsContent value="video" className="pt-4">
                 <VideoRecorder onVideoSubmit={() => setIsVideoSubmitted(true)} isSubmitting={isSubmitting} />
