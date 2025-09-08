@@ -84,39 +84,6 @@ export default function UserProfilePage() {
       });
   }
 
-  const handleChangeProfilePicture = async () => {
-    if (!auth.currentUser || !currentUser) return;
-
-    // Simulate file upload by generating a new random image URL
-    const newAvatarUrl = `https://picsum.photos/seed/${currentUser.uid}/${Date.now()}/40/40`;
-
-    try {
-        setLoading(true);
-        // Update Firebase Auth profile
-        await updateProfile(auth.currentUser, { photoURL: newAvatarUrl });
-
-        // Update user's avatar in all their disaster_updates documents
-        await updateUserAvatarInFirestore(currentUser.uid, newAvatarUrl);
-        
-        // Update local state to reflect change immediately
-        setUserProfile((prev: any) => ({ ...prev, avatarUrl: newAvatarUrl }));
-
-        toast({
-            title: "Profile Picture Updated",
-            description: "Your new profile picture is now live.",
-        });
-    } catch (error) {
-        console.error("Error updating profile picture:", error);
-        toast({
-            variant: "destructive",
-            title: "Error",
-            description: "Could not update your profile picture.",
-        });
-    } finally {
-        setLoading(false);
-    }
-  };
-
 
   if (loading) {
       return <LoadingSpinner />;
@@ -151,17 +118,6 @@ export default function UserProfilePage() {
                 <AvatarImage src={userProfile.avatarUrl} alt={userProfile.name} key={userProfile.avatarUrl} />
                 <AvatarFallback className="text-4xl">{userProfile.name.charAt(0)}</AvatarFallback>
                 </Avatar>
-                {isOwnProfile && (
-                     <Button 
-                        variant="outline" 
-                        size="icon" 
-                        className="absolute bottom-0 right-0 h-8 w-8 rounded-full bg-background"
-                        onClick={handleChangeProfilePicture}
-                     >
-                        <Edit className="h-4 w-4" />
-                        <span className="sr-only">Change Profile Picture</span>
-                    </Button>
-                )}
             </div>
             <div>
               <div className="flex items-center gap-2 justify-center">

@@ -12,15 +12,52 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { LogOut, Award, Menu, Mountain } from "lucide-react";
-import Link from 'next/link';
+import { LogOut, Award, Menu, Edit, Loader2 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import Sidebar from "./Sidebar";
+import { useToast } from "@/hooks/use-toast";
+import { auth, updateUserAvatarInFirestore } from "@/lib/firebase";
+import { updateProfile } from "firebase/auth";
+import { useState } from "react";
 
 
 export default function Header() {
   const { user, logout } = useAuth();
+  const { toast } = useToast();
+  const [isUpdatingPicture, setIsUpdatingPicture] = useState(false);
   const honorScore = 100; // Hardcoded score as per request
+
+  const handleChangeProfilePicture = async () => {
+    if (!auth.currentUser || !user) return;
+
+    setIsUpdatingPicture(true);
+    // Simulate file upload by generating a new random image URL
+    const newAvatarUrl = `https://picsum.photos/seed/${user.uid}/${Date.now()}/40/40`;
+
+    try {
+        // Update Firebase Auth profile
+        await updateProfile(auth.currentUser, { photoURL: newAvatarUrl });
+
+        // Update user's avatar in all their disaster_updates documents
+        await updateUserAvatarInFirestore(user.uid, newAvatarUrl);
+        
+        toast({
+            title: "Profile Picture Updated",
+            description: "Your new profile picture is now live. It might take a moment to reflect everywhere.",
+        });
+        // You might need to force a re-render or state update in AuthContext to see the change immediately in the header
+    } catch (error) {
+        console.error("Error updating profile picture:", error);
+        toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Could not update your profile picture.",
+        });
+    } finally {
+        setIsUpdatingPicture(false);
+    }
+  };
+
 
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
@@ -43,7 +80,7 @@ export default function Header() {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-10 w-10 rounded-full">
               <Avatar className="h-10 w-10">
-                <AvatarImage src={user.photoURL || `https://picsum.photos/seed/${user.email}/40/40`} alt={user.displayName || ''} />
+                <AvatarImage src={user.photoURL || `https://picsum.photos/seed/${user.email}/40/40`} alt={user.displayName || ''} key={user.photoURL} />
                 <AvatarFallback>
                   {user.displayName?.charAt(0).toUpperCase()}
                 </AvatarFallback>
@@ -66,6 +103,14 @@ export default function Header() {
                   <span>Honor Score</span>
                   <span className="font-semibold">{honorScore}</span>
                </div>
+            </DropdownMenuItem>
+             <DropdownMenuItem onClick={handleChangeProfilePicture} disabled={isUpdatingPicture}>
+                {isUpdatingPicture ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                    <Edit className="mr-2 h-4 w-4" />
+                )}
+              <span>Change Picture</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={logout}>
