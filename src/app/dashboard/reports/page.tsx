@@ -42,9 +42,9 @@ export default function ReportsPage() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // We fetch up to 500 recent documents for reporting purposes.
+        // We fetch up to 100 recent documents for reporting purposes.
         // For very large datasets, a more advanced aggregation solution (e.g., Cloud Functions) would be needed.
-        const q = query(collection(db, "disaster_updates"), orderBy("timestamp", "desc"), limit(500));
+        const q = query(collection(db, "disaster_updates"), orderBy("timestamp", "desc"), limit(100));
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
             const updatesData: DisasterUpdate[] = [];
             querySnapshot.forEach((doc) => {
@@ -135,7 +135,7 @@ export default function ReportsPage() {
                             Hazard Reports Trend
                         </CardTitle>
                         <CardDescription>
-                            An overview of reported disaster types based on the latest 500 reports.
+                            An overview of reported disaster types based on the latest 100 reports.
                         </CardDescription>
                     </div>
                     <div className="flex items-center gap-2 mt-4 sm:mt-0">
@@ -258,5 +258,7 @@ export default function ReportsPage() {
         </div>
     );
 }
+
+    
 
     
