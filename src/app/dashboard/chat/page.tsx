@@ -34,7 +34,7 @@ export default function ChatPage() {
     const [messagesLoading, setMessagesLoading] = useState(true);
     const { toast } = useToast();
     const messagesEndRef = useRef<HTMLDivElement>(null);
-    const adminEmails = ['vardaansaxena096@gmail.com', 'saranshwadhwa0102@gmail.com'];
+    const adminEmails = ['vardaansaxena096@gmail.com'];
     const isAdmin = user?.email ? adminEmails.includes(user.email) : false;
 
     useEffect(() => {

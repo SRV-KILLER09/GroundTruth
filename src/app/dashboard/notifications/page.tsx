@@ -22,7 +22,7 @@ export default function NotificationsPage() {
   const { toast } = useToast();
   const { notifications, addNotification, deleteNotification, addReaction } = useNotifications();
   const [newNotification, setNewNotification] = useState("");
-  const adminEmails = ['vardaansaxena096@gmail.com', 'saranshwadhwa0102@gmail.com'];
+  const adminEmails = ['vardaansaxena096@gmail.com'];
   const isAdmin = user?.email ? adminEmails.includes(user.email) : false;
 
   const handlePostNotification = () => {

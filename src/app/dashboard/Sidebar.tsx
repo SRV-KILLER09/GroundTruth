@@ -13,7 +13,7 @@ export default function Sidebar({ isMobile = false }: { isMobile?: boolean }) {
   const pathname = usePathname();
   const { user } = useAuth();
   const { t } = useLanguage();
-  const adminEmails = ['vardaansaxena096@gmail.com', 'saranshwadhwa0102@gmail.com'];
+  const adminEmails = ['vardaansaxena096@gmail.com'];
   const isAdmin = user?.email ? adminEmails.includes(user.email) : false;
 
   const navLinks = [

@@ -28,7 +28,7 @@ export default function UserProfilePage() {
   const [loading, setLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<any | null>(null);
 
-  const adminEmails = ['vardaansaxena096@gmail.com', 'saranshwadhwa0102@gmail.com'];
+  const adminEmails = ['vardaansaxena096@gmail.com'];
   const isAdmin = currentUser?.email ? adminEmails.includes(currentUser.email) : false;
   const isOwnProfile = currentUser?.displayName?.toLowerCase() === username?.toLowerCase();
 

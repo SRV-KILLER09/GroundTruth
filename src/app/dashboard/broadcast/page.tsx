@@ -15,7 +15,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 export default function BroadcastPage() {
     const { user, isAuthenticated, loading } = useAuth();
     const router = useRouter();
-    const adminEmails = ['vardaansaxena096@gmail.com', 'saranshwadhwa0102@gmail.com'];
+    const adminEmails = ['vardaansaxena096@gmail.com'];
     const isAdmin = user?.email ? adminEmails.includes(user.email) : false;
     
     const [message, setMessage] = useState("");

@@ -61,7 +61,7 @@ export function UpdatesFeed({ allUpdates, onReply, onDelete, onInteraction, load
     const [citySearch, setCitySearch] = React.useState("");
     const { toast } = useToast();
 
-    const adminEmails = ['vardaansaxena096@gmail.com', 'saranshwadhwa0102@gmail.com'];
+    const adminEmails = ['vardaansaxena096@gmail.com'];
     const isAdmin = user?.email ? adminEmails.includes(user.email) : false;
 
     const handleSortChange = (value: SortOrder) => {

@@ -67,7 +67,7 @@ export function UpdateCard({ update, onReply, onDelete, onInteraction }: UpdateC
     setDislikeCount(update.dislikedBy?.length || 0);
   }, [update.likedBy, update.dislikedBy, user]);
 
-  const adminEmails = ['vardaansaxena096@gmail.com', 'saranshwadhwa0102@gmail.com'];
+  const adminEmails = ['vardaansaxena096@gmail.com'];
   const isAdmin = user?.email ? adminEmails.includes(user.email) : false;
   const isAuthor = user?.uid === update.user.uid;
   const honorScore = 100; // Placeholder

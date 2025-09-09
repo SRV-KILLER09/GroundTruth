@@ -26,7 +26,7 @@ export default function UpdatesPage() {
     const { user, isAuthenticated, loading: authLoading } = useAuth();
     const router = useRouter();
     const { toast } = useToast();
-    const adminEmails = ['vardaansaxena096@gmail.com', 'saranshwadhwa0102@gmail.com'];
+    const adminEmails = ['vardaansaxena096@gmail.com'];
     const isAdmin = user?.email ? adminEmails.includes(user.email) : false;
     const [users, setUsers] = useState<UserData[]>([]);
     const [loading, setLoading] = useState(true);
