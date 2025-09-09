@@ -30,9 +30,6 @@ export default function AdminPage() {
     const projectId = 'verdant-sentinel-8s9hn';
     const firestoreRulesUrl = `https://console.firebase.google.com/project/${projectId}/firestore/rules`;
     const storageRulesUrl = `https://console.firebase.google.com/project/${projectId}/storage/rules`;
-    
-    // Helper function to check if the requesting user's email is in the admin list
-    const isAdminByEmail = `request.auth.token.email in ['vardaansaxena096@gmail.com', 'saranshwadhwa0102@gmail.com']`;
   
     return (
     <div className="w-full max-w-6xl mx-auto space-y-8">
