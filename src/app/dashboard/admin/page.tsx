@@ -64,7 +64,7 @@ export default function AdminPage() {
                             <AlertTitle>Action Required</AlertTitle>
                             <AlertDescription>
                                 If users cannot log in, reports and likes get stuck loading forever, or chat does not work, your Firestore rules are likely too restrictive.
-                            </Description>
+                            </AlertDescription>
                         </Alert>
                         <p className="text-sm text-muted-foreground mb-2">
                            Go to your Firestore rules and replace the content with the following to allow public reads while securing write operations:
