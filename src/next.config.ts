@@ -37,8 +37,10 @@ const nextConfig: NextConfig = {
       }
     ],
   },
+  serverActions: {
+    bodySizeLimit: '15mb', // For image uploads
+    executionTimeout: 120, // 2 minutes for AI generation
+  },
 };
 
 export default nextConfig;
-
-    
