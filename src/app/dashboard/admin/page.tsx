@@ -103,6 +103,18 @@ service cloud.firestore {
       allow read: if true;
       allow create, update, delete: if request.auth != null && request.auth.uid == userId;
     }
+
+    // Rules for the chat_messages collection
+    match /chat_messages/{messageId} {
+      // Any authenticated user can read all messages.
+      allow read: if request.auth != null;
+      
+      // Any authenticated user can create a message.
+      allow create: if request.auth != null;
+
+      // Users cannot update or delete messages.
+      allow update, delete: if false;
+    }
   }
 }`}
                             </code>
