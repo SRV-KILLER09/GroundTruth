@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from '@/contexts/AuthContext';
 import { NotificationsProvider } from '@/contexts/NotificationsContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
+import { LanguageProvider } from '@/contexts/LanguageContext';
 
 export const metadata: Metadata = {
   title: 'TitanicX',
@@ -27,10 +28,12 @@ export default function RootLayout({
       <body className="font-body antialiased">
         <ThemeProvider>
           <AuthProvider>
-            <NotificationsProvider>
-              {children}
-              <Toaster />
-            </NotificationsProvider>
+            <LanguageProvider>
+              <NotificationsProvider>
+                {children}
+                <Toaster />
+              </NotificationsProvider>
+            </LanguageProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>

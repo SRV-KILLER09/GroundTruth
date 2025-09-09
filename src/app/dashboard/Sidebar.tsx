@@ -8,26 +8,28 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Image from "next/image";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Sidebar({ isMobile = false }: { isMobile?: boolean }) {
   const pathname = usePathname();
   const { user } = useAuth();
+  const { t } = useLanguage();
   const adminEmails = ['vardaansaxena096@gmail.com', 'saranshwadhwa0102@gmail.com'];
   const isAdmin = user?.email ? adminEmails.includes(user.email) : false;
 
   const navLinks = [
-    { href: "/dashboard", label: "Live Feed", icon: <Tv className="h-5 w-5" />, admin: false },
-    { href: "/dashboard/chat", label: "Community Chat", icon: <MessageSquare className="h-5 w-5" />, admin: false },
-    { href: "/dashboard/notifications", label: "Notifications", icon: <Bell className="h-5 w-5" />, admin: false },
-    { href: "/dashboard/map", label: "Map View", icon: <Map className="h-5 w-5" />, admin: false },
-    { href: "/dashboard/reports", label: "Reports", icon: <BarChart3 className="h-5 w-5" />, admin: false },
-    { href: "/dashboard/news", label: "News", icon: <Rss className="h-5 w-5" />, admin: false },
-    { href: "/dashboard/directory", label: "Directory", icon: <Shield className="h-5 w-5" />, admin: false },
-    { href: "/dashboard/updates", label: "User Activity", icon: <Users className="h-5 w-5" />, admin: true },
-    { href: "/dashboard/broadcast", label: "Broadcast", icon: <Megaphone className="h-5 w-5" />, admin: true },
-    { href: "/dashboard/admin", label: "Admin Panel", icon: <Settings className="h-5 w-5" />, admin: true },
-    { href: "/dashboard/resources", label: "Safety Resources", icon: <LifeBuoy className="h-5 w-5" />, admin: false },
-    { href: "/dashboard/home", label: "About Us", icon: <Info className="h-5 w-5" />, admin: false },
+    { href: "/dashboard", labelKey: "liveFeed", icon: <Tv className="h-5 w-5" />, admin: false },
+    { href: "/dashboard/chat", labelKey: "communityChat", icon: <MessageSquare className="h-5 w-5" />, admin: false },
+    { href: "/dashboard/notifications", labelKey: "notifications", icon: <Bell className="h-5 w-5" />, admin: false },
+    { href: "/dashboard/map", labelKey: "mapView", icon: <Map className="h-5 w-5" />, admin: false },
+    { href: "/dashboard/reports", labelKey: "reports", icon: <BarChart3 className="h-5 w-5" />, admin: false },
+    { href: "/dashboard/news", labelKey: "news", icon: <Rss className="h-5 w-5" />, admin: false },
+    { href: "/dashboard/directory", labelKey: "directory", icon: <Shield className="h-5 w-5" />, admin: false },
+    { href: "/dashboard/updates", labelKey: "userActivity", icon: <Users className="h-5 w-5" />, admin: true },
+    { href: "/dashboard/broadcast", labelKey: "broadcast", icon: <Megaphone className="h-5 w-5" />, admin: true },
+    { href: "/dashboard/admin", labelKey: "adminPanel", icon: <Settings className="h-5 w-5" />, admin: true },
+    { href: "/dashboard/resources", labelKey: "safetyResources", icon: <LifeBuoy className="h-5 w-5" />, admin: false },
+    { href: "/dashboard/home", labelKey: "aboutUs", icon: <Info className="h-5 w-5" />, admin: false },
   ];
 
   const NavContent = () => (
@@ -63,7 +65,7 @@ export default function Sidebar({ isMobile = false }: { isMobile?: boolean }) {
                 )}
             >
                 {link.icon}
-                <span>{link.label}</span>
+                <span>{t(link.labelKey as any)}</span>
             </Link>
             )
         })}

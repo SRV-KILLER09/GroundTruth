@@ -19,11 +19,13 @@ import { useToast } from "@/hooks/use-toast";
 import { auth, updateUserAvatarInFirestore } from "@/lib/firebase";
 import { updateProfile } from "firebase/auth";
 import { useState } from "react";
+import { useLanguage, type Language } from "@/contexts/LanguageContext";
 
 
 export default function Header() {
   const { user, logout } = useAuth();
   const { toast } = useToast();
+  const { setLanguage } = useLanguage();
   const [isUpdatingPicture, setIsUpdatingPicture] = useState(false);
   const honorScore = 100; // Hardcoded score as per request
 
@@ -58,10 +60,11 @@ export default function Header() {
     }
   };
 
-  const handleLanguageChange = (lang: string) => {
+  const handleLanguageChange = (lang: Language, langName: string) => {
+    setLanguage(lang);
     toast({
       title: "Language Switched",
-      description: `Language has been set to ${lang}. (UI translation not implemented)`,
+      description: `Language has been set to ${langName}.`,
     });
   };
 
@@ -92,9 +95,9 @@ export default function Header() {
         <DropdownMenuContent align="end">
             <DropdownMenuLabel>Select Language</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onSelect={() => handleLanguageChange("English")}>English</DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => handleLanguageChange("Hindi")}>हिंदी (Hindi)</DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => handleLanguageChange("Bengali")}>বাংলা (Bengali)</DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => handleLanguageChange("en", "English")}>English</DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => handleLanguageChange("hi", "Hindi")}>हिंदी (Hindi)</DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => handleLanguageChange("bn", "Bengali")}>বাংলা (Bengali)</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
