@@ -69,6 +69,7 @@ export function UpdateCard({ update, onReply, onDelete, onInteraction }: UpdateC
 
   const adminEmails = ['vardaansaxena096@gmail.com', 'saranshwadhwa0102@gmail.com'];
   const isAdmin = user?.email ? adminEmails.includes(user.email) : false;
+  const isAuthor = user?.uid === update.user.uid;
   const honorScore = 100; // Placeholder
 
   const handleReplySubmit = () => {
@@ -192,7 +193,7 @@ export function UpdateCard({ update, onReply, onDelete, onInteraction }: UpdateC
                     <Award className="h-3 w-3" />
                     <span>{honorScore}</span>
                 </div>
-                {isAdmin && (
+                {isAdmin && !isAuthor && (
                     <AlertDialog>
                         <AlertDialogTrigger asChild>
                              <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-destructive">
@@ -222,7 +223,7 @@ export function UpdateCard({ update, onReply, onDelete, onInteraction }: UpdateC
                     {currentStatus.icon}
                     <span className="ml-1">{currentStatus.text}</span>
                 </Badge>
-                {isAdmin && (
+                {(isAdmin || isAuthor) && (
                     <AlertDialog>
                         <AlertDialogTrigger asChild>
                             <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive">

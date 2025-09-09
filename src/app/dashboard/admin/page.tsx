@@ -64,7 +64,7 @@ export default function AdminPage() {
                             <AlertTitle>Action Required</AlertTitle>
                             <AlertDescription>
                                 If users cannot log in, reports and likes get stuck loading forever, or chat does not work, your Firestore rules are likely too restrictive.
-                            </AlertDescription>
+                            </Description>
                         </Alert>
                         <p className="text-sm text-muted-foreground mb-2">
                            Go to your Firestore rules and replace the content with the following to allow public reads while securing write operations:
@@ -94,7 +94,7 @@ service cloud.firestore {
       allow create: if request.auth != null;
 
       // Deletion is restricted to the original author OR an admin
-      allow delete: if request.auth.uid == resource.data.user.uid || isAdmin();
+      allow delete: if request.auth != null && (request.auth.uid == resource.data.user.uid || isAdmin());
 
       // Update permissions are more granular:
       // Any authenticated user can update the 'likedBy' and 'dislikedBy' fields.
