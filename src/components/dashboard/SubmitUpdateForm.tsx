@@ -165,7 +165,7 @@ export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) 
                 latitude: values.latitude,
                 longitude: values.longitude
             },
-            message: isVideoSubmitted ? "Video report submitted. Pending review." : values.message,
+            message: values.message,
             mediaUrl: mediaUrl,
             history: [values.message],
             replies: [],
@@ -245,6 +245,19 @@ export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) 
                     </div>
             </TabsContent>
             <TabsContent value="video" className="pt-4">
+                 <FormField
+                    control={form.control}
+                    name="message"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Update Message</FormLabel>
+                        <FormControl>
+                            <Textarea rows={4} placeholder="Provide a detailed update on the situation..." {...field} disabled={isSubmitting} />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
                 <VideoRecorder onVideoSubmit={() => setIsVideoSubmitted(true)} isSubmitting={isSubmitting} />
             </TabsContent>
         </Tabs>
@@ -350,5 +363,3 @@ export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) 
     </Form>
   );
 }
-
-    
