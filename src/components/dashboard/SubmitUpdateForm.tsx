@@ -68,8 +68,8 @@ export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) 
       disasterType: 'Flood',
       otherDisasterType: "",
       locationName: "",
-      latitude: undefined,
-      longitude: undefined,
+      latitude: "" as any,
+      longitude: "" as any,
       message: "",
     },
   });
@@ -90,8 +90,8 @@ export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) 
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        form.setValue("latitude", position.coords.latitude, { shouldValidate: true });
-        form.setValue("longitude", position.coords.longitude, { shouldValidate: true });
+        form.setValue("latitude", position.coords.latitude as any, { shouldValidate: true });
+        form.setValue("longitude", position.coords.longitude as any, { shouldValidate: true });
         toast({
             title: "Location Acquired",
             description: "Your current location has been filled in.",
