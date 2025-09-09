@@ -30,7 +30,7 @@ export default function AIHelpDeskWidget() {
     const [chatbotStatus, setChatbotStatus] = useState<ChatbotStatus>('online');
     const messagesEndRef = useRef<HTMLDivElement>(null);
     
-    const adminEmails = ['vardaansaxena096@gmail.com'];
+    const adminEmails = ['vardaansaxena096@gmail.com', 'saranshwadhwa0102@gmail.com'];
     const isAdmin = user?.email ? adminEmails.includes(user.email) : false;
 
     useEffect(() => {
@@ -49,7 +49,7 @@ export default function AIHelpDeskWidget() {
         setIsThinking(true);
         
         try {
-            const aiResponse = await askAIHelpDesk({ query: newMessage });
+            const aiResponse = await askAIHelpDesk({ query: newMessage, userName: user.displayName || 'User' });
             const aiMessage: ChatMessage = { sender: 'ai', text: aiResponse.response };
             setMessages(prev => [...prev, aiMessage]);
         } catch (error) {
@@ -65,8 +65,8 @@ export default function AIHelpDeskWidget() {
         if (!isAdmin) return;
         
         if (status === 'restarting') {
-            setChatbotStatus('offline');
-            toast({ title: "Chatbot is powering down..."});
+            setChatbotStatus('restarting');
+            toast({ title: "Chatbot is restarting..."});
             setTimeout(() => {
                 setMessages([]);
                 setChatbotStatus('online');
@@ -84,10 +84,12 @@ export default function AIHelpDeskWidget() {
             offline: { text: 'Offline', className: 'bg-red-500' },
             restarting: { text: 'Restarting...', className: 'bg-yellow-500 animate-pulse' },
         }
+        const currentStatus = chatbotStatus === 'restarting' ? 'restarting' : chatbotStatus;
+
         return (
              <div className="flex items-center gap-2">
-                <div className={cn("h-2 w-2 rounded-full", config[chatbotStatus].className)}></div>
-                <span className="text-xs text-muted-foreground">{config[chatbotStatus].text}</span>
+                <div className={cn("h-2 w-2 rounded-full", config[currentStatus].className)}></div>
+                <span className="text-xs text-muted-foreground">{config[currentStatus].text}</span>
             </div>
         )
     }
@@ -119,13 +121,13 @@ export default function AIHelpDeskWidget() {
                             </CardTitle>
                              {isAdmin && (
                                 <div className="flex items-center gap-1">
-                                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleStatusChange('online')} disabled={chatbotStatus === 'online'}>
+                                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleStatusChange('online')} disabled={chatbotStatus === 'online' || chatbotStatus === 'restarting'}>
                                         <Power className="h-4 w-4" />
                                     </Button>
-                                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleStatusChange('offline')} disabled={chatbotStatus === 'offline'}>
+                                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleStatusChange('offline')} disabled={chatbotStatus === 'offline' || chatbotStatus === 'restarting'}>
                                         <PowerOff className="h-4 w-4" />
                                     </Button>
-                                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleStatusChange('restarting')}>
+                                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleStatusChange('restarting')} disabled={chatbotStatus === 'restarting'}>
                                         <RefreshCw className="h-4 w-4" />
                                     </Button>
                                 </div>
@@ -139,14 +141,28 @@ export default function AIHelpDeskWidget() {
                         </div>
                     </CardHeader>
                     <CardContent className="flex-1 overflow-y-auto p-4 space-y-6">
-                        {messages.length === 0 && (
+                        {chatbotStatus === 'offline' && (
+                            <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground p-8">
+                                <Bot className="h-16 w-16 mb-4 text-primary/50" />
+                                <h2 className="text-xl font-semibold text-foreground mb-2">HelpDesk is Offline</h2>
+                                <p className="text-sm">The admin has currently disabled the chatbot.</p>
+                            </div>
+                        )}
+                        {chatbotStatus === 'restarting' && (
+                           <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground p-8">
+                                <Loader2 className="h-16 w-16 mb-4 text-primary/50 animate-spin" />
+                                <h2 className="text-xl font-semibold text-foreground mb-2">Restarting...</h2>
+                                <p className="text-sm">Please wait a moment.</p>
+                            </div>
+                        )}
+                        {chatbotStatus === 'online' && messages.length === 0 && (
                             <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground p-8">
                                 <Bot className="h-16 w-16 mb-4 text-primary/50" />
                                 <h2 className="text-xl font-semibold text-foreground mb-2">Welcome to the HelpDesk!</h2>
-                                <p className="text-sm">How can I help you today?</p>
+                                <p className="text-sm">How can I help you today, {user?.displayName || 'friend'}?</p>
                             </div>
                         )}
-                        {messages.map((msg, index) => {
+                        {chatbotStatus === 'online' && messages.map((msg, index) => {
                             const isUser = msg.sender === 'user';
                             return (
                                 <div key={index} className={cn("flex items-start gap-3", isUser ? "justify-end" : "justify-start")}>
@@ -207,4 +223,3 @@ export default function AIHelpDeskWidget() {
         </Popover>
     );
 }
-

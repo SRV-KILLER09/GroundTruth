@@ -218,7 +218,7 @@ export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) 
        <Tabs defaultValue="text" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="text"><FileText className="mr-2 h-4 w-4"/>Text Report</TabsTrigger>
-                <TabsTrigger value="video" disabled><Video className="mr-2 h-4 w-4"/>Video Report</TabsTrigger>
+                <TabsTrigger value="video"><Video className="mr-2 h-4 w-4"/>Video Report</TabsTrigger>
             </TabsList>
             <TabsContent value="text" className="space-y-6 pt-4">
                  <FormField
