@@ -6,11 +6,10 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
-import { Settings, Database, KeyRound, AlertTriangle, ExternalLink, Shield } from 'lucide-react';
+import { Settings, Database, AlertTriangle, ExternalLink, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import Link from 'next/link';
-import { Badge } from '@/components/ui/badge';
 
 export default function AdminPage() {
     const { user, isAuthenticated, loading } = useAuth();
@@ -38,10 +37,10 @@ export default function AdminPage() {
         <CardHeader>
           <CardTitle className="flex items-center">
             <Settings className="mr-2 h-6 w-6 text-primary" />
-            Admin Configuration
+            Admin Configuration Guide
           </CardTitle>
           <CardDescription>
-            Manage your application's backend services and security rules. Incorrect rules are a common cause of errors.
+            Manage your application's backend services and security rules. Incorrect rules are the most common cause of submission errors or data not loading.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -61,7 +60,7 @@ export default function AdminPage() {
                             <AlertTriangle className="h-4 w-4" />
                             <AlertTitle>Action Required</AlertTitle>
                             <AlertDescription>
-                                If your app shows "permission denied" or fails to load data, your Firestore rules are likely too restrictive.
+                                If submitting a report gets stuck loading forever, your Firestore rules are likely too restrictive.
                             </AlertDescription>
                         </Alert>
                         <p className="text-sm text-muted-foreground mb-2">
@@ -73,7 +72,7 @@ export default function AdminPage() {
 service cloud.firestore {
   match /databases/{database}/documents {
     match /{document=**} {
-      allow read, write: if true;
+      allow read, write: if request.auth != null;
     }
   }
 }`}
@@ -104,7 +103,7 @@ service cloud.firestore {
                             <AlertTriangle className="h-4 w-4" />
                             <AlertTitle>Action Required</AlertTitle>
                             <AlertDescription>
-                                If file uploads get stuck loading forever, your Storage rules are likely too restrictive.
+                                If image uploads get stuck loading forever, your Storage rules are likely too restrictive.
                             </AlertDescription>
                         </Alert>
                         <p className="text-sm text-muted-foreground mb-2">
