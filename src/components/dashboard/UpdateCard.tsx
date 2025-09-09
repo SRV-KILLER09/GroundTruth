@@ -5,7 +5,7 @@ import Image from "next/image";
 import type { DisasterUpdate, DisasterUpdateReply } from "@/lib/mock-data";
 import { Flame, Droplets, Zap, Wind, AlertTriangle, MessageSquare, ShieldCheck, Siren, CheckCircle, HelpCircle, XCircle, ThumbsUp, ThumbsDown, CornerDownRight, Flag, History, Clock, Trash2 } from 'lucide-react';
 import { useAuth } from "@/contexts/AuthContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
@@ -46,7 +46,24 @@ export function UpdateCard({ update, onReply, onDelete, onInteraction }: UpdateC
   const { toast } = useToast();
   const [replyText, setReplyText] = useState("");
   const [isDispatching, setIsDispatching] = useState(false);
-  const [localInteraction, setLocalInteraction] = useState<'like' | 'dislike' | null>(null);
+  
+  const [likeCount, setLikeCount] = useState(update.likedBy?.length || 0);
+  const [dislikeCount, setDislikeCount] = useState(update.dislikedBy?.length || 0);
+  const [currentUserVote, setCurrentUserVote] = useState<'like' | 'dislike' | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      if (update.likedBy?.includes(user.uid)) {
+        setCurrentUserVote('like');
+      } else if (update.dislikedBy?.includes(user.uid)) {
+        setCurrentUserVote('dislike');
+      } else {
+        setCurrentUserVote(null);
+      }
+    }
+    setLikeCount(update.likedBy?.length || 0);
+    setDislikeCount(update.dislikedBy?.length || 0);
+  }, [update.likedBy, update.dislikedBy, user]);
 
   const adminEmails = ['vardaansaxena096@gmail.com', 'saranshwadhwa0102@gmail.com'];
   const isAdmin = user?.email ? adminEmails.includes(user.email) : false;
@@ -63,19 +80,52 @@ export function UpdateCard({ update, onReply, onDelete, onInteraction }: UpdateC
     }
   };
 
-  const handleInteraction = (interactionType: 'like' | 'dislike') => {
-    if (!update.id) return;
-    if (localInteraction === interactionType) {
-        // User is un-doing their vote. For simplicity, we don't support this yet.
-        toast({
-            title: "Already Voted",
-            description: "You have already cast your vote on this post.",
-        });
-        return;
+  const handleInteractionClick = (interactionType: 'like' | 'dislike') => {
+    if (!update.id || !user) return;
+    
+    // Optimistic UI update
+    const originalVote = currentUserVote;
+    const originalLikeCount = likeCount;
+    const originalDislikeCount = dislikeCount;
+
+    let newVote: 'like' | 'dislike' | null = null;
+    let newLikeCount = likeCount;
+    let newDislikeCount = dislikeCount;
+
+    if (interactionType === 'like') {
+      if (originalVote === 'like') { // Unliking
+        newVote = null;
+        newLikeCount--;
+      } else { // Liking
+        newVote = 'like';
+        newLikeCount++;
+        if (originalVote === 'dislike') newDislikeCount--;
+      }
+    } else { // Dislike interaction
+      if (originalVote === 'dislike') { // Undisliking
+        newVote = null;
+        newDislikeCount--;
+      } else { // Disliking
+        newVote = 'dislike';
+        newDislikeCount++;
+        if (originalVote === 'like') newLikeCount--;
+      }
     }
-    setLocalInteraction(interactionType);
-    onInteraction(update.id, interactionType);
-  }
+    
+    setCurrentUserVote(newVote);
+    setLikeCount(newLikeCount);
+    setDislikeCount(newDislikeCount);
+
+    try {
+        onInteraction(update.id, interactionType);
+    } catch (error) {
+        // Revert UI on error
+        setCurrentUserVote(originalVote);
+        setLikeCount(originalLikeCount);
+        setDislikeCount(originalDislikeCount);
+        toast({ title: "Error", description: "Could not process your vote.", variant: "destructive"});
+    }
+  };
 
   
   const handleReportUser = () => {
@@ -253,18 +303,15 @@ export function UpdateCard({ update, onReply, onDelete, onInteraction }: UpdateC
             </div>
         )}
       </CardContent>
-      <CardFooter className="flex justify-between items-center bg-muted/50 p-2 text-sm text-muted-foreground">
-        <div className="flex items-center pl-2">
-            
-        </div>
+      <CardFooter className="flex justify-end items-center bg-muted/50 p-2">
         <div className="flex items-center gap-1">
-            <Button variant="ghost" size="sm" onClick={() => handleInteraction('like')} disabled={!!localInteraction}>
-                <ThumbsUp className={cn("mr-2 h-4 w-4", localInteraction === 'like' && "text-primary fill-primary/20")} />
-                {update.likes || 0}
+            <Button variant="ghost" size="sm" onClick={() => handleInteractionClick('like')}>
+                <ThumbsUp className={cn("mr-2 h-4 w-4", currentUserVote === 'like' && "text-primary fill-primary/20")} />
+                {likeCount}
             </Button>
-            <Button variant="ghost" size="sm" onClick={() => handleInteraction('dislike')} disabled={!!localInteraction}>
-                <ThumbsDown className={cn("mr-2 h-4 w-4", localInteraction === 'dislike' && "text-destructive fill-destructive/20")} />
-                {update.dislikes || 0}
+            <Button variant="ghost" size="sm" onClick={() => handleInteractionClick('dislike')}>
+                <ThumbsDown className={cn("mr-2 h-4 w-4", currentUserVote === 'dislike' && "text-destructive fill-destructive/20")} />
+                {dislikeCount}
             </Button>
         </div>
       </CardFooter>
@@ -277,3 +324,5 @@ export function UpdateCard({ update, onReply, onDelete, onInteraction }: UpdateC
     </>
   );
 }
+
+    

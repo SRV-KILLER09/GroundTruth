@@ -171,8 +171,8 @@ export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) 
             replies: [],
             status: 'Under Investigation',
             authority: 'Local Police',
-            likes: 0,
-            dislikes: 0,
+            likedBy: [],
+            dislikedBy: [],
             timestamp: serverTimestamp(),
         });
         

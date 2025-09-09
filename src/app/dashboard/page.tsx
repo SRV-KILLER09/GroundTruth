@@ -14,11 +14,11 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { EmergencyContacts } from "@/components/dashboard/EmergencyContacts";
 import { db } from "@/lib/firebase";
-import { collection, onSnapshot, query, orderBy, doc, updateDoc, arrayUnion, deleteDoc, getDocs, limit, startAfter, DocumentData, QueryDocumentSnapshot, increment } from "firebase/firestore";
+import { collection, onSnapshot, query, orderBy, doc, updateDoc, arrayUnion, deleteDoc, getDocs, limit, startAfter, DocumentData, QueryDocumentSnapshot, arrayRemove, runTransaction } from "firebase/firestore";
 
 
 export default function DashboardPage() {
-  const { isAuthenticated, loading } = useAuth();
+  const { user, isAuthenticated, loading } = useAuth();
   const { notifications } = useNotifications();
   const router = useRouter();
   const [updates, setUpdates] = useState<DisasterUpdate[]>([]);
@@ -128,12 +128,50 @@ export default function DashboardPage() {
   };
   
   const handleInteraction = async (updateId: string, interactionType: 'like' | 'dislike') => {
-      const updateRef = doc(db, "disaster_updates", updateId);
-      const fieldToIncrement = interactionType === 'like' ? 'likes' : 'dislikes';
-      await updateDoc(updateRef, {
-          [fieldToIncrement]: increment(1)
-      });
-  }
+    if (!user) return;
+    const updateRef = doc(db, "disaster_updates", updateId);
+    const userId = user.uid;
+
+    await runTransaction(db, async (transaction) => {
+      const updateDoc = await transaction.get(updateRef);
+      if (!updateDoc.exists()) {
+        throw "Document does not exist!";
+      }
+
+      const data = updateDoc.data();
+      const likedBy = data.likedBy || [];
+      const dislikedBy = data.dislikedBy || [];
+      
+      const isLiked = likedBy.includes(userId);
+      const isDisliked = dislikedBy.includes(userId);
+
+      if (interactionType === 'like') {
+        if (isLiked) {
+          // User is unliking
+          transaction.update(updateRef, { likedBy: arrayRemove(userId) });
+        } else {
+          // User is liking, remove from dislikes if present
+          const updates: any = { likedBy: arrayUnion(userId) };
+          if (isDisliked) {
+            updates.dislikedBy = arrayRemove(userId);
+          }
+          transaction.update(updateRef, updates);
+        }
+      } else if (interactionType === 'dislike') {
+        if (isDisliked) {
+          // User is un-disliking
+          transaction.update(updateRef, { dislikedBy: arrayRemove(userId) });
+        } else {
+          // User is disliking, remove from likes if present
+          const updates: any = { dislikedBy: arrayUnion(userId) };
+          if (isLiked) {
+            updates.likedBy = arrayRemove(userId);
+          }
+          transaction.update(updateRef, updates);
+        }
+      }
+    });
+  };
 
   const handleDismissNotification = () => {
     if (latestNotification) {
@@ -182,3 +220,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    

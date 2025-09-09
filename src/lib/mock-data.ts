@@ -29,8 +29,8 @@ export type DisasterUpdate = {
   replies: DisasterUpdateReply[];
   status: DisasterStatus;
   authority: 'NDRF' | 'Local Police' | 'Fire Dept.' | 'Medical Team';
-  likes?: number;
-  dislikes?: number;
+  likedBy?: string[];
+  dislikedBy?: string[];
 };
 
 export type MockNewsItem = {
@@ -236,3 +236,5 @@ export const createNewMockChatMessage = (id: number): ChatMessage => {
         timestamp: new Date().toISOString(),
     }
 }
+
+    
