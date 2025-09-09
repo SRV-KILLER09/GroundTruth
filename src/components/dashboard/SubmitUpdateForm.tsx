@@ -18,7 +18,6 @@ import { VideoRecorder } from "./VideoRecorder";
 import { db, storage } from "@/lib/firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { generateDisasterImage } from "@/ai/flows/generate-disaster-image";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 
 
@@ -44,6 +43,14 @@ type FormValues = z.infer<typeof formSchema>;
 interface SubmitUpdateFormProps {
     onSuccessfulSubmit: () => void;
 }
+
+const placeholderImages = [
+    'https://picsum.photos/seed/report1/800/600',
+    'https://picsum.photos/seed/report2/800/600',
+    'https://picsum.photos/seed/report3/800/600',
+    'https://picsum.photos/seed/report4/800/600',
+    'https://picsum.photos/seed/report5/800/600',
+];
 
 export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) {
   const { user } = useAuth();
@@ -154,9 +161,8 @@ export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) 
             const uploadResult = await uploadBytes(storageRef, imageFile);
             mediaUrl = await getDownloadURL(uploadResult.ref);
         } else {
-             toast({ title: "Generating AI Image...", description: "No image was provided, so our AI is creating one for your report."});
-             const result = await generateDisasterImage({ disasterType, description: values.message });
-             mediaUrl = result.imageUrl;
+            const randomIndex = Math.floor(Math.random() * placeholderImages.length);
+            mediaUrl = placeholderImages[randomIndex];
         }
 
         await addDoc(collection(db, "disaster_updates"), {
@@ -253,7 +259,7 @@ export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) 
                         <Bot className="h-4 w-4" />
                         <AlertTitle>No Image? No Problem.</AlertTitle>
                         <AlertDescription>
-                            If you don't provide an image, our AI will generate one for you based on your description.
+                            If you don't provide an image, a stock photo will be used for your report.
                         </AlertDescription>
                     </Alert>
                     </div>
