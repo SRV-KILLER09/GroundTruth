@@ -3,11 +3,12 @@
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Rss, Newspaper, Building, TriangleAlert, MapPin } from "lucide-react";
+import { Rss, Newspaper, Building, TriangleAlert, MapPin, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { mockNewsItems, createNewMockNewsItem, type MockNewsItem } from '@/lib/mock-data';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from '@/hooks/use-toast';
 
 const categoryStyles = {
     alert: "bg-red-500/10 text-red-500 border-red-500/20",
@@ -44,10 +45,37 @@ const NewsArticle = ({ item }: { item: MockNewsItem }) => (
 export default function NewsPage() {
   const [newsItems, setNewsItems] = useState<MockNewsItem[]>([]);
   const [isClient, setIsClient] = useState(false);
+  const [locationName, setLocationName] = useState<string | null>(null);
+  const [isLocating, setIsLocating] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     setIsClient(true);
     setNewsItems(mockNewsItems);
+    
+    // Fetch location on mount
+    setIsLocating(true);
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            const { latitude, longitude } = position.coords;
+            // Simple reverse geocoding simulation
+            if (latitude > 28.4 && latitude < 28.8 && longitude > 76.8 && longitude < 77.4) {
+                 setLocationName("Delhi");
+            } else {
+                 setLocationName("your area");
+            }
+            setIsLocating(false);
+        },
+        () => {
+            toast({
+                variant: 'destructive',
+                title: 'Location Access Denied',
+                description: 'Could not fetch local news. Please enable location permissions.',
+            });
+            setLocationName('your region');
+            setIsLocating(false);
+        }
+    );
 
     const interval = setInterval(() => {
       setNewsItems(prevItems => {
@@ -61,13 +89,11 @@ export default function NewsPage() {
     }, 8000); // Add a new item every 8 seconds
 
     return () => clearInterval(interval);
-  }, []);
+  }, [toast]);
 
   const localNewsItems = newsItems.filter(item => 
       item.categoryType === 'alert' ||
-      item.headline.toLowerCase().includes('delhi') ||
-      item.headline.toLowerCase().includes('uttarakhand') ||
-      item.headline.toLowerCase().includes('assam')
+      (locationName && item.headline.toLowerCase().includes(locationName.toLowerCase()))
   );
 
   if (!isClient) {
@@ -101,8 +127,16 @@ export default function NewsPage() {
                 </TabsContent>
                 <TabsContent value="local" className="pt-6">
                     <div className="p-4 mb-6 rounded-lg bg-muted/50 border flex items-center gap-3">
-                         <MapPin className="h-5 w-5 text-primary"/>
-                         <p className="text-sm text-muted-foreground">Showing alerts and news relevant to your region (Simulated).</p>
+                         {isLocating ? (
+                            <Loader2 className="h-5 w-5 text-primary animate-spin"/>
+                         ) : (
+                            <MapPin className="h-5 w-5 text-primary"/>
+                         )}
+                         <p className="text-sm text-muted-foreground">
+                            {isLocating 
+                                ? "Getting your location for relevant news..." 
+                                : `Showing alerts and news relevant to ${locationName || "your region"} (Simulated).`}
+                         </p>
                     </div>
                     <div className="space-y-6">
                         {localNewsItems.length > 0 ? (
@@ -111,7 +145,7 @@ export default function NewsPage() {
                             ))
                         ) : (
                              <div className="text-center p-8 text-muted-foreground">
-                                <p>No specific local alerts at this time.</p>
+                                <p>No specific local alerts for {locationName || "your region"} at this time.</p>
                             </div>
                         )}
                     </div>
