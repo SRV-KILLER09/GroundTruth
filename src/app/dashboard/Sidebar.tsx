@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Mountain, Home, Map, LifeBuoy, BarChart3, Shield, Rss, Tv, MessageSquare, Info, Users, Bell, Megaphone, Settings } from "lucide-react";
+import { Mountain, Home, Map, LifeBuoy, BarChart3, Shield, Rss, Tv, MessageSquare, Info, Users, Bell, Megaphone, Bot } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import Image from "next/image";
@@ -19,6 +19,7 @@ export default function Sidebar({ isMobile = false }: { isMobile?: boolean }) {
   const navLinks = [
     { href: "/dashboard", labelKey: "liveFeed", icon: <Tv className="h-5 w-5" />, admin: false },
     { href: "/dashboard/chat", labelKey: "communityChat", icon: <MessageSquare className="h-5 w-5" />, admin: false },
+    { href: "/dashboard/ai-helpdesk", labelKey: "aiHelpDesk", icon: <Bot className="h-5 w-5" />, admin: false },
     { href: "/dashboard/notifications", labelKey: "notifications", icon: <Bell className="h-5 w-5" />, admin: false },
     { href: "/dashboard/map", labelKey: "mapView", icon: <Map className="h-5 w-5" />, admin: false },
     { href: "/dashboard/reports", labelKey: "reports", icon: <BarChart3 className="h-5 w-5" />, admin: false },

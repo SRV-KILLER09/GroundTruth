@@ -18,6 +18,11 @@ export const translations: Translations = {
         hi: "सामुदायिक चैट",
         bn: "কমিউনিটি চ্যাট"
     },
+    aiHelpDesk: {
+        en: "AI HelpDesk",
+        hi: "एआई हेल्पडेस्क",
+        bn: "এআই হেল্পডেস্ক"
+    },
     notifications: {
         en: "Notifications",
         hi: "सूचनाएं",
@@ -52,11 +57,6 @@ export const translations: Translations = {
         en: "Broadcast",
         hi: "प्रसारण",
         bn: "সম্প্রচার"
-    },
-    adminPanel: {
-        en: "Admin Panel",
-        hi: "एडमिन पैनल",
-        bn: "অ্যাডমিন প্যানেল"
     },
     safetyResources: {
         en: "Safety Resources",
