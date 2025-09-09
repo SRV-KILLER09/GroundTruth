@@ -60,19 +60,36 @@ export default function AdminPage() {
                             <AlertTriangle className="h-4 w-4" />
                             <AlertTitle>Action Required</AlertTitle>
                             <AlertDescription>
-                                If submitting a report gets stuck loading forever, your Firestore rules are likely too restrictive.
+                                If users cannot log in or reports get stuck loading forever, your Firestore rules are likely too restrictive.
                             </AlertDescription>
                         </Alert>
                         <p className="text-sm text-muted-foreground mb-2">
-                           Go to your Firestore rules and replace the content with the following to open up access for development:
+                           Go to your Firestore rules and replace the content with the following to allow public reads while securing write operations:
                         </p>
                         <pre className="p-2 rounded-md bg-muted text-xs overflow-x-auto">
                             <code>
 {`rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    
+    // Default to denying all reads and writes
     match /{document=**} {
-      allow read, write: if request.auth != null;
+      allow read, write: if false;
+    }
+
+    // Allow reading all disaster updates, but only authenticated users can create them.
+    // Only the original author can update or delete their own update.
+    match /disaster_updates/{updateId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth.uid == resource.data.user.uid;
+    }
+    
+    // Allow reading all user profiles.
+    // A user can only create, update or delete their own profile.
+    match /users/{userId} {
+      allow read: if true;
+      allow create, update, delete: if request.auth != null && request.auth.uid == userId;
     }
   }
 }`}
