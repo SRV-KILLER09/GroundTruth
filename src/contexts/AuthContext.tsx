@@ -67,7 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             toast({
                 variant: "destructive",
                 title: "Database Permission Error",
-                description: "Your app does not have permission to access Firestore. Please update your security rules in the Admin Panel.",
+                description: "Your app does not have permission to access Firestore. Please update your security rules. If you are an admin, see the Admin Panel for the correct rules.",
                 duration: 10000,
             });
             console.error("Firestore Permission Denied:", error);
