@@ -60,7 +60,7 @@ export default function AdminPage() {
                             <AlertTriangle className="h-4 w-4" />
                             <AlertTitle>Action Required</AlertTitle>
                             <AlertDescription>
-                                If users cannot log in, or reports and likes get stuck loading forever, your Firestore rules are likely too restrictive.
+                                If users cannot log in, reports and likes get stuck loading forever, or chat does not work, your Firestore rules are likely too restrictive.
                             </AlertDescription>
                         </Alert>
                         <p className="text-sm text-muted-foreground mb-2">
@@ -145,7 +145,7 @@ service cloud.firestore {
                             <AlertTitle>Action Required</AlertTitle>
                             <AlertDescription>
                                 If image uploads get stuck loading forever, your Storage rules are likely too restrictive.
-                            </AlertDescription>
+                            </Description>
                         </Alert>
                         <p className="text-sm text-muted-foreground mb-2">
                            Go to your Storage rules and replace the content with the following to allow image uploads for authenticated users:
