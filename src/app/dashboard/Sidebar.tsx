@@ -26,7 +26,6 @@ export default function Sidebar({ isMobile = false }: { isMobile?: boolean }) {
     { href: "/dashboard/directory", labelKey: "directory", icon: <Shield className="h-5 w-5" />, admin: false },
     { href: "/dashboard/updates", labelKey: "userActivity", icon: <Users className="h-5 w-5" />, admin: true },
     { href: "/dashboard/broadcast", labelKey: "broadcast", icon: <Megaphone className="h-5 w-5" />, admin: true },
-    { href: "/dashboard/admin", labelKey: "adminPanel", icon: <Settings className="h-5 w-5" />, admin: true },
     { href: "/dashboard/resources", labelKey: "safetyResources", icon: <LifeBuoy className="h-5 w-5" />, admin: false },
     { href: "/dashboard/home", labelKey: "aboutUs", icon: <Info className="h-5 w-5" />, admin: false },
   ];
