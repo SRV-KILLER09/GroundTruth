@@ -35,25 +35,25 @@ body {
     --radius: 0.5rem;
   }
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 25 95% 53%; /* Bright Orange */
+    --background: 0 0% 3%;
+    --foreground: 0 84.2% 60.2%;
+    --card: 0 0% 5%;
+    --card-foreground: 0 84.2% 60.2%;
+    --popover: 0 0% 5%;
+    --popover-foreground: 0 84.2% 60.2%;
+    --primary: 0 84.2% 60.2%;
     --primary-foreground: 0 0% 98%;
-    --secondary: 240 3.7% 15.9%;
+    --secondary: 0 0% 15%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
+    --muted: 0 0% 10%;
     --muted-foreground: 0 0% 63.9%;
-    --accent: 25 95% 53%; /* Bright Orange */
+    --accent: 0 84.2% 60.2%;
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 25 95% 53%;
+    --border: 0 0% 15%;
+    --input: 0 0% 15%;
+    --ring: 0 84.2% 60.2%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
@@ -70,8 +70,8 @@ body {
     @apply bg-background text-foreground;
   }
   .dark body {
-    background-color: #020817;
-    background-image: radial-gradient(circle at 1px 1px, hsl(240 3.7% 15.9%) 1px, transparent 0);
+    background-color: #080808;
+    background-image: radial-gradient(circle at 1px 1px, hsl(0 0% 15%) 1px, transparent 0);
     background-size: 2rem 2rem;
   }
   /* Custom scrollbar */
@@ -82,10 +82,10 @@ body {
     background: black;
   }
   ::-webkit-scrollbar-thumb {
-    background: hsl(25 95% 53%); /* Bright Orange */
+    background: hsl(0 84.2% 60.2%); /* Red */
     border-radius: 4px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: hsl(25 95% 60%); /* Brighter Orange */
+    background: hsl(0 84.2% 70.2%); /* Brighter Red */
   }
 }
