@@ -144,6 +144,7 @@ export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) 
     let mediaUrl: string | null = null;
     try {
         if (isVideoSubmitted) {
+            // This is a placeholder for when video recording is implemented fully
             mediaUrl = "https://picsum.photos/600/400?blur";
         } else if (imageFile) {
             const storageRef = ref(storage, `uploads/${user.uid}/${Date.now()}-${imageFile.name}`);
@@ -349,3 +350,5 @@ export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) 
     </Form>
   );
 }
+
+    
