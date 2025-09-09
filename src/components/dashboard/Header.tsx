@@ -12,7 +12,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { LogOut, Award, Menu, Edit, Loader2 } from "lucide-react";
+import { LogOut, Award, Menu, Edit, Loader2, Globe } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import Sidebar from "./Sidebar";
 import { useToast } from "@/hooks/use-toast";
@@ -58,6 +58,13 @@ export default function Header() {
     }
   };
 
+  const handleLanguageChange = (lang: string) => {
+    toast({
+      title: "Language Switched",
+      description: `Language has been set to ${lang}. (UI translation not implemented)`,
+    });
+  };
+
 
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
@@ -74,6 +81,22 @@ export default function Header() {
       </Sheet>
 
       <div className="flex-1" />
+      
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="icon">
+                <Globe className="h-5 w-5"/>
+                <span className="sr-only">Change language</span>
+            </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Select Language</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onSelect={() => handleLanguageChange("English")}>English</DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => handleLanguageChange("Hindi")}>हिंदी (Hindi)</DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => handleLanguageChange("Bengali")}>বাংলা (Bengali)</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
 
       {user && (
         <DropdownMenu>
