@@ -59,14 +59,6 @@ export type UserActivity = {
   status: 'Registered' | 'Logged In';
 };
 
-export type ChatMessage = {
-    id: number;
-    user: UserProfile;
-    message: string;
-    timestamp: string;
-};
-
-
 export const mockUserActivity: UserActivity[] = [
     { id: "u1a", email: "priya@example.com", username: "Priya", location: "Mumbai, MH", creationTime: "2025-07-29T12:05:00Z", honorScore: 100, status: "Logged In" },
     { id: "u7", email: "neha@example.com", username: "Neha", location: "Bengaluru, KA", creationTime: "2025-07-29T11:00:00Z", honorScore: 100, status: "Registered" },
@@ -95,33 +87,6 @@ export const mockAnnouncements: Announcement[] = [
     message: "Our new AI-powered image verification system is now live. Reports with images will be analyzed for authenticity.",
     timestamp: "2025-07-27T15:30:00Z",
   }
-];
-
-export const mockChatMessages: ChatMessage[] = [
-    {
-        id: 1,
-        user: { name: "Priya", username: "priya", avatarUrl: "https://picsum.photos/id/237/40/40" },
-        message: "Is anyone else experiencing heavy rain in the Mumbai area?",
-        timestamp: new Date(Date.now() - 1000 * 60 * 25).toISOString(),
-    },
-    {
-        id: 2,
-        user: { name: "Rohan", username: "rohan", avatarUrl: "https://picsum.photos/id/238/40/40" },
-        message: "Yes, it's pouring in Chennai too. The roads are starting to get waterlogged.",
-        timestamp: new Date(Date.now() - 1000 * 60 * 20).toISOString(),
-    },
-    {
-        id: 3,
-        user: { name: "Admin", username: "admin", avatarUrl: "https://picsum.photos/seed/admin/40/40" },
-        message: "We're monitoring the situation. Please submit an official report if you see significant flooding. Stay safe everyone.",
-        timestamp: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
-    },
-    {
-        id: 4,
-        user: { name: "Vikram", username: "vikram", avatarUrl: "https://picsum.photos/id/240/40/40" },
-        message: "I've posted some pictures of the flooding near my area in the live feed. Be careful if you're driving.",
-        timestamp: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
-    }
 ];
 
 export const mockNewsItems: MockNewsItem[] = [
@@ -212,29 +177,3 @@ export const createNewMockNewsItem = (): MockNewsItem => {
         link: "#",
     };
 };
-
-const botUsers = [
-    { name: "SupportBot", username: "supportbot", avatarId: "42" },
-    { name: "SafetyAdvisor", username: "safetyadvisor", avatarId: "48" },
-];
-const botMessages = [
-    "Remember to keep your emergency kits stocked and ready.",
-    "For official updates, please also refer to the NDMA website.",
-    "In case of a flood, seek higher ground and avoid walking or driving through water.",
-    "If you feel tremors, 'Drop, Cover, and Hold On' is the best safety procedure.",
-    "Let's keep the chat focused on safety and support. Thank you for your cooperation."
-];
-
-export const createNewMockChatMessage = (id: number): ChatMessage => {
-    const randomBot = botUsers[Math.floor(Math.random() * botUsers.length)];
-    const randomMessage = botMessages[Math.floor(Math.random() * botMessages.length)];
-
-    return {
-        id,
-        user: { name: randomBot.name, username: randomBot.username, avatarUrl: `https://picsum.photos/id/${randomBot.avatarId}/40/40` },
-        message: randomMessage,
-        timestamp: new Date().toISOString(),
-    }
-}
-
-    
