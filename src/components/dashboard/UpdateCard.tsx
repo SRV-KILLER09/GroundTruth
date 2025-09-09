@@ -2,8 +2,8 @@
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
-import type { DisasterUpdate, DisasterUpdateReply } from "@/lib/mock-data";
-import { Flame, Droplets, Zap, Wind, AlertTriangle, MessageSquare, ShieldCheck, Siren, CheckCircle, HelpCircle, XCircle, ThumbsUp, ThumbsDown, CornerDownRight, Flag, History, Clock, Trash2, Award } from 'lucide-react';
+import type { DisasterUpdate, DisasterUpdateReply, DisasterStatus } from "@/lib/mock-data";
+import { Flame, Droplets, Zap, Wind, AlertTriangle, MessageSquare, ShieldCheck, Siren, CheckCircle, HelpCircle, XCircle, ThumbsUp, ThumbsDown, CornerDownRight, Flag, History, Clock, Trash2, Award, Ban } from 'lucide-react';
 import { useAuth } from "@/contexts/AuthContext";
 import { useState, useEffect } from "react";
 import { Textarea } from "../ui/textarea";
@@ -17,6 +17,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import Link from "next/link";
 import { formatDistanceToNow } from 'date-fns';
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 
 interface UpdateCardProps {
@@ -80,6 +82,25 @@ export function UpdateCard({ update, onReply, onDelete, onInteraction }: UpdateC
       setReplyText("");
     }
   };
+
+  const handleFlagStatus = async (status: DisasterStatus) => {
+    if (!isAdmin || !update.id) return;
+    try {
+        const updateRef = doc(db, "disaster_updates", update.id);
+        await updateDoc(updateRef, { status: status });
+        toast({
+            title: `Report status updated to "${status}"`,
+            description: "The change is now live for all users.",
+        });
+    } catch (error) {
+        console.error("Error updating status:", error);
+        toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Could not update the report status.",
+        });
+    }
+  }
 
   const handleInteractionClick = (interactionType: 'like' | 'dislike') => {
     if (!update.id || !user) return;
@@ -288,23 +309,35 @@ export function UpdateCard({ update, onReply, onDelete, onInteraction }: UpdateC
         </div>
 
         {isAdmin && (
-            <div className="mt-4 flex items-start gap-4">
-                <div className="flex-1 space-y-2">
-                    <Textarea 
-                        value={replyText}
-                        onChange={(e) => setReplyText(e.target.value)}
-                        placeholder="Add an official reply..."
-                        rows={2}
-                    />
-                    <Button onClick={handleReplySubmit} size="sm" disabled={!replyText.trim()}>
-                        <MessageSquare className="mr-2 h-4 w-4" />
-                        Reply & Verify
-                    </Button>
-                </div>
-                 <Button variant="outline" size="sm" className="mt-auto" onClick={() => setIsDispatching(true)}>
-                    <Siren className="mr-2 h-4 w-4" />
-                    Dispatch Alert
-                </Button>
+            <div className="mt-4 flex flex-col gap-4">
+              <div className="flex items-start gap-4">
+                  <div className="flex-1 space-y-2">
+                      <Textarea 
+                          value={replyText}
+                          onChange={(e) => setReplyText(e.target.value)}
+                          placeholder="Add an official reply..."
+                          rows={2}
+                      />
+                      <Button onClick={handleReplySubmit} size="sm" disabled={!replyText.trim()}>
+                          <MessageSquare className="mr-2 h-4 w-4" />
+                          Reply & Verify
+                      </Button>
+                  </div>
+                  <Button variant="outline" size="sm" className="mt-auto" onClick={() => setIsDispatching(true)}>
+                      <Siren className="mr-2 h-4 w-4" />
+                      Dispatch Alert
+                  </Button>
+              </div>
+              <div className="flex items-center gap-2">
+                  <Button variant="outline" size="sm" onClick={() => handleFlagStatus('Fake')}>
+                    <Ban className="mr-2 h-4 w-4" />
+                    Flag as Fake
+                  </Button>
+                   <Button variant="outline" size="sm" onClick={() => handleFlagStatus('Verified')}>
+                    <CheckCircle className="mr-2 h-4 w-4" />
+                    Mark as Verified
+                  </Button>
+              </div>
             </div>
         )}
       </CardContent>

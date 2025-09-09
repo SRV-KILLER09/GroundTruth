@@ -4,16 +4,18 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { db } from '@/lib/firebase';
-import { collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, Timestamp, deleteDoc, doc } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Send, MessageSquare } from 'lucide-react';
+import { Send, MessageSquare, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+
 
 interface ChatMessage {
     id: string;
@@ -32,6 +34,8 @@ export default function ChatPage() {
     const [messagesLoading, setMessagesLoading] = useState(true);
     const { toast } = useToast();
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const adminEmails = ['vardaansaxena096@gmail.com', 'saranshwadhwa0102@gmail.com'];
+    const isAdmin = user?.email ? adminEmails.includes(user.email) : false;
 
     useEffect(() => {
         const q = query(collection(db, "chat_messages"), orderBy("timestamp", "asc"));
@@ -86,6 +90,24 @@ export default function ChatPage() {
         }
     };
     
+    const handleDeleteMessage = async (messageId: string) => {
+        if (!isAdmin) return;
+        try {
+            await deleteDoc(doc(db, "chat_messages", messageId));
+            toast({
+                title: "Message Deleted",
+                description: "The chat message has been removed.",
+            });
+        } catch (error) {
+            console.error("Error deleting message:", error);
+            toast({
+                variant: "destructive",
+                title: "Error",
+                description: "Could not delete the message. Check Firestore rules.",
+            });
+        }
+    };
+
     if (authLoading || messagesLoading) {
         return <LoadingSpinner />;
     }
@@ -106,20 +128,68 @@ export default function ChatPage() {
                     {messages.map((msg) => {
                         const isCurrentUser = msg.uid === user?.uid;
                         return (
-                            <div key={msg.id} className={cn("flex items-start gap-3", isCurrentUser ? "justify-end" : "justify-start")}>
+                            <div key={msg.id} className={cn("flex items-start gap-3 group", isCurrentUser ? "justify-end" : "justify-start")}>
                                 {!isCurrentUser && (
                                     <Avatar className="h-10 w-10 border-2 border-primary/50">
                                         <AvatarImage src={msg.photoURL} alt={msg.displayName} />
                                         <AvatarFallback>{msg.displayName.charAt(0)}</AvatarFallback>
                                     </Avatar>
                                 )}
-                                <div className={cn("max-w-xs md:max-w-md p-3 rounded-lg", isCurrentUser ? "bg-primary text-primary-foreground" : "bg-muted")}>
-                                    {!isCurrentUser && <p className="text-xs font-bold text-primary mb-1">{msg.displayName}</p>}
-                                    <p className="text-sm">{msg.text}</p>
-                                    {msg.timestamp && (
-                                        <p className={cn("text-xs mt-1", isCurrentUser ? "text-primary-foreground/70" : "text-muted-foreground")}>
-                                            {formatDistanceToNow(msg.timestamp.toDate(), { addSuffix: true })}
-                                        </p>
+                                <div className="flex items-center gap-2">
+                                     {isAdmin && !isCurrentUser && (
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Delete this message?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        Are you sure you want to delete this message from the chat? This action cannot be undone.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction onClick={() => handleDeleteMessage(msg.id)} className="bg-destructive hover:bg-destructive/90">
+                                                        Delete Message
+                                                    </AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
+                                    )}
+                                    <div className={cn("max-w-xs md:max-w-md p-3 rounded-lg", isCurrentUser ? "bg-primary text-primary-foreground" : "bg-muted")}>
+                                        {!isCurrentUser && <p className="text-xs font-bold text-primary mb-1">{msg.displayName}</p>}
+                                        <p className="text-sm">{msg.text}</p>
+                                        {msg.timestamp && (
+                                            <p className={cn("text-xs mt-1", isCurrentUser ? "text-primary-foreground/70" : "text-muted-foreground")}>
+                                                {formatDistanceToNow(msg.timestamp.toDate(), { addSuffix: true })}
+                                            </p>
+                                        )}
+                                    </div>
+                                    {isAdmin && isCurrentUser && (
+                                         <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Delete this message?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        Are you sure you want to delete your message? This action cannot be undone.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction onClick={() => handleDeleteMessage(msg.id)} className="bg-destructive hover:bg-destructive/90">
+                                                        Delete Message
+                                                    </AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                     )}
                                 </div>
                                 {isCurrentUser && (

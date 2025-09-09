@@ -30,6 +30,9 @@ export default function AdminPage() {
     const projectId = 'verdant-sentinel-8s9hn';
     const firestoreRulesUrl = `https://console.firebase.google.com/project/${projectId}/firestore/rules`;
     const storageRulesUrl = `https://console.firebase.google.com/project/${projectId}/storage/rules`;
+    
+    // Helper function to check if the requesting user's email is in the admin list
+    const isAdminByEmail = `request.auth.token.email in ['vardaansaxena096@gmail.com', 'saranshwadhwa0102@gmail.com']`;
   
     return (
     <div className="w-full max-w-6xl mx-auto space-y-8">
@@ -69,10 +72,15 @@ export default function AdminPage() {
                         <pre className="p-2 rounded-md bg-muted text-xs overflow-x-auto">
                             <code>
 {`rules_version = '2';
+
+function isAdmin() {
+  return request.auth.token.email in ['vardaansaxena096@gmail.com', 'saranshwadhwa0102@gmail.com'];
+}
+
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Default to denying all reads and writes
+    // Default to denying all reads and writes for security
     match /{document=**} {
       allow read, write: if false;
     }
@@ -85,22 +93,28 @@ service cloud.firestore {
       // Only authenticated users can create a new report
       allow create: if request.auth != null;
 
-      // Deletion is restricted to the original author of the report
-      allow delete: if request.auth.uid == resource.data.user.uid;
+      // Deletion is restricted to the original author OR an admin
+      allow delete: if request.auth.uid == resource.data.user.uid || isAdmin();
 
       // Update permissions are more granular:
       // Any authenticated user can update the 'likedBy' and 'dislikedBy' fields.
-      // Only the original author can change other fields (like the message or status).
+      // An admin can update any field.
+      // The original author can only update non-admin fields.
       allow update: if request.auth != null && 
-                      (request.resource.data.diff(resource.data).affectedKeys()
-                        .hasOnly(['likedBy', 'dislikedBy', 'replies', 'status'])) ||
-                      (request.auth.uid == resource.data.user.uid);
+                      (isAdmin() || 
+                       request.resource.data.diff(resource.data).affectedKeys()
+                         .hasOnly(['likedBy', 'dislikedBy']) ||
+                       (request.auth.uid == resource.data.user.uid &&
+                        !request.resource.data.diff(resource.data).affectedKeys()
+                          .hasAny(['status', 'authority']))
+                      );
     }
     
     // Allow reading all user profiles.
-    // A user can only create, update or delete their own profile.
+    // A user can only create, update or delete their own profile. Admins can see all user data.
     match /users/{userId} {
       allow read: if true;
+      allow list: if isAdmin();
       allow create, update, delete: if request.auth != null && request.auth.uid == userId;
     }
 
@@ -112,8 +126,9 @@ service cloud.firestore {
       // Any authenticated user can create a message.
       allow create: if request.auth != null;
 
-      // Users cannot update or delete messages.
-      allow update, delete: if false;
+      // Admins can delete messages. Users cannot update or delete.
+      allow update: if false;
+      allow delete: if isAdmin();
     }
   }
 }`}
