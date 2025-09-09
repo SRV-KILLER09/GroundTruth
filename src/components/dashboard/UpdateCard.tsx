@@ -3,7 +3,7 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
 import type { DisasterUpdate, DisasterUpdateReply } from "@/lib/mock-data";
-import { Flame, Droplets, Zap, Wind, AlertTriangle, MessageSquare, ShieldCheck, Siren, CheckCircle, HelpCircle, XCircle, ThumbsUp, ThumbsDown, CornerDownRight, Flag, History, Clock, Trash2 } from 'lucide-react';
+import { Flame, Droplets, Zap, Wind, AlertTriangle, MessageSquare, ShieldCheck, Siren, CheckCircle, HelpCircle, XCircle, ThumbsUp, ThumbsDown, CornerDownRight, Flag, History, Clock, Trash2, Award } from 'lucide-react';
 import { useAuth } from "@/contexts/AuthContext";
 import { useState, useEffect } from "react";
 import { Textarea } from "../ui/textarea";
@@ -67,6 +67,7 @@ export function UpdateCard({ update, onReply, onDelete, onInteraction }: UpdateC
 
   const adminEmails = ['vardaansaxena096@gmail.com', 'saranshwadhwa0102@gmail.com'];
   const isAdmin = user?.email ? adminEmails.includes(user.email) : false;
+  const honorScore = 100; // Placeholder
 
   const handleReplySubmit = () => {
     if (replyText.trim() && isAdmin && update.id) {
@@ -166,6 +167,10 @@ export function UpdateCard({ update, onReply, onDelete, onInteraction }: UpdateC
                 <Link href={profileUrl} className="font-semibold hover:underline">
                     {update.user.name}
                 </Link>
+                <div className="flex items-center gap-1 text-yellow-500 text-xs font-semibold" title="Honor Score">
+                    <Award className="h-3 w-3" />
+                    <span>{honorScore}</span>
+                </div>
                 {isAdmin && (
                     <AlertDialog>
                         <AlertDialogTrigger asChild>
