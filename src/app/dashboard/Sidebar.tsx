@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -16,10 +17,10 @@ export default function Sidebar({ isMobile = false }: { isMobile?: boolean }) {
 
   const navLinks = [
     { href: "/dashboard", label: "Live Feed", icon: <Tv className="h-5 w-5" />, admin: false },
-    { href: "/dashboard/map", label: "Map View", icon: <Map className="h-5 w-5" />, admin: false },
-    { href: "/dashboard/reports", label: "Reports", icon: <BarChart3 className="h-5 w-5" />, admin: false },
     { href: "/dashboard/chat", label: "Community Chat", icon: <MessageSquare className="h-5 w-5" />, admin: false },
     { href: "/dashboard/notifications", label: "Notifications", icon: <Bell className="h-5 w-5" />, admin: false },
+    { href: "/dashboard/map", label: "Map View", icon: <Map className="h-5 w-5" />, admin: false },
+    { href: "/dashboard/reports", label: "Reports", icon: <BarChart3 className="h-5 w-5" />, admin: false },
     { href: "/dashboard/news", label: "News", icon: <Rss className="h-5 w-5" />, admin: false },
     { href: "/dashboard/directory", label: "Directory", icon: <Shield className="h-5 w-5" />, admin: false },
     { href: "/dashboard/updates", label: "User Activity", icon: <Users className="h-5 w-5" />, admin: true },
