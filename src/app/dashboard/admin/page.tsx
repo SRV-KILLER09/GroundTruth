@@ -60,7 +60,7 @@ export default function AdminPage() {
                             <AlertTriangle className="h-4 w-4" />
                             <AlertTitle>Action Required</AlertTitle>
                             <AlertDescription>
-                                If users cannot log in or reports get stuck loading forever, your Firestore rules are likely too restrictive.
+                                If users cannot log in, or reports and likes get stuck loading forever, your Firestore rules are likely too restrictive.
                             </AlertDescription>
                         </Alert>
                         <p className="text-sm text-muted-foreground mb-2">
@@ -77,12 +77,24 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
-    // Allow reading all disaster updates, but only authenticated users can create them.
-    // Only the original author can update or delete their own update.
+    // Rules for disaster_updates collection
     match /disaster_updates/{updateId} {
+      // Anyone can read any report
       allow read: if true;
+
+      // Only authenticated users can create a new report
       allow create: if request.auth != null;
-      allow update, delete: if request.auth.uid == resource.data.user.uid;
+
+      // Deletion is restricted to the original author of the report
+      allow delete: if request.auth.uid == resource.data.user.uid;
+
+      // Update permissions are more granular:
+      // Any authenticated user can update the 'likedBy' and 'dislikedBy' fields.
+      // Only the original author can change other fields (like the message or status).
+      allow update: if request.auth != null && 
+                      (request.resource.data.diff(resource.data).affectedKeys()
+                        .hasOnly(['likedBy', 'dislikedBy', 'replies', 'status'])) ||
+                      (request.auth.uid == resource.data.user.uid);
     }
     
     // Allow reading all user profiles.
