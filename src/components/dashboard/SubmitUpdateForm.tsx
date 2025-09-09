@@ -11,13 +11,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState, useRef } from "react";
-import { Loader2, MapPin, Video, FileText, Upload } from "lucide-react";
+import { Loader2, MapPin, Video, FileText, Upload, Bot } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { VideoRecorder } from "./VideoRecorder";
 import { db, storage } from "@/lib/firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { generateDisasterImage } from "@/ai/flows/generate-disaster-image";
+import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 
 
 const formSchema = z.object({
@@ -147,9 +149,14 @@ export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) 
             // This is a placeholder for when video recording is implemented fully
             mediaUrl = "https://picsum.photos/600/400?blur";
         } else if (imageFile) {
+            toast({ title: "Uploading Image...", description: "Please wait while we upload your image."});
             const storageRef = ref(storage, `uploads/${user.uid}/${Date.now()}-${imageFile.name}`);
             const uploadResult = await uploadBytes(storageRef, imageFile);
             mediaUrl = await getDownloadURL(uploadResult.ref);
+        } else {
+             toast({ title: "Generating AI Image...", description: "No image was provided, so our AI is creating one for your report."});
+             const result = await generateDisasterImage({ disasterType, description: values.message });
+             mediaUrl = result.imageUrl;
         }
 
         await addDoc(collection(db, "disaster_updates"), {
@@ -205,7 +212,7 @@ export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) 
        <Tabs defaultValue="text" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="text"><FileText className="mr-2 h-4 w-4"/>Text Report</TabsTrigger>
-                <TabsTrigger value="video"><Video className="mr-2 h-4 w-4"/>Video Report</TabsTrigger>
+                <TabsTrigger value="video" disabled><Video className="mr-2 h-4 w-4"/>Video Report</TabsTrigger>
             </TabsList>
             <TabsContent value="text" className="space-y-6 pt-4">
                  <FormField
@@ -222,7 +229,7 @@ export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) 
                     )}
                     />
                     <div className="space-y-2">
-                      <FormLabel>Attach Image</FormLabel>
+                      <FormLabel>Attach Image (Optional)</FormLabel>
                        <Button type="button" variant="outline" className="w-full" onClick={() => fileInputRef.current?.click()} disabled={isSubmitting}>
                          <Upload className="mr-2 h-4 w-4" />
                          {imageFile ? 'Change Image' : 'Upload Image'}
@@ -242,22 +249,16 @@ export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) 
                               <span>{imageFile.name} ({(imageFile.size / 1024).toFixed(2)} KB)</span>
                           </div>
                       )}
+                      <Alert>
+                        <Bot className="h-4 w-4" />
+                        <AlertTitle>No Image? No Problem.</AlertTitle>
+                        <AlertDescription>
+                            If you don't provide an image, our AI will generate one for you based on your description.
+                        </AlertDescription>
+                    </Alert>
                     </div>
             </TabsContent>
             <TabsContent value="video" className="pt-4">
-                 <FormField
-                    control={form.control}
-                    name="message"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel>Update Message</FormLabel>
-                        <FormControl>
-                            <Textarea rows={4} placeholder="Provide a detailed update on the situation..." {...field} disabled={isSubmitting} />
-                        </FormControl>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                    />
                 <VideoRecorder onVideoSubmit={() => setIsVideoSubmitted(true)} isSubmitting={isSubmitting} />
             </TabsContent>
         </Tabs>
