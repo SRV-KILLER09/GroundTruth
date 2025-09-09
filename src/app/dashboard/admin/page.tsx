@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
-import { Settings, Database, KeyRound, AlertTriangle, ExternalLink } from 'lucide-react';
+import { Settings, Database, KeyRound, AlertTriangle, ExternalLink, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import Link from 'next/link';
@@ -30,17 +30,18 @@ export default function AdminPage() {
 
     const projectId = 'verdant-sentinel-8s9hn';
     const firestoreRulesUrl = `https://console.firebase.google.com/project/${projectId}/firestore/rules`;
+    const storageRulesUrl = `https://console.firebase.google.com/project/${projectId}/storage/rules`;
   
     return (
-    <div className="w-full max-w-4xl mx-auto space-y-8">
+    <div className="w-full max-w-6xl mx-auto space-y-8">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center">
             <Settings className="mr-2 h-6 w-6 text-primary" />
-            Admin Panel
+            Admin Configuration
           </CardTitle>
           <CardDescription>
-            Manage your application's backend services and configuration.
+            Manage your application's backend services and security rules. Incorrect rules are a common cause of errors.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -48,11 +49,11 @@ export default function AdminPage() {
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center text-lg">
-                            <KeyRound className="mr-2 h-5 w-5" />
+                            <Database className="mr-2 h-5 w-5 text-blue-500" />
                             Firestore Security Rules
                         </CardTitle>
                         <CardDescription>
-                            Control access to your Firestore database. Incorrect rules can cause permission errors.
+                            Controls read/write access to your database.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -60,7 +61,7 @@ export default function AdminPage() {
                             <AlertTriangle className="h-4 w-4" />
                             <AlertTitle>Action Required</AlertTitle>
                             <AlertDescription>
-                                Your current security rules are likely too restrictive, causing "permission denied" errors. Update them to allow access for development.
+                                If your app shows "permission denied" or fails to load data, your Firestore rules are likely too restrictive.
                             </AlertDescription>
                         </Alert>
                         <p className="text-sm text-muted-foreground mb-2">
@@ -80,10 +81,10 @@ service cloud.firestore {
                         </pre>
                     </CardContent>
                     <CardFooter>
-                         <Button asChild>
+                         <Button asChild variant="outline">
                             <Link href={firestoreRulesUrl} target="_blank" rel="noopener noreferrer">
                                 <ExternalLink className="mr-2 h-4 w-4"/>
-                                Manage Rules
+                                Manage Firestore Rules
                             </Link>
                         </Button>
                     </CardFooter>
@@ -91,32 +92,48 @@ service cloud.firestore {
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center text-lg">
-                            <Database className="mr-2 h-5 w-5" />
-                            Project Configuration
+                            <Shield className="mr-2 h-5 w-5 text-green-500" />
+                            Firebase Storage Rules
                         </CardTitle>
                         <CardDescription>
-                           Your Firebase project details for reference.
+                            Controls who can upload and download files.
                         </CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-2">
-                        <div className="flex justify-between items-center text-sm">
-                            <span className="text-muted-foreground">Project ID:</span>
-                             <Badge variant="secondary">{projectId}</Badge>
-                        </div>
-                         <div className="flex justify-between items-center text-sm">
-                            <span className="text-muted-foreground">Authentication:</span>
-                            <Badge variant="outline" className="text-green-500 border-green-500/50">Enabled</Badge>
-                        </div>
-                         <div className="flex justify-between items-center text-sm">
-                            <span className="text-muted-foreground">Database:</span>
-                             <Badge variant="outline" className="text-green-500 border-green-500/50">Firestore</Badge>
-                        </div>
+                    <CardContent>
+                        <Alert variant="destructive" className="mb-4">
+                            <AlertTriangle className="h-4 w-4" />
+                            <AlertTitle>Action Required</AlertTitle>
+                            <AlertDescription>
+                                If file uploads get stuck loading forever, your Storage rules are likely too restrictive.
+                            </AlertDescription>
+                        </Alert>
+                        <p className="text-sm text-muted-foreground mb-2">
+                           Go to your Storage rules and replace the content with the following to allow image uploads for authenticated users:
+                        </p>
+                        <pre className="p-2 rounded-md bg-muted text-xs overflow-x-auto">
+                            <code>
+{`rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read;
+    }
+    match /uploads/{userId}/{fileName} {
+      allow write: if request.auth != null
+                    && request.auth.uid == userId
+                    && request.resource.size < 10 * 1024 * 1024
+                    && request.resource.contentType.matches('image/.*');
+    }
+  }
+}`}
+                            </code>
+                        </pre>
                     </CardContent>
-                    <CardFooter>
-                        <Button asChild variant="outline">
-                            <Link href={`https://console.firebase.google.com/project/${projectId}`} target="_blank" rel="noopener noreferrer">
+                     <CardFooter>
+                         <Button asChild variant="outline">
+                            <Link href={storageRulesUrl} target="_blank" rel="noopener noreferrer">
                                 <ExternalLink className="mr-2 h-4 w-4"/>
-                                Open Firebase Console
+                                Manage Storage Rules
                             </Link>
                         </Button>
                     </CardFooter>
