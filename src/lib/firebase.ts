@@ -4,11 +4,12 @@
 import {initializeApp, getApps, getApp} from 'firebase/app';
 import {getAuth} from 'firebase/auth';
 import { getFirestore, collection, query, where, getDocs, writeBatch } from 'firebase/firestore';
+import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
   projectId: 'verdant-sentinel-8s9hn',
   appId: '1:1086986066444:web:4646beb412e2d06d3cec29',
-  storageBucket: 'verdant-sentinel-8s9hn.firebasestorage.app',
+  storageBucket: 'verdant-sentinel-8s9hn.appspot.com',
   apiKey: 'AIzaSyCiSz8vo7XObZZcaSpPqpmBWbsGN73jAOI',
   authDomain: 'verdant-sentinel-8s9hn.firebaseapp.com',
   measurementId: '',
@@ -19,6 +20,7 @@ const firebaseConfig = {
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage(app);
 
 // Function to update a user's avatar URL across all their posts
 export const updateUserAvatarInFirestore = async (userId: string, newAvatarUrl: string) => {
@@ -36,4 +38,4 @@ export const updateUserAvatarInFirestore = async (userId: string, newAvatarUrl: 
 };
 
 
-export {app, auth, db};
+export {app, auth, db, storage};

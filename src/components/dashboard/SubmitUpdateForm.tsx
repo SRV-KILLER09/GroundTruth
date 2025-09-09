@@ -10,14 +10,14 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/contexts/AuthContext";
-import { DisasterUpdate } from "@/lib/mock-data";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Loader2, MapPin, Video, FileText, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { VideoRecorder } from "./VideoRecorder";
-import { db } from "@/lib/firebase";
+import { db, storage } from "@/lib/firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 
 const formSchema = z.object({
@@ -49,7 +49,8 @@ export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) 
   const [isLocating, setIsLocating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isVideoSubmitted, setIsVideoSubmitted] = useState(false);
-  const [imageURL, setImageURL] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
 
   const form = useForm<FormValues>({
@@ -99,17 +100,20 @@ export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) 
     );
   };
   
-   const handleImageUpload = () => {
-    // In a real app, this would open a file dialog.
-    // For this simulation, we'll use a random placeholder.
-    const seed = Math.random().toString(36).substring(7);
-    const randomImageUrl = `https://picsum.photos/seed/${seed}/600/400`;
-    setImageURL(randomImageUrl);
-    toast({
-        title: "Image Added",
-        description: "A placeholder image has been attached to your report.",
-    });
-  };
+  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+        if (file.size > 10 * 1024 * 1024) { // 10MB limit
+             toast({
+                variant: "destructive",
+                title: "File Too Large",
+                description: "Please select an image file smaller than 10MB.",
+            });
+            return;
+        }
+        setImageFile(file);
+    }
+  }
 
 
   async function handleFormSubmit(values: FormValues) {
@@ -137,15 +141,16 @@ export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) 
 
     const disasterType = values.disasterType === 'Other' ? values.otherDisasterType! : values.disasterType;
 
-    let mediaUrl;
-    if (isVideoSubmitted) {
-        // Use a placeholder video/image for submitted videos
-        mediaUrl = "https://picsum.photos/600/400?blur";
-    } else {
-        mediaUrl = imageURL;
-    }
-
+    let mediaUrl: string | null = null;
     try {
+        if (isVideoSubmitted) {
+            mediaUrl = "https://picsum.photos/600/400?blur";
+        } else if (imageFile) {
+            const storageRef = ref(storage, `uploads/${user.uid}/${Date.now()}-${imageFile.name}`);
+            const uploadResult = await uploadBytes(storageRef, imageFile);
+            mediaUrl = await getDownloadURL(uploadResult.ref);
+        }
+
         await addDoc(collection(db, "disaster_updates"), {
             user: {
                 uid: user.uid,
@@ -177,11 +182,12 @@ export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) 
         
         form.reset();
         setIsVideoSubmitted(false);
-        setImageURL(null);
+        setImageFile(null);
+        if(fileInputRef.current) fileInputRef.current.value = "";
         onSuccessfulSubmit();
 
     } catch (error) {
-        console.error("Error adding document: ", error);
+        console.error("Error submitting report: ", error);
         toast({
             variant: "destructive",
             title: "Submission Error",
@@ -216,14 +222,23 @@ export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) 
                     />
                     <div className="space-y-2">
                       <FormLabel>Attach Image</FormLabel>
-                       <Button type="button" variant="outline" className="w-full" onClick={handleImageUpload} disabled={isSubmitting}>
+                       <Button type="button" variant="outline" className="w-full" onClick={() => fileInputRef.current?.click()} disabled={isSubmitting}>
                          <Upload className="mr-2 h-4 w-4" />
-                         {imageURL ? 'Change Image' : 'Upload Image'}
+                         {imageFile ? 'Change Image' : 'Upload Image'}
                       </Button>
-                      {imageURL && (
+                      <Input 
+                        type="file" 
+                        ref={fileInputRef} 
+                        className="hidden" 
+                        accept="image/*"
+                        onChange={handleImageFileChange}
+                      />
+                      {imageFile && (
                           <div className="text-sm text-muted-foreground p-2 bg-muted rounded-md flex items-center gap-2">
-                              <img src={imageURL} alt="placeholder" className="h-10 w-10 rounded object-cover" />
-                              <span>Placeholder image attached.</span>
+                              {imageFile.type.startsWith("image/") && (
+                                <img src={URL.createObjectURL(imageFile)} alt="preview" className="h-10 w-10 rounded object-cover" />
+                              )}
+                              <span>{imageFile.name} ({(imageFile.size / 1024).toFixed(2)} KB)</span>
                           </div>
                       )}
                     </div>
@@ -334,5 +349,3 @@ export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) 
     </Form>
   );
 }
-
-    
