@@ -6,6 +6,7 @@ import ThemeToggle from "@/components/dashboard/ThemeToggle";
 import { useTheme } from "@/contexts/ThemeContext";
 import { cn } from "@/lib/utils";
 import { useEffect } from "react";
+import AIHelpDeskWidget from "@/components/dashboard/AIHelpDeskWidget";
 
 export default function DashboardLayout({
   children,
@@ -29,6 +30,7 @@ export default function DashboardLayout({
         <Header />
         <main className="flex-1 p-4 md:p-6">{children}</main>
       </div>
+      <AIHelpDeskWidget />
       <ThemeToggle />
     </div>
   );
