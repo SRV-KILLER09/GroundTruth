@@ -222,12 +222,12 @@ export function UpdateCard({ update, onReply, onDelete, onInteraction }: UpdateC
                 )}
              </div>
           </div>
-          <p className="text-sm text-muted-foreground flex items-center flex-wrap gap-x-1.5">
+          <p className="text-sm text-muted-foreground flex items-center flex-wrap gap-x-2">
             <span>{timeAgo}</span>
             <span className="text-muted-foreground/50">·</span>
             <span className="flex items-center gap-1">{icon} {update.disasterType}</span>
             <span className="text-muted-foreground/50">·</span>
-            <span className="truncate">{update.location.name}</span>
+            <span className="truncate">{update.location.name} ({update.location.latitude.toFixed(2)}, {update.location.longitude.toFixed(2)})</span>
           </p>
         </div>
       </CardHeader>
@@ -324,5 +324,3 @@ export function UpdateCard({ update, onReply, onDelete, onInteraction }: UpdateC
     </>
   );
 }
-
-    
