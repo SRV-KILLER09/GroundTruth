@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import { Mountain, Home, Map, LifeBuoy, BarChart3, Shield, Rss, Tv, MessageSquare, Info, Users, Bell, Megaphone, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import Image from "next/image";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -33,7 +32,7 @@ export default function Sidebar({ isMobile = false }: { isMobile?: boolean }) {
   ];
 
   const NavContent = () => (
-    <>
+    <div className="flex flex-col h-full">
       <div className="flex items-center px-4 pt-5 pb-1">
         <Link
             href="/dashboard/home"
@@ -46,7 +45,7 @@ export default function Sidebar({ isMobile = false }: { isMobile?: boolean }) {
             </div>
         </Link>
       </div>
-      <ScrollArea className="flex-1">
+      <div className="flex-1 overflow-y-auto">
         <nav className={cn("flex flex-col items-stretch gap-4 px-2 py-4")}>
         {navLinks.map((link) => {
             if (link.admin && !isAdmin) {
@@ -70,8 +69,8 @@ export default function Sidebar({ isMobile = false }: { isMobile?: boolean }) {
             )
         })}
         </nav>
-      </ScrollArea>
-    </>
+      </div>
+    </div>
   );
 
   if (isMobile) {
