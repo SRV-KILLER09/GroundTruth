@@ -6,6 +6,7 @@
     height: 100%;
     overflow: hidden;
     z-index: 0;
+    background-color: hsl(0 0% 3%); /* Near Black */
 }
 
 .wave {
