@@ -7,7 +7,6 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { cn } from "@/lib/utils";
 import { useEffect } from "react";
 import AIHelpDeskWidget from "@/components/dashboard/AIHelpDeskWidget";
-import VoiceCommandWidget from "@/components/dashboard/VoiceCommandWidget";
 
 export default function DashboardLayout({
   children,
@@ -31,7 +30,6 @@ export default function DashboardLayout({
         <Header />
         <main className="flex-1 p-4 md:p-6">{children}</main>
       </div>
-      <VoiceCommandWidget />
       <AIHelpDeskWidget />
       <ThemeToggle />
     </div>
