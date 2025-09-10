@@ -2,7 +2,7 @@
 "use client"
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Map, Flame, Droplets, Zap, Wind, AlertTriangle, Search, CheckCircle, HelpCircle, XCircle, Clock, User, Shield, MapPin } from "lucide-react";
+import { Map, Flame, Droplets, Zap, Wind, AlertTriangle, Search, CheckCircle, HelpCircle, XCircle, Clock, User, Shield, MapPin, List, Eye } from "lucide-react";
 import { type DisasterUpdate, type DisasterStatus } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 import React, { useState, useMemo, useEffect } from 'react';
@@ -13,6 +13,7 @@ import Image from "next/image";
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import { Button } from "@/components/ui/button";
 
 
 const disasterInfo: Record<string, { icon: React.ReactNode; color: string; class: string }> = {
@@ -49,6 +50,7 @@ export default function MapViewPage() {
     const [allUpdates, setAllUpdates] = useState<DisasterUpdate[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
+    const [selectedUpdate, setSelectedUpdate] = useState<DisasterUpdate | null>(null);
     
     useEffect(() => {
         const q = query(collection(db, "disaster_updates"), orderBy("timestamp", "desc"));
@@ -78,26 +80,27 @@ export default function MapViewPage() {
             update.disasterType.toLowerCase().includes(searchTerm.toLowerCase())
         );
     }, [searchTerm, allUpdates]);
-    
-    const mapBounds = useMemo(() => getMapBounds(filteredUpdates), [filteredUpdates]);
 
     const mapUrl = useMemo(() => {
+        if (selectedUpdate) {
+            const { latitude, longitude } = selectedUpdate.location;
+            // Zoom level 14 is a good detailed view for a specific point
+            return `https://www.openstreetmap.org/export/embed.html?bbox=${longitude-0.01},${latitude-0.01},${longitude+0.01},${latitude+0.01}&layer=mapnik&marker=${latitude},${longitude}`;
+        }
+        
         if (filteredUpdates.length === 0) {
-            // Default view of India if no reports
             return `https://www.openstreetmap.org/export/embed.html?bbox=68.1,6.5,97.4,35.5&layer=mapnik`;
         }
 
-        const { minLat, maxLat, minLng, maxLng } = mapBounds;
+        const { minLat, maxLat, minLng, maxLng } = getMapBounds(filteredUpdates);
         const markers = filteredUpdates
           .map(update => `marker=${update.location.latitude},${update.location.longitude}`)
           .join('&');
         
-        // Add a small buffer to the bounding box so markers aren't on the edge
         const buffer = Math.max((maxLat - minLat) * 0.1, (maxLng - minLng) * 0.1, 0.1);
         
-        // The bbox parameter sets the initial view of the map.
         return `https://www.openstreetmap.org/export/embed.html?bbox=${minLng - buffer},${minLat - buffer},${maxLng + buffer},${maxLat + buffer}&layer=mapnik&${markers}`;
-    }, [filteredUpdates, mapBounds]);
+    }, [filteredUpdates, selectedUpdate]);
     
     if (loading) {
         return <LoadingSpinner />;
@@ -112,7 +115,7 @@ export default function MapViewPage() {
                         Interactive Geospatial Feed
                     </CardTitle>
                     <CardDescription>
-                        An interactive map displaying all disaster reports. All reports are pinned on the map.
+                        An interactive map displaying all disaster reports. Click a report in the list to focus on its location.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -124,7 +127,7 @@ export default function MapViewPage() {
                                 src={mapUrl}
                                 className="border-0"
                                 title="Interactive Map of Disaster Reports"
-                                key={mapUrl} // Re-render iframe when URL changes
+                                key={mapUrl}
                             ></iframe>
                         </div>
                         <div className="lg:col-span-1 h-[500px] flex flex-col gap-3">
@@ -139,13 +142,26 @@ export default function MapViewPage() {
                                 />
                             </div>
                             <div className="flex-1 space-y-2 overflow-y-auto pr-2">
-                                <h3 className="text-lg font-semibold sticky top-0 bg-background/80 backdrop-blur-sm py-2">Reports ({filteredUpdates.length})</h3>
+                                <div className="flex justify-between items-center sticky top-0 bg-background/80 backdrop-blur-sm py-2">
+                                     <h3 className="text-lg font-semibold">Reports ({filteredUpdates.length})</h3>
+                                     {selectedUpdate && (
+                                         <Button variant="outline" size="sm" onClick={() => setSelectedUpdate(null)}>
+                                             <List className="mr-2 h-4 w-4" />
+                                             Show All Reports
+                                         </Button>
+                                     )}
+                                </div>
                                 {filteredUpdates.map((update) => {
                                     const info = disasterInfo[update.disasterType] || disasterInfo['Default'];
+                                    const isSelected = selectedUpdate?.id === update.id;
                                     return (
-                                        <div
+                                        <button
                                             key={update.id}
-                                            className="w-full text-left p-3 rounded-lg border bg-muted/50"
+                                            onClick={() => setSelectedUpdate(update)}
+                                            className={cn(
+                                                "w-full text-left p-3 rounded-lg border bg-muted/50 transition-all",
+                                                isSelected ? "ring-2 ring-primary bg-primary/10" : "hover:bg-muted"
+                                            )}
                                         >
                                             <div className="flex items-center gap-3">
                                                 <div className={cn("h-8 w-8 rounded-full flex-shrink-0 flex items-center justify-center text-primary-foreground", info.class)}>
@@ -155,8 +171,9 @@ export default function MapViewPage() {
                                                     <p className="font-semibold truncate">{update.disasterType} - {update.location.name}</p>
                                                     <p className="text-sm text-muted-foreground">{format(new Date(update.timestamp), "MMM d, HH:mm")}</p>
                                                 </div>
+                                                <Eye className={cn("h-5 w-5 text-primary transition-opacity", isSelected ? "opacity-100": "opacity-0")} />
                                             </div>
-                                        </div>
+                                        </button>
                                     )
                                 })}
                                  {filteredUpdates.length === 0 && (
