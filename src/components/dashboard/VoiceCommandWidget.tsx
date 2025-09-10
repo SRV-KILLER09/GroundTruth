@@ -108,7 +108,7 @@ export default function VoiceCommandWidget() {
               <Mic className="h-5 w-5" /> Voice-to-Text Transcription
             </DialogTitle>
             <DialogDescription>
-              Click the button to start recording. Your speech will be converted to text.
+              Click the button to start recording. Your speech will be converted to text, which you can then copy and use anywhere.
             </DialogDescription>
           </DialogHeader>
           <div className="py-6 flex flex-col items-center justify-center gap-4">
