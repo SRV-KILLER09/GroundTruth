@@ -8,10 +8,11 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
-import { Send, Bot, Loader2, Power, PowerOff, RefreshCw } from 'lucide-react';
+import { Send, Bot, Loader2, Power, PowerOff, RefreshCw, Mic, MicOff } from 'lucide-react';
 import { askAIHelpDesk } from '@/ai/flows/ai-helpdesk-flow';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { transcribeAudio } from '@/ai/flows/speech-to-text-flow';
 
 interface ChatMessage {
     sender: 'user' | 'ai';
@@ -30,6 +31,12 @@ export default function AIHelpDeskWidget() {
     const [chatbotStatus, setChatbotStatus] = useState<ChatbotStatus>('online');
     const messagesEndRef = useRef<HTMLDivElement>(null);
     
+    // Voice input state
+    const [isListening, setIsListening] = useState(false);
+    const [isTranscribing, setIsTranscribing] = useState(false);
+    const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+    const audioChunksRef = useRef<Blob[]>([]);
+
     const adminEmails = ['vardaansaxena096@gmail.com', 'saranshwadhwa0102@gmail.com'];
     const isAdmin = user?.email ? adminEmails.includes(user.email) : false;
 
@@ -78,6 +85,52 @@ export default function AIHelpDeskWidget() {
         }
     }
     
+    const handleToggleListening = async () => {
+        if (isListening) {
+            mediaRecorderRef.current?.stop();
+            setIsListening(false);
+            return;
+        }
+
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorderRef.current = new MediaRecorder(stream);
+            audioChunksRef.current = [];
+
+            mediaRecorderRef.current.ondataavailable = (event) => {
+                audioChunksRef.current.push(event.data);
+            };
+
+            mediaRecorderRef.current.onstop = async () => {
+                setIsTranscribing(true);
+                toast({ title: "Processing audio...", description: "AI is transcribing your message." });
+                const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+
+                const reader = new FileReader();
+                reader.readAsDataURL(audioBlob);
+                reader.onloadend = async () => {
+                    const base64Audio = reader.result as string;
+                    try {
+                        const result = await transcribeAudio({ audioDataUri: base64Audio });
+                        setNewMessage(prev => (prev ? prev + " " : "") + result.transcription);
+                    } catch (error) {
+                        console.error("Transcription error:", error);
+                        toast({ variant: "destructive", title: "Transcription Failed", description: "Could not convert audio to text." });
+                    } finally {
+                        setIsTranscribing(false);
+                    }
+                };
+                stream.getTracks().forEach(track => track.stop());
+            };
+
+            mediaRecorderRef.current.start();
+            setIsListening(true);
+        } catch (err) {
+            toast({ variant: "destructive", title: "Microphone Error", description: "Could not access microphone. Please check permissions." });
+        }
+    };
+
+
     const StatusIndicator = () => {
         const config = {
             online: { text: 'Online', className: 'bg-green-500' },
@@ -204,14 +257,33 @@ export default function AIHelpDeskWidget() {
                     </CardContent>
                     <div className="p-3 border-t border-primary/20">
                         <form onSubmit={handleSendMessage} className="flex gap-2">
-                            <Input
-                                value={newMessage}
-                                onChange={(e) => setNewMessage(e.target.value)}
-                                placeholder={chatbotStatus === 'online' ? "Ask anything..." : `Chatbot is ${chatbotStatus}.`}
-                                autoComplete="off"
-                                disabled={isThinking || chatbotStatus !== 'online'}
-                                className="bg-muted/50 focus-visible:ring-primary h-9"
-                            />
+                             <div className="relative flex-1">
+                                <Input
+                                    value={newMessage}
+                                    onChange={(e) => setNewMessage(e.target.value)}
+                                    placeholder={chatbotStatus === 'online' ? "Ask anything..." : `Chatbot is ${chatbotStatus}.`}
+                                    autoComplete="off"
+                                    disabled={isThinking || chatbotStatus !== 'online' || isListening || isTranscribing}
+                                    className="bg-muted/50 focus-visible:ring-primary h-9 pr-10"
+                                />
+                                <Button
+                                    type="button"
+                                    variant={isListening ? "destructive" : "ghost"}
+                                    size="icon"
+                                    onClick={handleToggleListening}
+                                    disabled={isThinking || isTranscribing || chatbotStatus !== 'online'}
+                                    className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
+                                >
+                                    {isListening ? (
+                                        <MicOff className="h-4 w-4" />
+                                    ) : isTranscribing ? (
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                    ) : (
+                                        <Mic className="h-4 w-4" />
+                                    )}
+                                    <span className="sr-only">Toggle voice input</span>
+                                </Button>
+                            </div>
                             <Button type="submit" size="icon" className="h-9 w-9" disabled={isThinking || !newMessage.trim() || chatbotStatus !== 'online'}>
                                 {isThinking ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                                 <span className="sr-only">Send</span>
