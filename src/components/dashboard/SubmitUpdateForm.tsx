@@ -11,15 +11,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState, useRef, useEffect } from "react";
-import { Loader2, MapPin, Upload, Bot, Mic, MicOff, Video, AudioLines } from "lucide-react";
+import { Loader2, MapPin, Mic, FileText, Video, StopCircle, CheckCircle, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { db, storage } from "@/lib/firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
-import { transcribeAudio } from "@/ai/flows/speech-to-text-flow";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { VideoRecorder } from "./VideoRecorder";
+import { cn } from "@/lib/utils";
 
 
 const formSchema = z.object({
@@ -28,7 +27,7 @@ const formSchema = z.object({
   locationName: z.string().min(1, { message: "Location is required." }),
   latitude: z.coerce.number().min(-90, "Must be > -90").max(90, "Must be < 90"),
   longitude: z.coerce.number().min(-180, "Must be > -180").max(180, "Must be < 180"),
-  message: z.string().min(10, { message: "Update message must be at least 10 characters." }),
+  message: z.string().optional(),
 }).refine((data) => {
     if (data.disasterType === 'Other') {
         return !!data.otherDisasterType && data.otherDisasterType.trim().length > 0;
@@ -40,6 +39,7 @@ const formSchema = z.object({
 });
 
 type FormValues = z.infer<typeof formSchema>;
+type InputMode = 'text' | 'voice' | 'video';
 
 interface SubmitUpdateFormProps {
     onSuccessfulSubmit: () => void;
@@ -51,21 +51,14 @@ export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) 
   const [isLocating, setIsLocating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [mediaFile, setMediaFile] = useState<File | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  
-  // Voice input state
-  const [isDictating, setIsDictating] = useState(false);
-  const [isTranscribing, setIsTranscribing] = useState(false);
-  const dictationRecorderRef = useRef<MediaRecorder | null>(null);
-  const dictationChunksRef = useRef<Blob[]>([]);
+  const [inputMode, setInputMode] = useState<InputMode>('text');
 
   // Voice note recording
   const [isRecordingVoice, setIsRecordingVoice] = useState(false);
+  const [voiceNoteUrl, setVoiceNoteUrl] = useState<string | null>(null);
   const voiceRecorderRef = useRef<MediaRecorder | null>(null);
   const voiceChunksRef = useRef<Blob[]>([]);
   
-  const [isVideoDialogOpen, setIsVideoDialogOpen] = useState(false);
-
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -114,66 +107,10 @@ export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) 
     );
   };
   
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-        if (file.size > 25 * 1024 * 1024) { // 25MB limit for all media
-             toast({
-                variant: "destructive",
-                title: "File Too Large",
-                description: "Please select a file smaller than 25MB.",
-            });
-            return;
-        }
-        setMediaFile(file);
-    }
+  const onVideoRecorded = (videoFile: File) => {
+    setMediaFile(videoFile);
+    toast({ title: "Video Recorded", description: "The video has been attached to your report."});
   }
-
-  const handleToggleDictation = async () => {
-    if (isDictating) {
-        dictationRecorderRef.current?.stop();
-        setIsDictating(false);
-        return;
-    }
-
-    try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        dictationRecorderRef.current = new MediaRecorder(stream);
-        dictationChunksRef.current = [];
-
-        dictationRecorderRef.current.ondataavailable = (event) => {
-            dictationChunksRef.current.push(event.data);
-        };
-
-        dictationRecorderRef.current.onstop = async () => {
-            setIsTranscribing(true);
-            toast({ title: "Processing audio...", description: "AI is transcribing your message." });
-            const audioBlob = new Blob(dictationChunksRef.current, { type: 'audio/webm' });
-
-            const reader = new FileReader();
-            reader.readAsDataURL(audioBlob);
-            reader.onloadend = async () => {
-                const base64Audio = reader.result as string;
-                try {
-                    const result = await transcribeAudio({ audioDataUri: base64Audio });
-                    const currentMessage = form.getValues("message");
-                    form.setValue("message", (currentMessage ? currentMessage + " " : "") + result.transcription, { shouldValidate: true });
-                } catch (error) {
-                    console.error("Transcription error:", error);
-                    toast({ variant: "destructive", title: "Transcription Failed", description: "Could not convert audio to text." });
-                } finally {
-                    setIsTranscribing(false);
-                }
-            };
-            stream.getTracks().forEach(track => track.stop());
-        };
-
-        dictationRecorderRef.current.start();
-        setIsDictating(true);
-    } catch (err) {
-        toast({ variant: "destructive", title: "Microphone Error", description: "Could not access microphone. Please check permissions." });
-    }
-  };
 
   const handleToggleVoiceRecording = async () => {
     if (isRecordingVoice) {
@@ -184,17 +121,20 @@ export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) 
     
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        voiceRecorderRef.current = new MediaRecorder(stream);
+        voiceRecorderRef.current = new MediaRecorder(stream, { mimeType: 'audio/webm' });
         voiceChunksRef.current = [];
+        setMediaFile(null);
+        setVoiceNoteUrl(null);
         
         voiceRecorderRef.current.ondataavailable = event => {
             voiceChunksRef.current.push(event.data);
         }
 
         voiceRecorderRef.current.onstop = () => {
-            const audioBlob = new Blob(voiceChunksRef.current, { type: 'audio/mp3' });
-            const audioFile = new File([audioBlob], "voice-note.mp3", { type: "audio/mp3" });
+            const audioBlob = new Blob(voiceChunksRef.current, { type: 'audio/webm' });
+            const audioFile = new File([audioBlob], "voice-note.webm", { type: "audio/webm" });
             setMediaFile(audioFile);
+            setVoiceNoteUrl(URL.createObjectURL(audioBlob));
             stream.getTracks().forEach(track => track.stop());
             toast({ title: "Voice Note Recorded", description: "The audio has been attached to your report."});
         }
@@ -208,14 +148,9 @@ export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) 
     }
   }
   
-  const onVideoRecorded = (videoFile: File) => {
-    setMediaFile(videoFile);
-    setIsVideoDialogOpen(false);
-    toast({ title: "Video Recorded", description: "The video has been attached to your report."});
-  }
-
   async function handleFormSubmit(values: FormValues) {
     setIsSubmitting(true);
+    let submissionError = false;
 
     if (!user || !user.displayName) {
         toast({ variant: "destructive", title: "Authentication Error" });
@@ -228,20 +163,31 @@ export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) 
         setIsSubmitting(false);
         return;
     }
+    
+    if (inputMode === 'text' && !values.message?.trim()) {
+        form.setError('message', { type: 'manual', message: 'Update message is required for a text report.' });
+        setIsSubmitting(false);
+        return;
+    }
+    
+    if ((inputMode === 'voice' || inputMode === 'video') && !mediaFile) {
+        toast({ variant: 'destructive', title: 'Media Required', description: `Please record a ${inputMode} note for this report type.` });
+        setIsSubmitting(false);
+        return;
+    }
 
     const disasterType = values.disasterType === 'Other' ? values.otherDisasterType! : values.disasterType;
 
     let mediaUrl: string | null = null;
-    let mediaType: 'image' | 'audio' | 'video' = 'image';
+    let mediaType: 'image' | 'audio' | 'video' | null = null;
 
     try {
         if (mediaFile) {
             toast({ title: "Uploading Media...", description: "Please wait while we upload your file."});
-            const fileType = mediaFile.type.split('/')[0];
-            const folder = fileType === 'video' ? 'videos' : fileType === 'audio' ? 'audios' : 'uploads';
-            mediaType = fileType as 'image' | 'audio' | 'video';
+            const fileType = mediaFile.type.split('/')[0] as 'image' | 'audio' | 'video';
+            mediaType = fileType;
             
-            const storageRef = ref(storage, `${folder}/${user.uid}/${Date.now()}-${mediaFile.name}`);
+            const storageRef = ref(storage, `${mediaType}s/${user.uid}/${Date.now()}-${mediaFile.name}`);
             const uploadResult = await uploadBytes(storageRef, mediaFile);
             mediaUrl = await getDownloadURL(uploadResult.ref);
         }
@@ -259,10 +205,10 @@ export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) 
                 latitude: values.latitude,
                 longitude: values.longitude
             },
-            message: values.message,
+            message: values.message || `${inputMode.charAt(0).toUpperCase() + inputMode.slice(1)} report submitted.`,
             mediaUrl: mediaUrl,
-            mediaType: mediaFile ? mediaType : null,
-            history: [values.message],
+            mediaType: mediaType,
+            history: [values.message || 'Media report submitted.'],
             replies: [],
             status: 'Under Investigation',
             authority: 'Local Police',
@@ -275,107 +221,80 @@ export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) 
         
         form.reset();
         setMediaFile(null);
-        if(fileInputRef.current) fileInputRef.current.value = "";
+        setVoiceNoteUrl(null);
         onSuccessfulSubmit();
 
     } catch (error) {
         console.error("Error submitting report: ", error);
         toast({ variant: "destructive", title: "Submission Error" });
+        submissionError = true;
     } finally {
         setIsSubmitting(false);
+        if(!submissionError) onSuccessfulSubmit();
     }
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6 pt-6">
-        <FormField
-            control={form.control}
-            name="message"
-            render={({ field }) => (
-                <FormItem>
-                <FormLabel>Update Message</FormLabel>
-                <div className="relative">
-                    <FormControl>
-                        <Textarea rows={4} placeholder="Provide a detailed update on the situation..." {...field} disabled={isSubmitting || isDictating || isTranscribing} />
-                    </FormControl>
+      <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6 pt-2">
+        <Tabs value={inputMode} onValueChange={(value) => setInputMode(value as InputMode)} className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="text"><FileText className="mr-2 h-4 w-4"/>Text</TabsTrigger>
+                <TabsTrigger value="voice"><Mic className="mr-2 h-4 w-4"/>Voice</TabsTrigger>
+                <TabsTrigger value="video"><Video className="mr-2 h-4 w-4"/>Video</TabsTrigger>
+            </TabsList>
+            <TabsContent value="text" className="pt-4">
+                 <FormField
+                    control={form.control}
+                    name="message"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Update Message</FormLabel>
+                        <FormControl>
+                            <Textarea rows={5} placeholder="Provide a detailed update on the situation..." {...field} disabled={isSubmitting}/>
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                />
+            </TabsContent>
+             <TabsContent value="voice" className="pt-4 space-y-4">
+                <div className="flex flex-col items-center justify-center gap-4 p-4 border rounded-lg bg-muted">
                     <Button 
-                        type="button" 
-                        variant={isDictating ? "destructive" : "outline"} 
-                        size="icon" 
-                        onClick={handleToggleDictation}
-                        disabled={isSubmitting || isTranscribing}
-                        className="absolute bottom-2 right-2 h-8 w-8"
-                        title="Dictate message"
+                        type="button"
+                        size="lg"
+                        variant={isRecordingVoice ? "destructive" : "outline"}
+                        onClick={handleToggleVoiceRecording}
+                        className="w-full"
+                        disabled={isSubmitting}
                     >
-                        {isDictating ? (
-                            <MicOff className="h-4 w-4" />
-                        ) : isTranscribing ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                            <Mic className="h-4 w-4" />
-                        )}
-                        <span className="sr-only">Toggle voice dictation</span>
+                        {isRecordingVoice ? <StopCircle className="mr-2 h-5 w-5"/> : <Mic className="mr-2 h-5 w-5" />}
+                        {isRecordingVoice ? "Stop Recording" : "Start Recording"}
                     </Button>
+                    {isRecordingVoice && <p className="text-sm text-muted-foreground animate-pulse">Recording...</p>}
                 </div>
-                <FormMessage />
-                </FormItem>
-            )}
-        />
-        <div className="space-y-2">
-            <FormLabel>Attach Media (Optional)</FormLabel>
-            <div className="grid grid-cols-2 gap-2">
-                 <Button type="button" variant="outline" className="w-full" onClick={() => fileInputRef.current?.click()} disabled={isSubmitting}>
-                    <Upload className="mr-2 h-4 w-4" />
-                    Upload File
-                </Button>
-                <Button type="button" variant={isRecordingVoice ? "destructive" : "outline"} className="w-full" onClick={handleToggleVoiceRecording} disabled={isSubmitting}>
-                    <AudioLines className="mr-2 h-4 w-4" />
-                    {isRecordingVoice ? "Stop" : "Record Voice"}
-                </Button>
-            </div>
-            
-            <Dialog open={isVideoDialogOpen} onOpenChange={setIsVideoDialogOpen}>
-                <DialogTrigger asChild>
-                     <Button type="button" variant="outline" className="w-full">
-                        <Video className="mr-2 h-4 w-4" />
-                        Record Video
-                    </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-2xl">
-                    <DialogHeader>
-                        <DialogTitle>Record Video Report</DialogTitle>
-                    </DialogHeader>
-                    <VideoRecorder onVideoRecorded={onVideoRecorded} />
-                    <DialogClose asChild>
-                        <Button type="button" variant="secondary">
-                            Close
-                        </Button>
-                    </DialogClose>
-                </DialogContent>
-            </Dialog>
-
-            <Input type="file" ref={fileInputRef} className="hidden" accept="image/*,audio/*,video/*" onChange={handleFileChange} />
-
-            {mediaFile && (
-                <div className="text-sm text-muted-foreground p-2 bg-muted rounded-md flex items-center gap-2">
-                    {mediaFile.type.startsWith("image/") && <img src={URL.createObjectURL(mediaFile)} alt="preview" className="h-10 w-10 rounded object-cover" />}
-                    {mediaFile.type.startsWith("video/") && <Video className="h-10 w-10 text-primary" />}
-                     {mediaFile.type.startsWith("audio/") && <AudioLines className="h-10 w-10 text-primary" />}
-                    <span>{mediaFile.name} ({(mediaFile.size / 1024 / 1024).toFixed(2)} MB)</span>
-                </div>
-            )}
-            {!mediaFile && (
-                <Alert>
-                    <Bot className="h-4 w-4" />
-                    <AlertTitle>No Image?</AlertTitle>
-                    <AlertDescription>
-                        If you don't provide an image, a stock photo will be used for your report.
-                    </AlertDescription>
-                </Alert>
-            )}
-        </div>
-
+                {voiceNoteUrl && (
+                    <div className="space-y-2">
+                        <Label>Voice Note Preview</Label>
+                        <audio src={voiceNoteUrl} controls className="w-full h-10" />
+                         <div className="text-sm text-green-600 flex items-center gap-2">
+                            <CheckCircle className="h-4 w-4"/>
+                            <span>Voice note is ready to submit.</span>
+                        </div>
+                    </div>
+                )}
+                {!voiceNoteUrl && !isRecordingVoice && (
+                    <div className="text-sm text-muted-foreground flex items-center gap-2">
+                         <AlertCircle className="h-4 w-4"/>
+                         <span>Record a voice note for your report.</span>
+                    </div>
+                )}
+            </TabsContent>
+            <TabsContent value="video" className="pt-4">
+                <VideoRecorder onVideoRecorded={onVideoRecorded} />
+            </TabsContent>
+        </Tabs>
+        
         <FormField
           control={form.control}
           name="disasterType"
@@ -439,7 +358,7 @@ export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) 
                 )}
                 Acquire My Location
             </Button>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4 hidden">
                 <FormField
                 control={form.control}
                 name="latitude"
@@ -469,7 +388,7 @@ export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) 
             </div>
         </div>
         
-        <Button type="submit" className="w-full" disabled={isSubmitting || isDictating || isTranscribing || isRecordingVoice}>
+        <Button type="submit" className="w-full" size="lg" disabled={isSubmitting || isRecordingVoice}>
             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {isSubmitting ? 'Submitting Report...' : 'Submit Update'}
         </Button>
@@ -477,3 +396,4 @@ export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) 
     </Form>
   );
 }
+

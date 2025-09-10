@@ -196,14 +196,14 @@ export function UpdatesFeed({ allUpdates, onReply, onDelete, onInteraction, load
                         <SheetTrigger asChild>
                             <Button>
                                 <PlusCircle className="mr-2 h-4 w-4" />
-                                New Update
+                                New Report
                             </Button>
                         </SheetTrigger>
-                        <SheetContent className="w-full sm:max-w-lg">
-                            <SheetHeader>
-                                <SheetTitle>Submit a New Disaster Update</SheetTitle>
+                        <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
+                            <SheetHeader className="mb-4">
+                                <SheetTitle>Submit a New Disaster Report</SheetTitle>
                                 <SheetDescription>
-                                    Help your community by providing real-time information. You can add an image or a video to your report.
+                                    Help your community by providing real-time information. Your report will automatically alert the correct authorities.
                                 </SheetDescription>
                             </SheetHeader>
                             <SubmitUpdateForm onSuccessfulSubmit={handleSuccessfulSubmit} />

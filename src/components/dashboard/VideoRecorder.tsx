@@ -4,7 +4,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Video, Camera, StopCircle, Redo, Send, Loader2, AlertCircle } from 'lucide-react';
+import { Video, Camera, StopCircle, Redo, Send, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 interface VideoRecorderProps {
@@ -15,16 +15,18 @@ export function VideoRecorder({ onVideoRecorded }: VideoRecorderProps) {
   const { toast } = useToast();
   const videoRef = useRef<HTMLVideoElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const [hasCameraPermission, setHasCameraPermission] = useState(false);
+  const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [recordedVideoUrl, setRecordedVideoUrl] = useState<string | null>(null);
   const [videoBlob, setVideoBlob] = useState<Blob | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const getCameraPermission = useCallback(async () => {
-    // Reset state for re-enabling camera
-    setRecordedVideoUrl(null);
-    setVideoBlob(null);
+  const getCameraPermission = useCallback(async (isRetry = false) => {
+    if (isRetry) {
+        setRecordedVideoUrl(null);
+        setVideoBlob(null);
+        setHasCameraPermission(null);
+    }
 
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         toast({
@@ -32,7 +34,8 @@ export function VideoRecorder({ onVideoRecorded }: VideoRecorderProps) {
             title: 'Media Devices Not Supported',
             description: 'Your browser does not support camera access.',
         });
-        return;
+        setHasCameraPermission(false);
+        return null;
     }
     
     try {
@@ -54,11 +57,9 @@ export function VideoRecorder({ onVideoRecorded }: VideoRecorderProps) {
     }
   }, [toast]);
   
-  // Effect to request camera permission when the component mounts or becomes visible
   useEffect(() => {
     getCameraPermission();
 
-    // Cleanup function to stop media stream when component unmounts
     return () => {
         if (videoRef.current && videoRef.current.srcObject) {
             const stream = videoRef.current.srcObject as MediaStream;
@@ -72,6 +73,8 @@ export function VideoRecorder({ onVideoRecorded }: VideoRecorderProps) {
     if (!stream) return;
 
     setIsRecording(true);
+    setRecordedVideoUrl(null);
+    setVideoBlob(null);
     const options = { mimeType: 'video/webm; codecs=vp9' };
     const mediaRecorder = new MediaRecorder(stream, options);
     mediaRecorderRef.current = mediaRecorder;
@@ -89,8 +92,7 @@ export function VideoRecorder({ onVideoRecorded }: VideoRecorderProps) {
         const url = URL.createObjectURL(blob);
         setRecordedVideoUrl(url);
 
-        // Stop camera stream after recording
-         if (videoRef.current && videoRef.current.srcObject) {
+        if (videoRef.current && videoRef.current.srcObject) {
             const stream = videoRef.current.srcObject as MediaStream;
             stream.getTracks().forEach(track => track.stop());
         }
@@ -112,15 +114,23 @@ export function VideoRecorder({ onVideoRecorded }: VideoRecorderProps) {
     getCameraPermission();
   }
 
-  const handleSendVideo = () => {
+  const handleAttachVideo = () => {
     if (videoBlob) {
         setIsProcessing(true);
         const videoFile = new File([videoBlob], 'video-report.webm', { type: 'video/webm' });
         onVideoRecorded(videoFile);
-        // The parent component will set processing to false after submission
+        setIsProcessing(false);
     }
   };
   
+  if (hasCameraPermission === null) {
+      return (
+          <div className="flex items-center justify-center h-48 bg-muted rounded-lg">
+              <Loader2 className="h-8 w-8 animate-spin text-primary"/>
+          </div>
+      )
+  }
+
   if (!hasCameraPermission) {
     return (
         <Alert variant="destructive">
@@ -128,7 +138,7 @@ export function VideoRecorder({ onVideoRecorded }: VideoRecorderProps) {
             <AlertTitle>Camera Access Required</AlertTitle>
             <AlertDescription>
                 Camera access is disabled. Please grant permission to record a video report.
-                <Button onClick={getCameraPermission} variant="secondary" className="mt-4 w-full">
+                <Button onClick={() => getCameraPermission(true)} variant="secondary" className="mt-4 w-full">
                     <Camera className="mr-2 h-4 w-4" />
                     Retry Camera Access
                 </Button>
@@ -146,8 +156,8 @@ export function VideoRecorder({ onVideoRecorded }: VideoRecorderProps) {
           autoPlay
           muted
           playsInline
-          src={recordedVideoUrl || undefined} // Use src for recorded video, srcObject for live
-          style={{ display: isRecording || !recordedVideoUrl ? 'block' : 'block' }}
+          src={recordedVideoUrl || undefined}
+          controls={!!recordedVideoUrl}
         />
       </div>
       
@@ -167,13 +177,13 @@ export function VideoRecorder({ onVideoRecorded }: VideoRecorderProps) {
                 <Button onClick={handleRecordAgain} size="lg" variant="outline" className="w-full" disabled={isProcessing}>
                     <Redo className="mr-2 h-5 w-5" /> Record Again
                 </Button>
-                <Button onClick={handleSendVideo} size="lg" className="w-full" disabled={isProcessing}>
+                <Button onClick={handleAttachVideo} size="lg" className="w-full" disabled={isProcessing}>
                     {isProcessing ? (
                         <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                     ) : (
-                        <Send className="mr-2 h-5 w-5" />
+                        <CheckCircle className="mr-2 h-5 w-5" />
                     )}
-                    Send Report
+                    Attach Video
                 </Button>
             </>
         )}
