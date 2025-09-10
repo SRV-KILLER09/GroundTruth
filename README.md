@@ -133,8 +133,8 @@ For bugs, feedback, or contributions, feel free to contact the TitanicX team or 
 
 ![Login](https://github.com/user-attachments/assets/8bbc6d4c-01f7-4869-b2f3-e6582f5b6cd2)
 ![Register](https://github.com/user-attachments/assets/43937cad-1c02-476a-bf9e-9d1686ce5968)
-![Map-view](https://github.com/user-attachments/assets/461af5f8-5ae7-47a6-85a0-b68325f37495)
 ![Live Feed](https://github.com/user-attachments/assets/98124f52-aa3f-473e-849f-8b910aa99702)
+![Map-view](https://github.com/user-attachments/assets/461af5f8-5ae7-47a6-85a0-b68325f37495)
 ![Report_Feed](https://github.com/user-attachments/assets/d447b579-44f7-4e2b-a647-da5359dc9da4)
 ![Report_Bar](https://github.com/user-attachments/assets/c5d28c44-7a4f-4963-be69-c4ee6ce7b15a)
 ![Directory](https://github.com/user-attachments/assets/a1f5121e-9ab6-4c2c-ab66-7762de87e64f)
