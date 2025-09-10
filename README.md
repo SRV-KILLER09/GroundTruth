@@ -98,13 +98,10 @@ Other relevant metadata
 All posts are reviewed by admins and marked as:
 
 ✅ Verified
-----
 
 ⚠️ Under Investigation
----
 
 ❌ Fake
----
 
 This ensures the integrity and reliability of shared information.
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
