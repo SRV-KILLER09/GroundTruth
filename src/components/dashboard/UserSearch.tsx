@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export function UserSearch() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -25,7 +26,10 @@ export function UserSearch() {
         <Input
           type="search"
           placeholder="Search Here.."
-          className="w-full rounded-lg bg-muted pl-8 md:w-[200px] lg:w-[320px]"
+          className={cn(
+            "w-full rounded-lg bg-muted pl-8 md:w-[200px] lg:w-[320px]",
+            "border-primary/50 focus:border-primary focus-visible:ring-primary/50"
+            )}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
