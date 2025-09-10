@@ -83,10 +83,10 @@ export default function Header() {
            <Sidebar isMobile={true}/>
         </SheetContent>
       </Sheet>
-
-      <UserSearch />
       
       <div className="flex items-center gap-4 ml-auto">
+        <UserSearch />
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
               <Button variant="outline" size="icon">
