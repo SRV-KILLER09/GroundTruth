@@ -23,7 +23,7 @@ export function UserSearch() {
         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input
           type="search"
-          placeholder="Find Users"
+          placeholder="Search Here.."
           className="w-full rounded-lg bg-muted pl-8 md:w-[200px] lg:w-[320px]"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
