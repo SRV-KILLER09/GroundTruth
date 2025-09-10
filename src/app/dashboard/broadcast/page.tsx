@@ -67,14 +67,6 @@ export default function BroadcastPage() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                    <Alert>
-                        <Info className="h-4 w-4" />
-                        <AlertTitle>Important</AlertTitle>
-                        <AlertDescription>
-                            This is a simulation. No actual emails or SMS messages will be sent. Use this tool for demonstration purposes only.
-                        </AlertDescription>
-                    </Alert>
-
                     <div className="space-y-2">
                         <label htmlFor="broadcast-message" className="font-medium">
                             Broadcast Message
