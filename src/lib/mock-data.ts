@@ -25,6 +25,7 @@ export type DisasterUpdate = {
   };
   message: string;
   mediaUrl?: string | null;
+  mediaType?: 'image' | 'video' | 'audio' | null;
   history: string[];
   replies: DisasterUpdateReply[];
   status: DisasterStatus;

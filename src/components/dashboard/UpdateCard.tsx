@@ -3,9 +3,9 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
 import type { DisasterUpdate, DisasterUpdateReply, DisasterStatus } from "@/lib/mock-data";
-import { Flame, Droplets, Zap, Wind, AlertTriangle, MessageSquare, ShieldCheck, Siren, CheckCircle, HelpCircle, XCircle, ThumbsUp, ThumbsDown, CornerDownRight, Flag, History, Clock, Trash2, Award, Ban } from 'lucide-react';
+import { Flame, Droplets, Zap, Wind, AlertTriangle, MessageSquare, ShieldCheck, Siren, CheckCircle, HelpCircle, XCircle, ThumbsUp, ThumbsDown, CornerDownRight, Flag, History, Clock, Trash2, Award, Ban, Video, AudioLines } from 'lucide-react';
 import { useAuth } from "@/contexts/AuthContext";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
@@ -52,6 +52,9 @@ export function UpdateCard({ update, onReply, onDelete, onInteraction }: UpdateC
   const [likeCount, setLikeCount] = useState(update.likedBy?.length || 0);
   const [dislikeCount, setDislikeCount] = useState(update.dislikedBy?.length || 0);
   const [currentUserVote, setCurrentUserVote] = useState<'like' | 'dislike' | null>(null);
+
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
     if (user) {
@@ -173,6 +176,49 @@ export function UpdateCard({ update, onReply, onDelete, onInteraction }: UpdateC
   const profileUrl = `/dashboard/profile/${update.user.username}`;
   const timeAgo = formatDistanceToNow(new Date(update.timestamp), { addSuffix: true });
 
+  const MediaDisplay = () => {
+    if (!update.mediaUrl) return null;
+
+    switch (update.mediaType) {
+        case 'video':
+            return (
+                <video ref={videoRef} className="w-full aspect-video rounded-lg mb-4 bg-black" controls>
+                    <source src={update.mediaUrl} type="video/mp4" />
+                    Your browser does not support the video tag.
+                </video>
+            );
+        case 'audio':
+            return (
+                 <div className="my-4">
+                    <div className="flex items-center gap-3 bg-muted p-3 rounded-lg">
+                         <AudioLines className="h-8 w-8 text-primary flex-shrink-0" />
+                        <div className="flex-1">
+                            <p className="font-semibold">Voice Note</p>
+                            <audio ref={audioRef} controls className="w-full h-10">
+                                <source src={update.mediaUrl} type="audio/mp3" />
+                                Your browser does not support the audio element.
+                            </audio>
+                        </div>
+                    </div>
+                </div>
+            );
+        case 'image':
+        default:
+             return (
+                <div className="relative aspect-video w-full overflow-hidden rounded-lg mb-4">
+                    <Image 
+                        src={update.mediaUrl} 
+                        alt={`Update from ${update.user.name}`} 
+                        fill 
+                        className="object-cover" 
+                        data-ai-hint={`${update.disasterType} disaster`}
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    />
+                </div>
+             )
+    }
+  }
+
   return (
     <>
     <Card className="overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
@@ -260,18 +306,7 @@ export function UpdateCard({ update, onReply, onDelete, onInteraction }: UpdateC
       </CardHeader>
       <CardContent className="p-4 pt-0">
         <p className="mb-4 text-foreground/90">{update.message}</p>
-        {update.mediaUrl && (
-          <div className="relative aspect-video w-full overflow-hidden rounded-lg mb-4">
-            <Image 
-                src={update.mediaUrl} 
-                alt={`Update from ${update.user.name}`} 
-                fill 
-                className="object-cover" 
-                data-ai-hint={`${update.disasterType} disaster`}
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            />
-          </div>
-        )}
+        <MediaDisplay />
         {update.history && update.history.length > 1 && (
           <Collapsible className="mb-4">
             <CollapsibleTrigger asChild>
