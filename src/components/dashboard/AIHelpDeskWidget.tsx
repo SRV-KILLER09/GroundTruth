@@ -84,7 +84,7 @@ export default function AIHelpDeskWidget() {
             offline: { text: 'Offline', className: 'bg-red-500' },
             restarting: { text: 'Restarting...', className: 'bg-yellow-500 animate-pulse' },
         }
-        const currentStatus = chatbotStatus === 'restarting' ? 'restarting' : chatbotStatus;
+        const currentStatus = chatbotStatus;
 
         return (
              <div className="flex items-center gap-2">
