@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Camera, Video, Mic, MicOff, VideoOff, Send, Loader2, StopCircle } from 'lucide-react';
+import { Camera, Video, Mic, MicOff, VideoOff, Send, Loader2, StopCircle, PlayCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface VideoRecorderProps {
@@ -19,6 +19,8 @@ export function VideoRecorder({ onVideoSubmit, isSubmitting }: VideoRecorderProp
     const [isVideoOff, setIsVideoOff] = useState(false);
     const videoRef = useRef<HTMLVideoElement>(null);
     const streamRef = useRef<MediaStream | null>(null);
+    const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+    const [recordedChunks, setRecordedChunks] = useState<Blob[]>([]);
     const { toast } = useToast();
 
     useEffect(() => {
@@ -65,18 +67,38 @@ export function VideoRecorder({ onVideoSubmit, isSubmitting }: VideoRecorderProp
         }
     };
 
-    const handleRecord = () => {
+    const handleStartRecording = () => {
+        if (!streamRef.current) return;
         setIsRecording(true);
-        // In a real app, you would start MediaRecorder here.
-        // For this demo, we'll just simulate a 5-second recording.
-        setTimeout(() => {
+        setRecordedChunks([]);
+        mediaRecorderRef.current = new MediaRecorder(streamRef.current);
+        mediaRecorderRef.current.ondataavailable = (event) => {
+            if (event.data.size > 0) {
+                setRecordedChunks((prev) => [...prev, event.data]);
+            }
+        };
+        mediaRecorderRef.current.start();
+        toast({ title: "Recording Started", description: "Click the button again to stop."});
+    };
+
+    const handleStopRecording = () => {
+        if (mediaRecorderRef.current) {
+            mediaRecorderRef.current.stop();
             setIsRecording(false);
             toast({
-                title: "Video Recorded",
+                title: "Recording Finished",
                 description: "Your video has been captured. Please submit your report.",
             });
             onVideoSubmit(); // Notify parent form that a video is "ready"
-        }, 5000);
+        }
+    };
+
+    const handleRecordClick = () => {
+        if (isRecording) {
+            handleStopRecording();
+        } else {
+            handleStartRecording();
+        }
     };
 
     if (hasCameraPermission === null) {
@@ -125,16 +147,16 @@ export function VideoRecorder({ onVideoSubmit, isSubmitting }: VideoRecorderProp
                         {isVideoOff ? <VideoOff /> : <Video />}
                     </Button>
                 </div>
-                <Button type="button" onClick={handleRecord} disabled={isRecording || isSubmitting}>
-                    {isRecording ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <StopCircle className="mr-2 h-4 w-4" />}
-                    {isRecording ? "Recording..." : "Record Video"}
+                <Button type="button" onClick={handleRecordClick} disabled={isSubmitting} variant={isRecording ? 'destructive' : 'default'}>
+                    {isRecording ? <StopCircle className="mr-2 h-4 w-4" /> : <PlayCircle className="mr-2 h-4 w-4" />}
+                    {isRecording ? "Stop Recording" : "Start Recording"}
                 </Button>
             </div>
             <Alert>
                 <Video className="h-4 w-4"/>
                 <AlertTitle>Video Reporting</AlertTitle>
                 <AlertDescription>
-                    Click "Record Video" to start a short recording. This will be sent to admins for verification.
+                    Click "Start Recording" to begin a short video. This will be sent to admins for verification.
                 </AlertDescription>
             </Alert>
         </div>
