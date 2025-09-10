@@ -20,6 +20,7 @@ import { auth, updateUserAvatarInFirestore } from "@/lib/firebase";
 import { updateProfile } from "firebase/auth";
 import { useState } from "react";
 import { useLanguage, type Language } from "@/contexts/LanguageContext";
+import { UserSearch } from "./UserSearch";
 
 
 export default function Header() {
@@ -83,7 +84,7 @@ export default function Header() {
         </SheetContent>
       </Sheet>
 
-      <div className="flex-1" />
+      <UserSearch />
       
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
