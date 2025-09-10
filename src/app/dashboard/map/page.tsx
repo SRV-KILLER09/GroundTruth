@@ -25,9 +25,9 @@ const disasterInfo: Record<string, { icon: React.ReactNode; color: string; class
 };
 
 const statusConfig: Record<DisasterStatus, { icon: React.ReactNode; text: string; className: string }> = {
-  'Verified': { icon: <CheckCircle className="h-3 w-3 mr-1" />, text: "Verified", className: "bg-green-500/10 text-green-500 border-green-500/20" },
-  'Under Investigation': { icon: <HelpCircle className="h-3 w-3 mr-1" />, text: "Under Investigation", className: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20" },
-  'Fake': { icon: <XCircle className="h-3 w-3 mr-1" />, text: "Fake", className: "bg-red-500/10 text-red-500 border-red-500/20" },
+  'Verified': { icon: <CheckCircle className="h-4 w-4 mr-2" />, text: "Verified", className: "bg-green-500/10 text-green-500 border-green-500/20" },
+  'Under Investigation': { icon: <HelpCircle className="h-4 w-4 mr-2" />, text: "Under Investigation", className: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20" },
+  'Fake': { icon: <XCircle className="h-4 w-4 mr-2" />, text: "Fake", className: "bg-red-500/10 text-red-500 border-red-500/20" },
 };
 
 const getMapBounds = (updates: DisasterUpdate[]) => {
@@ -65,6 +65,10 @@ export default function MapViewPage() {
                 });
             });
             setAllUpdates(updatesData);
+            if (loading) {
+                // Select the first report by default after initial load
+                setSelectedUpdate(updatesData[0] || null);
+            }
             setLoading(false);
         }, (error) => {
             console.error("Firestore error: ", error);
@@ -72,7 +76,7 @@ export default function MapViewPage() {
         });
 
         return () => unsubscribe();
-    }, []);
+    }, [loading]);
 
     const filteredUpdates = useMemo(() => {
         return allUpdates.filter(update =>
@@ -106,6 +110,8 @@ export default function MapViewPage() {
         return <LoadingSpinner />;
     }
 
+    const currentReport = selectedUpdate || filteredUpdates[0];
+
     return (
         <div className="w-full max-w-7xl mx-auto">
             <Card>
@@ -118,7 +124,7 @@ export default function MapViewPage() {
                         An interactive map displaying all disaster reports. Click a report in the list to focus on its location.
                     </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-6">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div className="lg:col-span-2 relative w-full aspect-[16/10] bg-muted rounded-lg overflow-hidden border-2 border-primary/20">
                             <iframe
@@ -184,6 +190,43 @@ export default function MapViewPage() {
                             </div>
                         </div>
                     </div>
+                     {currentReport && (
+                        <Card className="mt-6 bg-muted/50 border-primary/20">
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-3">
+                                    <span className={cn("h-10 w-10 rounded-full flex items-center justify-center text-primary-foreground", disasterInfo[currentReport.disasterType]?.class || disasterInfo['Default'].class)}>
+                                        {disasterInfo[currentReport.disasterType]?.icon || disasterInfo['Default'].icon}
+                                    </span>
+                                    <span>Report Details: {currentReport.disasterType} in {currentReport.location.name}</span>
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                <div className="space-y-1">
+                                    <h4 className="text-sm font-semibold text-muted-foreground">Location</h4>
+                                    <p className="text-lg font-mono">{currentReport.location.name}</p>
+                                </div>
+                                <div className="space-y-1">
+                                    <h4 className="text-sm font-semibold text-muted-foreground">Coordinates</h4>
+                                    <p className="text-lg font-mono">{currentReport.location.latitude.toFixed(4)}, {currentReport.location.longitude.toFixed(4)}</p>
+                                </div>
+                                <div className="space-y-1">
+                                    <h4 className="text-sm font-semibold text-muted-foreground">Time</h4>
+                                    <p className="text-lg font-mono">{format(new Date(currentReport.timestamp), "PPpp")}</p>
+                                </div>
+                                <div className="space-y-1">
+                                    <h4 className="text-sm font-semibold text-muted-foreground">Status</h4>
+                                    <Badge variant="outline" className={cn("text-lg", statusConfig[currentReport.status].className)}>
+                                        {statusConfig[currentReport.status].icon}
+                                        {statusConfig[currentReport.status].text}
+                                    </Badge>
+                                </div>
+                                 <div className="col-span-full md:col-span-2 space-y-1">
+                                    <h4 className="text-sm font-semibold text-muted-foreground">Message</h4>
+                                    <p className="text-lg font-mono">{currentReport.message}</p>
+                                </div>
+                            </CardContent>
+                        </Card>
+                     )}
                 </CardContent>
             </Card>
         </div>
