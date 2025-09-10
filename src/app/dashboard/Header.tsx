@@ -20,7 +20,7 @@ import { auth, updateUserAvatarInFirestore } from "@/lib/firebase";
 import { updateProfile } from "firebase/auth";
 import { useState } from "react";
 import { useLanguage, type Language } from "@/contexts/LanguageContext";
-import { UserSearch } from "./UserSearch";
+import { UserSearch } from "@/components/dashboard/UserSearch";
 
 
 export default function Header() {

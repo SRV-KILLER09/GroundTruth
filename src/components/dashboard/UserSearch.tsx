@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState } from 'react';
@@ -18,7 +19,7 @@ export function UserSearch() {
   };
 
   return (
-    <div className="relative flex-1 md:grow-0">
+    <div className="relative ml-auto flex-1 md:grow-0">
       <form onSubmit={handleSearchSubmit}>
         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input
