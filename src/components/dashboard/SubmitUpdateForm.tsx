@@ -10,15 +10,15 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/contexts/AuthContext";
-import { useState, useRef } from "react";
-import { Loader2, MapPin, Video, FileText, Upload, Bot } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Loader2, MapPin, Upload, Bot, Mic, MicOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { VideoRecorder } from "./VideoRecorder";
 import { db, storage } from "@/lib/firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+import { transcribeAudio } from "@/ai/flows/speech-to-text-flow";
+import { cn } from "@/lib/utils";
 
 
 const formSchema = z.object({
@@ -57,10 +57,14 @@ export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) 
   const { toast } = useToast();
   const [isLocating, setIsLocating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isVideoSubmitted, setIsVideoSubmitted] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
+  
+  // Voice input state
+  const [isListening, setIsListening] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -124,6 +128,54 @@ export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) 
     }
   }
 
+  const handleToggleListening = async () => {
+    if (isListening) {
+        mediaRecorderRef.current?.stop();
+        setIsListening(false);
+        return;
+    }
+
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorderRef.current = new MediaRecorder(stream);
+        audioChunksRef.current = [];
+
+        mediaRecorderRef.current.ondataavailable = (event) => {
+            audioChunksRef.current.push(event.data);
+        };
+
+        mediaRecorderRef.current.onstop = async () => {
+            setIsTranscribing(true);
+            toast({ title: "Processing audio...", description: "AI is transcribing your message." });
+            const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+
+            const reader = new FileReader();
+            reader.readAsDataURL(audioBlob);
+            reader.onloadend = async () => {
+                const base64Audio = reader.result as string;
+                try {
+                    const result = await transcribeAudio({ audioDataUri: base64Audio });
+                    const currentMessage = form.getValues("message");
+                    form.setValue("message", (currentMessage ? currentMessage + " " : "") + result.transcription, { shouldValidate: true });
+                } catch (error) {
+                    console.error("Transcription error:", error);
+                    toast({ variant: "destructive", title: "Transcription Failed", description: "Could not convert audio to text." });
+                } finally {
+                    setIsTranscribing(false);
+                }
+            };
+
+            // Clean up stream
+            stream.getTracks().forEach(track => track.stop());
+        };
+
+        mediaRecorderRef.current.start();
+        setIsListening(true);
+    } catch (err) {
+        toast({ variant: "destructive", title: "Microphone Error", description: "Could not access microphone. Please check permissions." });
+    }
+  };
+
 
   async function handleFormSubmit(values: FormValues) {
     setIsSubmitting(true);
@@ -152,10 +204,7 @@ export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) 
 
     let mediaUrl: string | null = null;
     try {
-        if (isVideoSubmitted) {
-            // This is a placeholder for when video recording is implemented fully
-            mediaUrl = "https://picsum.photos/600/400?blur";
-        } else if (imageFile) {
+        if (imageFile) {
             toast({ title: "Uploading Image...", description: "Please wait while we upload your image."});
             const storageRef = ref(storage, `uploads/${user.uid}/${Date.now()}-${imageFile.name}`);
             const uploadResult = await uploadBytes(storageRef, imageFile);
@@ -195,7 +244,6 @@ export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) 
         });
         
         form.reset();
-        setIsVideoSubmitted(false);
         setImageFile(null);
         if(fileInputRef.current) fileInputRef.current.value = "";
         onSuccessfulSubmit();
@@ -215,59 +263,67 @@ export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6 pt-6">
-       <Tabs defaultValue="text" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="text"><FileText className="mr-2 h-4 w-4"/>Text Report</TabsTrigger>
-                <TabsTrigger value="video"><Video className="mr-2 h-4 w-4"/>Video Report</TabsTrigger>
-            </TabsList>
-            <TabsContent value="text" className="space-y-6 pt-4">
-                 <FormField
-                    control={form.control}
-                    name="message"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel>Update Message</FormLabel>
-                        <FormControl>
-                            <Textarea rows={4} placeholder="Provide a detailed update on the situation..." {...field} disabled={isSubmitting} />
-                        </FormControl>
-                        <FormMessage />
-                        </FormItem>
+        <FormField
+            control={form.control}
+            name="message"
+            render={({ field }) => (
+                <FormItem>
+                <FormLabel>Update Message</FormLabel>
+                <div className="relative">
+                    <FormControl>
+                        <Textarea rows={4} placeholder="Provide a detailed update on the situation, or use the voice input..." {...field} disabled={isSubmitting || isListening || isTranscribing} />
+                    </FormControl>
+                    <Button 
+                        type="button" 
+                        variant={isListening ? "destructive" : "outline"} 
+                        size="icon" 
+                        onClick={handleToggleListening}
+                        disabled={isSubmitting || isTranscribing}
+                        className="absolute bottom-2 right-2 h-8 w-8"
+                    >
+                        {isListening ? (
+                            <MicOff className="h-4 w-4" />
+                        ) : isTranscribing ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                            <Mic className="h-4 w-4" />
+                        )}
+                        <span className="sr-only">Toggle voice input</span>
+                    </Button>
+                </div>
+                <FormMessage />
+                </FormItem>
+            )}
+        />
+        <div className="space-y-2">
+            <FormLabel>Attach Image (Optional)</FormLabel>
+            <Button type="button" variant="outline" className="w-full" onClick={() => fileInputRef.current?.click()} disabled={isSubmitting}>
+                <Upload className="mr-2 h-4 w-4" />
+                {imageFile ? 'Change Image' : 'Upload Image'}
+            </Button>
+            <Input 
+            type="file" 
+            ref={fileInputRef} 
+            className="hidden" 
+            accept="image/*"
+            onChange={handleImageFileChange}
+            />
+            {imageFile && (
+                <div className="text-sm text-muted-foreground p-2 bg-muted rounded-md flex items-center gap-2">
+                    {imageFile.type.startsWith("image/") && (
+                    <img src={URL.createObjectURL(imageFile)} alt="preview" className="h-10 w-10 rounded object-cover" />
                     )}
-                    />
-                    <div className="space-y-2">
-                      <FormLabel>Attach Image (Optional)</FormLabel>
-                       <Button type="button" variant="outline" className="w-full" onClick={() => fileInputRef.current?.click()} disabled={isSubmitting}>
-                         <Upload className="mr-2 h-4 w-4" />
-                         {imageFile ? 'Change Image' : 'Upload Image'}
-                      </Button>
-                      <Input 
-                        type="file" 
-                        ref={fileInputRef} 
-                        className="hidden" 
-                        accept="image/*"
-                        onChange={handleImageFileChange}
-                      />
-                      {imageFile && (
-                          <div className="text-sm text-muted-foreground p-2 bg-muted rounded-md flex items-center gap-2">
-                              {imageFile.type.startsWith("image/") && (
-                                <img src={URL.createObjectURL(imageFile)} alt="preview" className="h-10 w-10 rounded object-cover" />
-                              )}
-                              <span>{imageFile.name} ({(imageFile.size / 1024).toFixed(2)} KB)</span>
-                          </div>
-                      )}
-                      <Alert>
-                        <Bot className="h-4 w-4" />
-                        <AlertTitle>No Image? No Problem.</AlertTitle>
-                        <AlertDescription>
-                            If you don't provide an image, a stock photo will be used for your report.
-                        </AlertDescription>
-                    </Alert>
-                    </div>
-            </TabsContent>
-            <TabsContent value="video" className="pt-4">
-                <VideoRecorder onVideoSubmit={() => setIsVideoSubmitted(true)} isSubmitting={isSubmitting} />
-            </TabsContent>
-        </Tabs>
+                    <span>{imageFile.name} ({(imageFile.size / 1024).toFixed(2)} KB)</span>
+                </div>
+            )}
+            <Alert>
+            <Bot className="h-4 w-4" />
+            <AlertTitle>No Image? No Problem.</AlertTitle>
+            <AlertDescription>
+                If you don't provide an image, a stock photo will be used for your report.
+            </AlertDescription>
+        </Alert>
+        </div>
 
         <FormField
           control={form.control}
@@ -362,7 +418,7 @@ export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) 
             </div>
         </div>
         
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
+        <Button type="submit" className="w-full" disabled={isSubmitting || isListening || isTranscribing}>
             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {isSubmitting ? 'Submitting Report...' : 'Submit Update'}
         </Button>
