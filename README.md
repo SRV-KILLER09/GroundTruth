@@ -1,8 +1,7 @@
 🌍 GroundTruth™ - By TitanicX
 -----------------------------
 
-Natural Disaster Management System - Powered by Community, Backed by Authorities
-        --------------------------------------------------
+Natural Disaster Management System - Powered by Community, Backed by Authorities.
 
 GroundTruth™ is a comprehensive, real-time natural disaster management platform designed to bridge the gap between civilians and emergency authorities. Developed by TitanicX, this application empowers users to report disaster-related incidents while enabling authorities to take swift and informed action.
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
