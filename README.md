@@ -7,13 +7,12 @@ Natural Disaster Management System - Powered by Community, Backed by Authorities
 GroundTruth™ is a comprehensive, real-time natural disaster management platform designed to bridge the gap between civilians and emergency authorities. Developed by TitanicX, this application empowers users to report disaster-related incidents while enabling authorities to take swift and informed action.
 
 🚨 Key Features:-
-------------
 
 
 🧑‍💼 Dual Access Dashboards
------
+
 GroundTruth™ offers two separate dashboards with distinct roles and privileges:
---
+
 👤 User Dashboard:-
 ---
 
@@ -47,9 +46,6 @@ End-to-end encrypted conversations.
 
 Get guidance, ask disaster-related questions, or seek help.
 
-Get Local Support:
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
 🛡️ Admin Dashboard
 --------------
 
@@ -70,7 +66,6 @@ Notification Manager: Create, publish, and delete notifications as needed.
 Automatically fetches nearby emergency services based on user’s live location (with permission).
 
 Post Verification: Posts are labeled as Verified, Under Investigation, or Fake based on admin review.
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 📊 Reporting System
 ------------------
@@ -90,7 +85,6 @@ Incident status
 Assigned authority
 
 Other relevant metadata
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ✅ Report Verification System
 ----------------
@@ -104,7 +98,6 @@ All posts are reviewed by admins and marked as:
 ❌ Fake
 
 This ensures the integrity and reliability of shared information.
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 🛠️ Tech Stack
 -------------
@@ -120,8 +113,6 @@ This ensures the integrity and reliability of shared information.
 | **Database**        | Google Cloud Firestore      |
 | **Authentication**  | Firebase Authentication     |
 | **File Storage**    | Firebase Storage            |
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
 
 
 🔐 Security & Privacy
