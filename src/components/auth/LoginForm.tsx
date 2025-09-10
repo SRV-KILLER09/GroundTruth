@@ -53,7 +53,7 @@ export function LoginForm() {
   }
 
   return (
-    <Card className="w-full max-w-sm bg-[#111111] border-neutral-800 shadow-2xl shadow-primary/20">
+    <Card className="w-full max-w-sm bg-[#111111] border-neutral-800 shadow-2xl shadow-primary/30">
       <CardHeader>
         <div className="flex items-center gap-3 mb-4">
             <Image src="https://picsum.photos/seed/newlogo/40/40" alt="GroundTruth™ Logo" width={40} height={40} className="rounded-full" data-ai-hint="logo"/>

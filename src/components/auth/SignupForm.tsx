@@ -58,7 +58,7 @@ export function SignupForm() {
   }
 
   return (
-    <Card className="w-full max-w-sm bg-card/80 backdrop-blur-sm border-white/20 shadow-2xl shadow-primary/20">
+    <Card className="w-full max-w-sm bg-card/80 backdrop-blur-sm border-white/20 shadow-2xl shadow-primary/30">
       <CardHeader className="text-center">
         <div className="flex justify-center items-center mb-4 gap-3">
             <Image src="https://picsum.photos/seed/newlogo/40/40" alt="GroundTruth™ Logo" width={40} height={40} className="rounded-full" data-ai-hint="logo"/>
