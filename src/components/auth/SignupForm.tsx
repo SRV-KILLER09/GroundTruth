@@ -62,19 +62,19 @@ export function SignupForm() {
       <CardHeader className="text-center">
         <div className="flex justify-center items-center mb-4 gap-3">
             <Image src="https://picsum.photos/seed/newlogo/40/40" alt="GroundTruth™ Logo" width={40} height={40} className="rounded-full" data-ai-hint="logo"/>
-            <h1 className="text-4xl font-headline">TitanicX</h1>
+            <h1 className="text-4xl font-headline text-primary-foreground">TitanicX</h1>
         </div>
-        <CardTitle className="text-3xl font-headline font-bold">Create an Account</CardTitle>
-        <CardDescription className="text-base font-medium">Join our community to share and receive disaster updates.</CardDescription>
+        <CardTitle className="text-3xl font-headline font-bold text-primary-foreground">Create an Account</CardTitle>
+        <CardDescription className="text-base font-medium text-primary-foreground/80">Join our community to share and receive disaster updates.</CardDescription>
       </CardHeader>
       <CardContent>
-         <Button variant="outline" className="w-full" onClick={handleGoogleSignIn}>
+         <Button variant="outline" className="w-full bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground" onClick={handleGoogleSignIn}>
           <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512"><path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 126 21.2 170.8 58.2L325 150.5C300.7 128 276.3 116.5 248 116.5c-70.3 0-127.5 57.2-127.5 127.5s57.2 127.5 127.5 127.5c82.3 0 112.5-52.5 115.8-78.5H248V261.8h239.2z"></path></svg>
           Continue with Google
         </Button>
          <div className="relative my-4">
           <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t" />
+            <span className="w-full border-t border-white/20" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
             <span className="bg-card px-2 text-muted-foreground">
@@ -89,9 +89,9 @@ export function SignupForm() {
               name="username"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Username</FormLabel>
+                  <FormLabel className="text-primary-foreground/80">Username</FormLabel>
                   <FormControl>
-                    <Input placeholder="Your username" {...field} />
+                    <Input className="bg-primary-foreground/5 border-white/20 text-primary-foreground" placeholder="Your username" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -102,9 +102,9 @@ export function SignupForm() {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel className="text-primary-foreground/80">Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="name@example.com" {...field} />
+                    <Input className="bg-primary-foreground/5 border-white/20 text-primary-foreground" placeholder="name@example.com" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -115,9 +115,9 @@ export function SignupForm() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password</FormLabel>
+                  <FormLabel className="text-primary-foreground/80">Password</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="••••••••" {...field} />
+                    <Input className="bg-primary-foreground/5 border-white/20 text-primary-foreground" type="password" placeholder="••••••••" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -128,7 +128,7 @@ export function SignupForm() {
             </Button>
           </form>
         </Form>
-        <div className="mt-4 text-center text-sm">
+        <div className="mt-4 text-center text-sm text-primary-foreground/80">
           Already have an account?{" "}
           <Link href="/login" className="underline text-primary">
             Login
