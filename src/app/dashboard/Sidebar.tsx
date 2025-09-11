@@ -47,7 +47,8 @@ export default function Sidebar({ isMobile = false }: { isMobile?: boolean }) {
       <div className="flex-1 overflow-y-auto sidebar-scroll">
         <nav className={cn("flex flex-col items-stretch gap-4 px-2 py-4")}>
         {navLinks.map((link) => {
-            if (link.adminOnly && (!isAdmin || isAuthority) ) return null;
+            if (link.adminOnly && !isAdmin) return null;
+            if (isAuthority && link.adminOnly) return null;
             if (link.authorityOnly === false && isAuthority) return null;
 
             const isActive = pathname === link.href || (link.href === "/dashboard" && pathname.startsWith("/dashboard/profile"));
