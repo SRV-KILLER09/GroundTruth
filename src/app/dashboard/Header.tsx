@@ -12,7 +12,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { LogOut, Award, Menu, Edit, Loader2, Globe } from "lucide-react";
+import { LogOut, Award, Menu, Edit, Loader2, Globe, Mail } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import Sidebar from "./Sidebar";
 import { useToast } from "@/hooks/use-toast";
@@ -85,6 +85,11 @@ export default function Header() {
       </Sheet>
       
       <div className="flex items-center gap-4 ml-auto">
+        <Button variant="outline" size="icon">
+            <Mail className="h-5 w-5"/>
+            <span className="sr-only">Direct Messages</span>
+        </Button>
+
         <UserSearch />
 
         <DropdownMenu>

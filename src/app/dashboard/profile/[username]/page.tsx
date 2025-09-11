@@ -131,10 +131,18 @@ export default function UserProfilePage() {
                   </div>
               )}
             </div>
-            <div className="flex items-center gap-2 text-yellow-500 bg-yellow-500/10 px-4 py-2 rounded-full border border-yellow-500/20">
-              <Award className="h-5 w-5" />
-              <span className="font-bold text-lg">{honorScore}</span>
-              <span className="font-medium text-sm">Honor Score</span>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 text-yellow-500 bg-yellow-500/10 px-4 py-2 rounded-full border border-yellow-500/20">
+                <Award className="h-5 w-5" />
+                <span className="font-bold text-lg">{honorScore}</span>
+                <span className="font-medium text-sm">Honor Score</span>
+              </div>
+              {!isOwnProfile && (
+                <Button>
+                  <Mail className="mr-2 h-4 w-4" />
+                  Direct Message
+                </Button>
+              )}
             </div>
           </CardHeader>
           <CardContent className="p-6">
