@@ -4,7 +4,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-import { DisasterUpdate, DisasterUpdateReply, mockDisasterUpdates } from "@/lib/mock-data";
+import { DisasterUpdate, DisasterUpdateReply } from "@/lib/mock-data";
 import { useNotifications } from "@/contexts/NotificationsContext";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { UpdatesFeed } from "@/components/dashboard/UpdatesFeed";
@@ -46,18 +46,6 @@ export default function DashboardPage() {
   
   useEffect(() => {
     if (isAuthenticated) {
-        // Use mock data instead of Firestore for now
-        const mockDataWithIds = mockDisasterUpdates.map((update, index) => ({
-            ...update,
-            id: `mock-${index}`
-        })) as DisasterUpdate[];
-        
-        setUpdates(mockDataWithIds);
-        setUpdatesLoading(false);
-        setHasMore(false); // No pagination for mock data for now
-
-        /*
-        // Original Firestore logic
         const q = query(collection(db, "disaster_updates"), orderBy("timestamp", "desc"), limit(10));
         
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
@@ -75,10 +63,12 @@ export default function DashboardPage() {
             setLastVisible(querySnapshot.docs[querySnapshot.docs.length - 1]);
             setHasMore(querySnapshot.docs.length === 10);
             if (updatesLoading) setUpdatesLoading(false);
+        }, (error) => {
+            console.error("Firestore error: ", error);
+            setUpdatesLoading(false);
         });
 
         return () => unsubscribe();
-        */
     }
   }, [isAuthenticated, updatesLoading]);
 
@@ -110,17 +100,6 @@ export default function DashboardPage() {
 
   
   const addReply = async (updateId: string, reply: DisasterUpdateReply) => {
-    // This function will need to be adapted if you want it to work with mock data
-    // For now, it will only work if you switch back to Firestore.
-    if (updateId.startsWith('mock-')) {
-        console.log("Replying to mock data (local state only):", { updateId, reply });
-        setUpdates(currentUpdates =>
-            currentUpdates.map(u =>
-                u.id === updateId ? { ...u, replies: [...u.replies, reply], status: 'Verified' } : u
-            )
-        );
-        return;
-    }
     const updateRef = doc(db, "disaster_updates", updateId);
     await updateDoc(updateRef, {
       replies: arrayUnion({ ...reply, timestamp: new Date().toISOString() }),
@@ -129,55 +108,12 @@ export default function DashboardPage() {
   };
 
   const deleteUpdate = async (updateId: string) => {
-     if (updateId.startsWith('mock-')) {
-        console.log("Deleting mock data (local state only):", { updateId });
-        setUpdates(currentUpdates => currentUpdates.filter(u => u.id !== updateId));
-        return;
-    }
     await deleteDoc(doc(db, "disaster_updates", updateId));
   };
   
   const handleInteraction = async (updateId: string, interactionType: 'like' | 'dislike') => {
     if (!user) return;
     const userId = user.uid;
-
-    if (updateId.startsWith('mock-')) {
-        console.log("Interacting with mock data (local state only):", { updateId, interactionType });
-        setUpdates(currentUpdates =>
-            currentUpdates.map(u => {
-                if (u.id === updateId) {
-                    const likedBy = u.likedBy || [];
-                    const dislikedBy = u.dislikedBy || [];
-                    
-                    const isLiked = likedBy.includes(userId);
-                    const isDisliked = dislikedBy.includes(userId);
-
-                    let newLikedBy = [...likedBy];
-                    let newDislikedBy = [...dislikedBy];
-
-                    if (interactionType === 'like') {
-                        if (isLiked) {
-                            newLikedBy = newLikedBy.filter(uid => uid !== userId);
-                        } else {
-                            newLikedBy.push(userId);
-                            if (isDisliked) newDislikedBy = newDislikedBy.filter(uid => uid !== userId);
-                        }
-                    } else { // dislike
-                        if (isDisliked) {
-                            newDislikedBy = newDislikedBy.filter(uid => uid !== userId);
-                        } else {
-                            newDislikedBy.push(userId);
-                            if (isLiked) newLikedBy = newLikedBy.filter(uid => uid !== userId);
-                        }
-                    }
-                    return { ...u, likedBy: newLikedBy, dislikedBy: newDislikedBy };
-                }
-                return u;
-            })
-        );
-        return;
-    }
-
 
     const updateRef = doc(db, "disaster_updates", updateId);
     
