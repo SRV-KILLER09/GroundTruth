@@ -108,8 +108,9 @@ export default function MapViewPage() {
 
         if (selectedUpdate) {
             const { latitude, longitude } = selectedUpdate.location;
+            const singleMarker = `marker=${latitude},${longitude}`;
             // Zoom level 14 is a good detailed view for a specific point
-            return `https://www.openstreetmap.org/export/embed.html?bbox=${longitude-0.01},${latitude-0.01},${longitude+0.01},${latitude+0.01}&layer=mapnik&${markers}`;
+            return `https://www.openstreetmap.org/export/embed.html?bbox=${longitude-0.01},${latitude-0.01},${longitude+0.01},${latitude+0.01}&layer=mapnik&${singleMarker}`;
         }
         
         if (filteredUpdates.length === 0) {
@@ -229,6 +230,7 @@ export default function MapViewPage() {
                                 <div className="space-y-1">
                                     <h4 className="text-sm font-semibold text-muted-foreground">Time</h4>
                                     <p className="text-lg font-mono">{format(new Date(currentReport.timestamp), "PPpp")}</p>
+
                                 </div>
                                 <div className="space-y-1">
                                     <h4 className="text-sm font-semibold text-muted-foreground">Status</h4>
