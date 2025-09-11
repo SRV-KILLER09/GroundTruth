@@ -18,7 +18,7 @@ import { collection, onSnapshot, query, orderBy, doc, updateDoc, arrayUnion, del
 
 
 export default function DashboardPage() {
-  const { user, isAuthenticated, loading, isAdmin } = useAuth();
+  const { user, isAuthenticated, loading, isAdmin, isAuthority } = useAuth();
   const { notifications } = useNotifications();
   const router = useRouter();
   const [updates, setUpdates] = useState<DisasterUpdate[]>([]);
@@ -100,18 +100,34 @@ export default function DashboardPage() {
 
   
   const addReply = async (updateId: string, reply: DisasterUpdateReply) => {
-    const updateRef = doc(db, "disaster_updates", updateId);
     
-    const updateData: { replies: any; status?: string } = {
-        replies: arrayUnion({ ...reply, timestamp: new Date().toISOString() })
-    };
+    // UI-only update for immediate feedback without backend call
+    setUpdates(prevUpdates => 
+      prevUpdates.map(update => {
+        if (update.id === updateId) {
+          const newReplies = [...update.replies, { ...reply, timestamp: new Date().toISOString() }];
+          const newStatus = isAdmin && !isAuthority ? 'Verified' : update.status;
+          return { ...update, replies: newReplies, status: newStatus };
+        }
+        return update;
+      })
+    );
 
-    // Only full admins can automatically verify a post upon replying.
-    if (isAdmin) {
+    // If the user is a full admin, still attempt the backend update
+    if (isAdmin && !isAuthority) {
+      try {
+        const updateRef = doc(db, "disaster_updates", updateId);
+        const updateData: { replies: any; status?: string } = {
+          replies: arrayUnion({ ...reply, timestamp: new Date().toISOString() })
+        };
         updateData.status = 'Verified';
+        await updateDoc(updateRef, updateData);
+      } catch (error) {
+        console.error("Error persisting reply to Firestore:", error);
+        // Optionally, add a toast message here to inform the admin if the save failed
+        // Note: The UI has already been updated optimistically.
+      }
     }
-
-    await updateDoc(updateRef, updateData);
   };
 
   const deleteUpdate = async (updateId: string) => {
