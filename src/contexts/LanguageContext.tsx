@@ -4,7 +4,7 @@
 import React, { createContext, useContext, useState, ReactNode, useCallback } from 'react';
 import { translations, TranslationKey } from '@/lib/translations';
 
-export type Language = 'en' | 'hi' | 'bn';
+export type Language = 'en' | 'hi' | 'bn' | 'ta' | 'te' | 'mr' | 'pa';
 
 interface LanguageContextType {
   language: Language;

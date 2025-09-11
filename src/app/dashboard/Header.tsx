@@ -108,6 +108,10 @@ export default function Header() {
               <DropdownMenuItem onSelect={() => handleLanguageChange("en", "English")}>English</DropdownMenuItem>
               <DropdownMenuItem onSelect={() => handleLanguageChange("hi", "Hindi")}>हिंदी (Hindi)</DropdownMenuItem>
               <DropdownMenuItem onSelect={() => handleLanguageChange("bn", "Bengali")}>বাংলা (Bengali)</DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => handleLanguageChange("ta", "Tamil")}>தமிழ் (Tamil)</DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => handleLanguageChange("te", "Telugu")}>తెలుగు (Telugu)</DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => handleLanguageChange("mr", "Marathi")}>मराठी (Marathi)</DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => handleLanguageChange("pa", "Punjabi")}>ਪੰਜਾਬੀ (Punjabi)</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
 
