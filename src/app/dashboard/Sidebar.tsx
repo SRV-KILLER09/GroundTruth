@@ -34,7 +34,7 @@ export default function Sidebar({ isMobile = false }: { isMobile?: boolean }) {
     <div className="flex flex-col h-full">
       <div className="flex items-center px-4 pt-5 pb-1">
         <Link
-            href="/dashboard/home"
+            href="/dashboard"
             className="group flex items-center gap-2 rounded-lg text-foreground w-full"
         >
             <Image src="https://picsum.photos/seed/newlogo/40/40" alt="GroundTruth™ Logo" width={40} height={40} className="rounded-full transition-all group-hover:scale-110" data-ai-hint="logo" />
