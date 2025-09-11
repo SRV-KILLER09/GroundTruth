@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import type { DisasterUpdate } from "@/lib/mock-data";
+import { mockDisasterUpdates } from "@/lib/mock-data";
 import { BarChart3, List, Flame, Droplets, Zap, Wind, AlertTriangle, User, Shield } from 'lucide-react';
 import { subDays, format, parseISO, differenceInDays, startOfDay } from 'date-fns';
 import { Button } from '@/components/ui/button';
@@ -42,6 +43,17 @@ export default function ReportsPage() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        // Use mock data
+        const mockDataWithIds = mockDisasterUpdates.map((update, index) => ({
+            ...update,
+            id: `mock-${index}`
+        })) as DisasterUpdate[];
+        
+        setAllUpdates(mockDataWithIds);
+        setLoading(false);
+
+        /*
+        // Original Firestore Logic
         // We fetch up to 100 recent documents for reporting purposes.
         // For very large datasets, a more advanced aggregation solution (e.g., Cloud Functions) would be needed.
         const q = query(collection(db, "disaster_updates"), orderBy("timestamp", "desc"), limit(100));
@@ -63,6 +75,7 @@ export default function ReportsPage() {
         });
 
         return () => unsubscribe();
+        */
     }, []);
 
     const liveUpdates = useMemo(() => {
@@ -258,7 +271,3 @@ export default function ReportsPage() {
         </div>
     );
 }
-
-    
-
-    

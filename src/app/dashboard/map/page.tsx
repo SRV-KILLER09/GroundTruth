@@ -3,7 +3,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Map, Flame, Droplets, Zap, Wind, AlertTriangle, Search, CheckCircle, HelpCircle, XCircle, Clock, User, Shield, MapPin, List, Eye } from "lucide-react";
-import { type DisasterUpdate, type DisasterStatus } from "@/lib/mock-data";
+import { type DisasterUpdate, type DisasterStatus, mockDisasterUpdates } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 import React, { useState, useMemo, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
@@ -53,6 +53,21 @@ export default function MapViewPage() {
     const [selectedUpdate, setSelectedUpdate] = useState<DisasterUpdate | null>(null);
     
     useEffect(() => {
+        // Use mock data
+        const mockDataWithIds = mockDisasterUpdates.map((update, index) => ({
+            ...update,
+            id: `mock-${index}`
+        })) as DisasterUpdate[];
+
+        setAllUpdates(mockDataWithIds);
+        if (loading) {
+            // Select the first report by default after initial load
+            setSelectedUpdate(mockDataWithIds[0] || null);
+        }
+        setLoading(false);
+
+        /*
+        // Original Firestore logic
         const q = query(collection(db, "disaster_updates"), orderBy("timestamp", "desc"));
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
             const updatesData: DisasterUpdate[] = [];
@@ -76,6 +91,7 @@ export default function MapViewPage() {
         });
 
         return () => unsubscribe();
+        */
     }, [loading]);
 
     const filteredUpdates = useMemo(() => {
