@@ -18,7 +18,7 @@ import { collection, onSnapshot, query, orderBy, doc, updateDoc, arrayUnion, del
 
 
 export default function DashboardPage() {
-  const { user, isAuthenticated, loading } = useAuth();
+  const { user, isAuthenticated, loading, isAdmin } = useAuth();
   const { notifications } = useNotifications();
   const router = useRouter();
   const [updates, setUpdates] = useState<DisasterUpdate[]>([]);
@@ -101,10 +101,17 @@ export default function DashboardPage() {
   
   const addReply = async (updateId: string, reply: DisasterUpdateReply) => {
     const updateRef = doc(db, "disaster_updates", updateId);
-    await updateDoc(updateRef, {
-      replies: arrayUnion({ ...reply, timestamp: new Date().toISOString() }),
-      status: 'Verified', 
-    });
+    
+    const updateData: { replies: any; status?: string } = {
+        replies: arrayUnion({ ...reply, timestamp: new Date().toISOString() })
+    };
+
+    // Only full admins can automatically verify a post upon replying.
+    if (isAdmin) {
+        updateData.status = 'Verified';
+    }
+
+    await updateDoc(updateRef, updateData);
   };
 
   const deleteUpdate = async (updateId: string) => {
