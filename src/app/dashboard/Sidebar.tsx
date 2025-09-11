@@ -46,7 +46,7 @@ export default function Sidebar({ isMobile = false }: { isMobile?: boolean }) {
             </div>
         </Link>
       </div>
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto sidebar-scroll">
         <nav className={cn("flex flex-col items-stretch gap-4 px-2 py-4")}>
         {navLinks.map((link) => {
             if (link.admin && !isAdmin) {
