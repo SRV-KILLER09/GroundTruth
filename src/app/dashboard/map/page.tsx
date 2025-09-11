@@ -86,10 +86,14 @@ export default function MapViewPage() {
     }, [searchTerm, allUpdates]);
 
     const mapUrl = useMemo(() => {
+        const markers = filteredUpdates
+          .map(update => `marker=${update.location.latitude},${update.location.longitude}`)
+          .join('&');
+
         if (selectedUpdate) {
             const { latitude, longitude } = selectedUpdate.location;
             // Zoom level 14 is a good detailed view for a specific point
-            return `https://www.openstreetmap.org/export/embed.html?bbox=${longitude-0.01},${latitude-0.01},${longitude+0.01},${latitude+0.01}&layer=mapnik&marker=${latitude},${longitude}`;
+            return `https://www.openstreetmap.org/export/embed.html?bbox=${longitude-0.01},${latitude-0.01},${longitude+0.01},${latitude+0.01}&layer=mapnik&${markers}`;
         }
         
         if (filteredUpdates.length === 0) {
@@ -97,9 +101,6 @@ export default function MapViewPage() {
         }
 
         const { minLat, maxLat, minLng, maxLng } = getMapBounds(filteredUpdates);
-        const markers = filteredUpdates
-          .map(update => `marker=${update.location.latitude},${update.location.longitude}`)
-          .join('&');
         
         const buffer = Math.max((maxLat - minLat) * 0.1, (maxLng - minLng) * 0.1, 0.1);
         
