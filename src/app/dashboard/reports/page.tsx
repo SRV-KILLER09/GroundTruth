@@ -79,7 +79,10 @@ export default function ReportsPage() {
     }, []);
 
     const liveUpdates = useMemo(() => {
-        return allUpdates.slice(0, 5);
+        // Sort by timestamp to get the most recent ones for the live feed table
+        return [...allUpdates]
+            .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+            .slice(0, 5);
     }, [allUpdates]);
     
 
@@ -115,7 +118,7 @@ export default function ReportsPage() {
                 const disasterType = update.disasterType;
 
                 if (['Flood', 'Fire', 'Earthquake', 'Hurricane'].includes(disasterType)) {
-                    dayData[disasterType as keyof typeof dayData] = (dayData[disasterType as keyof typeof dayData] || 0) + 1;
+                    dayData[disasterType as keyof typeof dayData] = (dayData[disasterType as keyof dayData] || 0) + 1;
                 } else {
                     dayData['Other'] = (dayData['Other'] || 0) + 1;
                 }
@@ -271,3 +274,5 @@ export default function ReportsPage() {
         </div>
     );
 }
+
+    
