@@ -63,6 +63,11 @@ export const translations: Translations = {
         hi: "सुरक्षा संसाधन",
         bn: "নিরাপত্তা সম্পদ"
     },
+    testimonials: {
+        en: "Testimonials",
+        hi: "प्रशंसापत्र",
+        bn: "প্রশংসাপত্র"
+    },
     aboutUs: {
         en: "About Us",
         hi: "हमारे बारे में",
