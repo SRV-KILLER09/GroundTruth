@@ -17,9 +17,15 @@ interface User {
   photoURL: string | null;
 }
 
+const authorityEmails = ['concernedauthority@gmail.com'];
+const adminEmails = ['vardaansaxena096@gmail.com', 'saranshwadhwa0102@gmail.com', ...authorityEmails];
+
+
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
+  isAdmin: boolean;
+  isAuthority: boolean;
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string, username: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
@@ -32,6 +38,8 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAuthority, setIsAuthority] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
 
@@ -43,8 +51,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const userDoc = await getDoc(userDocRef);
           
           if (!userDoc.exists()) {
-             // This can happen if a user signs in with Google for the first time
-             // or if their user document was somehow deleted.
              await setDoc(userDocRef, {
                 displayName: firebaseUser.displayName,
                 email: firebaseUser.email,
@@ -53,21 +59,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
              });
           }
 
-          setUser({
+          const currentUser = {
             uid: firebaseUser.uid,
             displayName: firebaseUser.displayName,
             email: firebaseUser.email,
             photoURL: firebaseUser.photoURL,
-          });
+          };
+          setUser(currentUser);
+          const userIsAdmin = !!firebaseUser.email && adminEmails.includes(firebaseUser.email);
+          const userIsAuthority = !!firebaseUser.email && authorityEmails.includes(firebaseUser.email);
+          setIsAdmin(userIsAdmin);
+          setIsAuthority(userIsAuthority);
+
         } else {
           setUser(null);
+          setIsAdmin(false);
+          setIsAuthority(false);
         }
       } catch (error: any) {
          if (error.code === 'permission-denied') {
             toast({
                 variant: "destructive",
                 title: "Database Permission Error",
-                description: "Your app does not have permission to access Firestore. Please update your security rules. If you are an admin, see the Admin Panel for the correct rules.",
+                description: "Your app does not have permission to access Firestore. Please update your security rules.",
                 duration: 10000,
             });
             console.error("Firestore Permission Denied:", error);
@@ -209,7 +223,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, isAuthenticated: !!user, login, signup, signInWithGoogle, logout, loading }}
+      value={{ user, isAuthenticated: !!user, isAdmin, isAuthority, login, signup, signInWithGoogle, logout, loading }}
     >
       {children}
     </AuthContext.Provider>

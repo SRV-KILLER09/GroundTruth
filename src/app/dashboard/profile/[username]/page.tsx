@@ -11,7 +11,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { db, updateUserAvatarInFirestore } from "@/lib/firebase";
-import { collection, query, where, onSnapshot, orderBy, doc, updateDoc, arrayUnion, deleteDoc, increment, addDoc, serverTimestamp } from "firebase/firestore";
+import { collection, query, where, onSnapshot, orderBy, doc, updateDoc, arrayUnion, deleteDoc, increment, addDoc, serverTimestamp, getDocs } from "firebase/firestore";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { mockUserActivity } from "@/lib/mock-data";
 import { useToast } from "@/hooks/use-toast";
@@ -21,7 +21,7 @@ import { auth } from "@/lib/firebase";
 export default function UserProfilePage() {
   const params = useParams();
   const router = useRouter();
-  const { user: currentUser } = useAuth();
+  const { user: currentUser, isAdmin } = useAuth();
   const { toast } = useToast();
   const username = params.username as string;
   
@@ -29,8 +29,6 @@ export default function UserProfilePage() {
   const [loading, setLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<any | null>(null);
 
-  const adminEmails = ['vardaansaxena096@gmail.com'];
-  const isAdmin = currentUser?.email ? adminEmails.includes(currentUser.email) : false;
   const isOwnProfile = currentUser?.displayName?.toLowerCase() === username?.toLowerCase();
 
   useEffect(() => {

@@ -11,25 +11,23 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Sidebar({ isMobile = false }: { isMobile?: boolean }) {
   const pathname = usePathname();
-  const { user } = useAuth();
+  const { user, isAdmin, isAuthority } = useAuth();
   const { t } = useLanguage();
-  const adminEmails = ['vardaansaxena096@gmail.com', 'saranshwadhwa0102@gmail.com'];
-  const isAdmin = user?.email ? adminEmails.includes(user.email) : false;
 
   const navLinks = [
-    { href: "/dashboard", labelKey: "liveFeed", icon: <Tv className="h-5 w-5" />, admin: false },
-    { href: "/dashboard/chat", labelKey: "communityChat", icon: <MessageSquare className="h-5 w-5" />, admin: false },
-    { href: "/dashboard/dm", labelKey: "directMessages", icon: <Mail className="h-5 w-5" />, admin: false },
-    { href: "/dashboard/notifications", labelKey: "notifications", icon: <Bell className="h-5 w-5" />, admin: false },
-    { href: "/dashboard/map", labelKey: "mapView", icon: <Map className="h-5 w-5" />, admin: false },
-    { href: "/dashboard/reports", labelKey: "reports", icon: <BarChart3 className="h-5 w-5" />, admin: false },
-    { href: "/dashboard/news", labelKey: "news", icon: <Rss className="h-5 w-5" />, admin: false },
-    { href: "/dashboard/directory", labelKey: "directory", icon: <Shield className="h-5 w-5" />, admin: false },
-    { href: "/dashboard/updates", labelKey: "userActivity", icon: <Users className="h-5 w-5" />, admin: true },
-    { href: "/dashboard/broadcast", labelKey: "broadcast", icon: <Megaphone className="h-5 w-5" />, admin: true },
-    { href: "/dashboard/resources", labelKey: "safetyResources", icon: <LifeBuoy className="h-5 w-5" />, admin: false },
-    { href: "/dashboard/testimonials", labelKey: "testimonials", icon: <Quote className="h-5 w-5" />, admin: false },
-    { href: "/dashboard/home", labelKey: "aboutUs", icon: <Info className="h-5 w-5" />, admin: false },
+    { href: "/dashboard", labelKey: "liveFeed", icon: <Tv className="h-5 w-5" />, requiresAuth: true },
+    { href: "/dashboard/chat", labelKey: "communityChat", icon: <MessageSquare className="h-5 w-5" />, requiresAuth: true, authorityOnly: false },
+    { href: "/dashboard/dm", labelKey: "directMessages", icon: <Mail className="h-5 w-5" />, requiresAuth: true, authorityOnly: false },
+    { href: "/dashboard/notifications", labelKey: "notifications", icon: <Bell className="h-5 w-5" />, requiresAuth: true },
+    { href: "/dashboard/map", labelKey: "mapView", icon: <Map className="h-5 w-5" />, requiresAuth: true },
+    { href: "/dashboard/reports", labelKey: "reports", icon: <BarChart3 className="h-5 w-5" />, requiresAuth: true },
+    { href: "/dashboard/news", labelKey: "news", icon: <Rss className="h-5 w-5" />, requiresAuth: true, authorityOnly: false },
+    { href: "/dashboard/directory", labelKey: "directory", icon: <Shield className="h-5 w-5" />, requiresAuth: true, authorityOnly: false },
+    { href: "/dashboard/updates", labelKey: "userActivity", icon: <Users className="h-5 w-5" />, requiresAuth: true, adminOnly: true },
+    { href: "/dashboard/broadcast", labelKey: "broadcast", icon: <Megaphone className="h-5 w-5" />, requiresAuth: true, adminOnly: true },
+    { href: "/dashboard/resources", labelKey: "safetyResources", icon: <LifeBuoy className="h-5 w-5" />, requiresAuth: true, authorityOnly: false },
+    { href: "/dashboard/testimonials", labelKey: "testimonials", icon: <Quote className="h-5 w-5" />, requiresAuth: true, authorityOnly: false },
+    { href: "/dashboard/home", labelKey: "aboutUs", icon: <Info className="h-5 w-5" />, requiresAuth: true, authorityOnly: false },
   ];
 
   const NavContent = () => (
@@ -49,9 +47,9 @@ export default function Sidebar({ isMobile = false }: { isMobile?: boolean }) {
       <div className="flex-1 overflow-y-auto sidebar-scroll">
         <nav className={cn("flex flex-col items-stretch gap-4 px-2 py-4")}>
         {navLinks.map((link) => {
-            if (link.admin && !isAdmin) {
-            return null;
-            }
+            if (link.adminOnly && (!isAdmin || isAuthority) ) return null;
+            if (link.authorityOnly === false && isAuthority) return null;
+
             const isActive = pathname === link.href || (link.href === "/dashboard" && pathname.startsWith("/dashboard/profile"));
             return (
             <Link

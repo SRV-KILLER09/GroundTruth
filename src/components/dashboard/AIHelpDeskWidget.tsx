@@ -22,7 +22,7 @@ interface ChatMessage {
 type ChatbotStatus = 'online' | 'offline' | 'restarting';
 
 export default function AIHelpDeskWidget() {
-    const { user } = useAuth();
+    const { user, isAdmin } = useAuth();
     const { toast } = useToast();
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [newMessage, setNewMessage] = useState('');
@@ -36,9 +36,6 @@ export default function AIHelpDeskWidget() {
     const [isTranscribing, setIsTranscribing] = useState(false);
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const audioChunksRef = useRef<Blob[]>([]);
-
-    const adminEmails = ['vardaansaxena096@gmail.com', 'saranshwadhwa0102@gmail.com'];
-    const isAdmin = user?.email ? adminEmails.includes(user.email) : false;
 
     useEffect(() => {
         if (isOpen) {
@@ -295,5 +292,3 @@ export default function AIHelpDeskWidget() {
         </Popover>
     );
 }
-
-    

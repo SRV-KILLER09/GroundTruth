@@ -27,16 +27,14 @@ interface ChatMessage {
 }
 
 export default function ChatPage() {
-    const { user, loading: authLoading } = useAuth();
+    const { user, isAdmin, loading: authLoading } = useAuth();
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [newMessage, setNewMessage] = useState('');
     const [isSending, setIsSending] = useState(false);
     const [messagesLoading, setMessagesLoading] = useState(true);
     const { toast } = useToast();
     const messagesEndRef = useRef<HTMLDivElement>(null);
-    const adminEmails = ['vardaansaxena096@gmail.com', 'saranshwadhwa0102@gmail.com'];
-    const isAdmin = user?.email ? adminEmails.includes(user.email) : false;
-
+    
     useEffect(() => {
         const q = query(collection(db, "chat_messages"), orderBy("timestamp", "asc"));
         const unsubscribe = onSnapshot(q, (querySnapshot) => {

@@ -50,7 +50,7 @@ const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => 
 };
 
 export function UpdatesFeed({ allUpdates, onReply, onDelete, onInteraction, loadMore, hasMore }: UpdatesFeedProps) {
-    const { user } = useAuth();
+    const { user, isAdmin, isAuthority } = useAuth();
     const [filteredUpdates, setFilteredUpdates] = React.useState<DisasterUpdate[]>(allUpdates);
     const [activeDisasterType, setActiveDisasterType] = React.useState<DisasterType>('All');
     const [activeStatusFilter, setActiveStatusFilter] = React.useState<DisasterStatus | 'All'>('All');
@@ -60,9 +60,6 @@ export function UpdatesFeed({ allUpdates, onReply, onDelete, onInteraction, load
     const [isLocating, setIsLocating] = React.useState(false);
     const [citySearch, setCitySearch] = React.useState("");
     const { toast } = useToast();
-
-    const adminEmails = ['vardaansaxena096@gmail.com'];
-    const isAdmin = user?.email ? adminEmails.includes(user.email) : false;
 
     const handleSortChange = (value: SortOrder) => {
         if (value === 'closest' && !userLocation) {
@@ -176,7 +173,7 @@ export function UpdatesFeed({ allUpdates, onReply, onDelete, onInteraction, load
             <div className="flex justify-between items-center mb-4 flex-wrap gap-4">
                 <h1 className="text-3xl font-bold font-headline">Live Feed</h1>
                 <div className="flex items-center gap-2">
-                    {isAdmin && (
+                    {isAdmin && !isAuthority && (
                         <>
                             <Button asChild variant="outline">
                                 <Link href="/dashboard/notifications">
@@ -192,23 +189,25 @@ export function UpdatesFeed({ allUpdates, onReply, onDelete, onInteraction, load
                             </Button>
                         </>
                     )}
-                    <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-                        <SheetTrigger asChild>
-                            <Button>
-                                <PlusCircle className="mr-2 h-4 w-4" />
-                                New Report
-                            </Button>
-                        </SheetTrigger>
-                        <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
-                            <SheetHeader className="mb-4">
-                                <SheetTitle>Submit a New Disaster Report</SheetTitle>
-                                <SheetDescription>
-                                    Help your community by providing real-time information. Your report will automatically alert the correct authorities.
-                                </SheetDescription>
-                            </SheetHeader>
-                            <SubmitUpdateForm onSuccessfulSubmit={handleSuccessfulSubmit} />
-                        </SheetContent>
-                    </Sheet>
+                    {!isAuthority && (
+                        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+                            <SheetTrigger asChild>
+                                <Button>
+                                    <PlusCircle className="mr-2 h-4 w-4" />
+                                    New Report
+                                </Button>
+                            </SheetTrigger>
+                            <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
+                                <SheetHeader className="mb-4">
+                                    <SheetTitle>Submit a New Disaster Report</SheetTitle>
+                                    <SheetDescription>
+                                        Help your community by providing real-time information. Your report will automatically alert the correct authorities.
+                                    </SheetDescription>
+                                </SheetHeader>
+                                <SubmitUpdateForm onSuccessfulSubmit={handleSuccessfulSubmit} />
+                            </SheetContent>
+                        </Sheet>
+                    )}
                 </div>
             </div>
 

@@ -18,13 +18,11 @@ import { cn } from "@/lib/utils";
 const availableReactions = ['👍', '❤️', '😂', '😮', '😢', '🙏'];
 
 export default function NotificationsPage() {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const { toast } = useToast();
   const { notifications, addNotification, deleteNotification, addReaction } = useNotifications();
   const [newNotification, setNewNotification] = useState("");
-  const adminEmails = ['vardaansaxena096@gmail.com'];
-  const isAdmin = user?.email ? adminEmails.includes(user.email) : false;
-
+  
   const handlePostNotification = () => {
     if (newNotification.trim() && isAdmin) {
       addNotification(newNotification);

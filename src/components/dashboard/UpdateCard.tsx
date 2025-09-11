@@ -44,7 +44,7 @@ const statusConfig = {
 const DefaultIcon = <AlertTriangle className="h-4 w-4 text-muted-foreground" />;
 
 export function UpdateCard({ update, onReply, onDelete, onInteraction }: UpdateCardProps) {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const { toast } = useToast();
   const [replyText, setReplyText] = useState("");
   const [isDispatching, setIsDispatching] = useState(false);
@@ -70,8 +70,6 @@ export function UpdateCard({ update, onReply, onDelete, onInteraction }: UpdateC
     setDislikeCount(update.dislikedBy?.length || 0);
   }, [update.likedBy, update.dislikedBy, user]);
 
-  const adminEmails = ['vardaansaxena096@gmail.com', 'saranshwadhwa0102@gmail.com'];
-  const isAdmin = user?.email ? adminEmails.includes(user.email) : false;
   const isAuthor = user?.uid === update.user.uid;
   const honorScore = 100; // Placeholder
 
@@ -398,5 +396,3 @@ export function UpdateCard({ update, onReply, onDelete, onInteraction }: UpdateC
     </>
   );
 }
-
-    
