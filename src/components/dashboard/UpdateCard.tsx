@@ -305,8 +305,8 @@ export function UpdateCard({ update, onReply, onDelete, onInteraction }: UpdateC
         </div>
       </CardHeader>
       <CardContent className="p-4 pt-0">
-        <p className="mb-4 text-foreground/90">{update.message}</p>
         <MediaDisplay />
+        <p className="mb-4 text-foreground/90">{update.message}</p>
         {update.history && update.history.length > 1 && (
           <Collapsible className="mb-4">
             <CollapsibleTrigger asChild>
@@ -398,5 +398,3 @@ export function UpdateCard({ update, onReply, onDelete, onInteraction }: UpdateC
     </>
   );
 }
-
-    

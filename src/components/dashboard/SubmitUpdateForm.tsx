@@ -15,10 +15,11 @@ import { Loader2, MapPin, Mic, FileText, Video, StopCircle, CheckCircle, AlertCi
 import { useToast } from "@/hooks/use-toast";
 import { db, storage } from "@/lib/firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { ref, uploadString, getDownloadURL } from "firebase/storage";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { VideoRecorder } from "./VideoRecorder";
 import { transcribeAudio } from "@/ai/flows/speech-to-text-flow";
+import { generateDisasterImage } from "@/ai/flows/generate-disaster-image";
 
 
 const formSchema = z.object({
@@ -195,15 +196,27 @@ export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) 
     let mediaType: 'image' | 'audio' | 'video' | null = null;
 
     try {
-        if (mediaFile && inputMode === 'video') {
-            toast({ title: "Uploading Media...", description: "Please wait while we upload your file."});
-            const fileType = mediaFile.type.split('/')[0] as 'image' | 'audio' | 'video';
-            mediaType = fileType;
-            
-            const storageRef = ref(storage, `${mediaType}s/${user.uid}/${Date.now()}-${mediaFile.name}`);
-            const uploadResult = await uploadBytes(storageRef, mediaFile);
-            mediaUrl = await getDownloadURL(uploadResult.ref);
-        }
+      if (inputMode === 'text' || inputMode === 'voice') {
+        mediaType = 'image';
+        toast({ title: "Generating AI Image...", description: "Please wait while our AI creates an image for your report." });
+        const imageResult = await generateDisasterImage({ prompt: `${disasterType} at ${values.locationName}: ${values.message}`});
+        
+        toast({ title: "Uploading Image...", description: "Saving the generated image to storage."});
+        const storageRef = ref(storage, `images/${user.uid}/${Date.now()}-ai.png`);
+        // The data URI needs the prefix removed before uploading
+        const uploadResult = await uploadString(storageRef, imageResult.imageDataUri.split(',')[1], 'base64', { contentType: 'image/png'});
+        mediaUrl = await getDownloadURL(uploadResult.ref);
+
+      } else if (mediaFile && inputMode === 'video') {
+          // This logic for video upload is preserved.
+          toast({ title: "Uploading Media...", description: "Please wait while we upload your file."});
+          const fileType = mediaFile.type.split('/')[0] as 'image' | 'audio' | 'video';
+          mediaType = fileType;
+          
+          const storageRef = ref(storage, `${mediaType}s/${user.uid}/${Date.now()}-${mediaFile.name}`);
+          const uploadResult = await uploadBytes(storageRef, mediaFile);
+          mediaUrl = await getDownloadURL(uploadResult.ref);
+      }
 
         await addDoc(collection(db, "disaster_updates"), {
             user: {
@@ -272,7 +285,7 @@ export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) 
                         <FormItem>
                         <FormLabel>Update Message</FormLabel>
                         <FormControl>
-                            <Textarea rows={5} placeholder="Provide a detailed update on the situation..." {...field} disabled={isSubmitting}/>
+                            <Textarea rows={5} placeholder="Provide a detailed update on the situation... An AI image will be generated from this description." {...field} disabled={isSubmitting}/>
                         </FormControl>
                         <FormMessage />
                         </FormItem>
@@ -282,7 +295,7 @@ export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) 
              <TabsContent value="voice" className="pt-4 space-y-4">
                 <div className="flex flex-col items-center justify-center gap-4 p-4 border rounded-lg bg-muted">
                      <p className="text-sm text-center text-muted-foreground">
-                        Click to record your voice. It will be transcribed into the message field.
+                        Click to record your voice. It will be transcribed into the message field, and an AI image will be generated from it.
                      </p>
                     <Button 
                         type="button"
