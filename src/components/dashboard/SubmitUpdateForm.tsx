@@ -19,7 +19,6 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { VideoRecorder } from "./VideoRecorder";
 import { transcribeAudio } from "@/ai/flows/speech-to-text-flow";
-import { generateDisasterImage } from "@/ai/flows/generate-disaster-image";
 
 
 const formSchema = z.object({
@@ -45,6 +44,15 @@ type InputMode = 'text' | 'voice' | 'video';
 interface SubmitUpdateFormProps {
     onSuccessfulSubmit: () => void;
 }
+
+const disasterImageMap: Record<string, string> = {
+    'Flood': 'https://picsum.photos/seed/flood-report/600/400',
+    'Earthquake': 'https://picsum.photos/seed/earthquake-report/600/400',
+    'Fire': 'https://picsum.photos/seed/fire-report/600/400',
+    'Hurricane': 'https://picsum.photos/seed/hurricane-report/600/400',
+    'Other': 'https://picsum.photos/seed/other-report/600/400',
+    'Default': 'https://picsum.photos/seed/disaster-report/600/400',
+};
 
 export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) {
   const { user } = useAuth();
@@ -196,14 +204,15 @@ export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) 
     let mediaType: 'image' | 'audio' | 'video' | null = null;
 
     try {
-      if (mediaFile && inputMode === 'video') {
+      if (inputMode === 'video' && mediaFile) {
           toast({ title: "Uploading Media...", description: "Please wait while we upload your file."});
-          const fileType = mediaFile.type.split('/')[0] as 'image' | 'audio' | 'video';
-          mediaType = fileType;
-          
+          mediaType = 'video';
           const storageRef = ref(storage, `${mediaType}s/${user.uid}/${Date.now()}-${mediaFile.name}`);
           const uploadResult = await uploadBytes(storageRef, mediaFile);
           mediaUrl = await getDownloadURL(uploadResult.ref);
+      } else if (inputMode === 'text' || inputMode === 'voice') {
+          mediaType = 'image';
+          mediaUrl = disasterImageMap[values.disasterType] || disasterImageMap['Default'];
       }
 
         await addDoc(collection(db, "disaster_updates"), {
@@ -408,5 +417,3 @@ export function SubmitUpdateForm({ onSuccessfulSubmit }: SubmitUpdateFormProps) 
     </Form>
   );
 }
-
-    

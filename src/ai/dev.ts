@@ -7,5 +7,5 @@ import '@/ai/flows/generate-safety-checklist.ts';
 import '@/ai/flows/send-welcome-email.ts';
 import '@/ai/flows/ai-helpdesk-flow.ts';
 import '@/ai/flows/speech-to-text-flow.ts';
-import '@/ai/flows/generate-disaster-image.ts';
+
 
