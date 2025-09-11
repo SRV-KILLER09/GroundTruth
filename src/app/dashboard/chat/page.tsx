@@ -34,7 +34,7 @@ export default function ChatPage() {
     const [messagesLoading, setMessagesLoading] = useState(true);
     const { toast } = useToast();
     const messagesEndRef = useRef<HTMLDivElement>(null);
-    const adminEmails = ['vardaansaxena096@gmail.com'];
+    const adminEmails = ['vardaansaxena096@gmail.com', 'saranshwadhwa0102@gmail.com'];
     const isAdmin = user?.email ? adminEmails.includes(user.email) : false;
 
     useEffect(() => {
@@ -136,7 +136,7 @@ export default function ChatPage() {
                                     </Avatar>
                                 )}
                                 <div className="flex items-center gap-2">
-                                     {isAdmin && !isCurrentUser && (
+                                     {isAdmin && (
                                         <AlertDialog>
                                             <AlertDialogTrigger asChild>
                                                 <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity">
@@ -168,29 +168,6 @@ export default function ChatPage() {
                                             </p>
                                         )}
                                     </div>
-                                    {isAdmin && isCurrentUser && (
-                                         <AlertDialog>
-                                            <AlertDialogTrigger asChild>
-                                                <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
-                                            </AlertDialogTrigger>
-                                            <AlertDialogContent>
-                                                <AlertDialogHeader>
-                                                    <AlertDialogTitle>Delete this message?</AlertDialogTitle>
-                                                    <AlertDialogDescription>
-                                                        Are you sure you want to delete your message? This action cannot be undone.
-                                                    </AlertDialogDescription>
-                                                </AlertDialogHeader>
-                                                <AlertDialogFooter>
-                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                    <AlertDialogAction onClick={() => handleDeleteMessage(msg.id)} className="bg-destructive hover:bg-destructive/90">
-                                                        Delete Message
-                                                    </AlertDialogAction>
-                                                </AlertDialogFooter>
-                                            </AlertDialogContent>
-                                        </AlertDialog>
-                                    )}
                                 </div>
                                 {isCurrentUser && (
                                     <Avatar className="h-10 w-10">
