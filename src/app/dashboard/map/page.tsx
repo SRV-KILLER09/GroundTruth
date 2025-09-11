@@ -86,10 +86,6 @@ export default function MapViewPage() {
     }, [searchTerm, allUpdates]);
 
     const mapUrl = useMemo(() => {
-        const markers = filteredUpdates
-          .map(update => `marker=${update.location.latitude},${update.location.longitude}`)
-          .join('&');
-
         if (selectedUpdate) {
             const { latitude, longitude } = selectedUpdate.location;
             const singleMarker = `marker=${latitude},${longitude}`;
@@ -97,6 +93,10 @@ export default function MapViewPage() {
             return `https://www.openstreetmap.org/export/embed.html?bbox=${longitude-0.01},${latitude-0.01},${longitude+0.01},${latitude+0.01}&layer=mapnik&${singleMarker}`;
         }
         
+        const markers = filteredUpdates
+          .map(update => `marker=${update.location.latitude},${update.location.longitude}`)
+          .join('&');
+
         if (filteredUpdates.length === 0) {
             return `https://www.openstreetmap.org/export/embed.html?bbox=68.1,6.5,97.4,35.5&layer=mapnik`;
         }
@@ -234,4 +234,5 @@ export default function MapViewPage() {
             </Card>
         </div>
     );
-}
+
+    
