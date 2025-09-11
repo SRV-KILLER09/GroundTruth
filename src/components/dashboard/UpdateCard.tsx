@@ -44,7 +44,7 @@ const statusConfig = {
 const DefaultIcon = <AlertTriangle className="h-4 w-4 text-muted-foreground" />;
 
 export function UpdateCard({ update, onReply, onDelete, onInteraction }: UpdateCardProps) {
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, isAuthority } = useAuth();
   const { toast } = useToast();
   const [replyText, setReplyText] = useState("");
   const [isDispatching, setIsDispatching] = useState(false);
@@ -74,9 +74,9 @@ export function UpdateCard({ update, onReply, onDelete, onInteraction }: UpdateC
   const honorScore = 100; // Placeholder
 
   const handleReplySubmit = () => {
-    if (replyText.trim() && isAdmin && update.id) {
+    if (replyText.trim() && (isAdmin || isAuthority) && update.id && user?.displayName) {
       const newReply: DisasterUpdateReply = {
-        author: 'Admin',
+        author: user.displayName,
         message: replyText,
         timestamp: new Date().toISOString()
       };
@@ -180,7 +180,7 @@ export function UpdateCard({ update, onReply, onDelete, onInteraction }: UpdateC
     switch (update.mediaType) {
         case 'video':
             return (
-                <video ref={videoRef} className="w-full aspect-video rounded-lg mb-4 bg-black" controls>
+                <video ref={videoRef} className="w-full aspect-video rounded-lg bg-black" controls>
                     <source src={update.mediaUrl} type="video/mp4" />
                     Your browser does not support the video tag.
                 </video>
@@ -203,7 +203,7 @@ export function UpdateCard({ update, onReply, onDelete, onInteraction }: UpdateC
         case 'image':
         default:
              return (
-                <div className="relative aspect-video w-full overflow-hidden rounded-lg mb-4">
+                <div className="relative aspect-video w-full overflow-hidden rounded-lg">
                     <Image 
                         src={update.mediaUrl} 
                         alt={`Update from ${update.user.name}`} 
@@ -342,7 +342,7 @@ export function UpdateCard({ update, onReply, onDelete, onInteraction }: UpdateC
           ))}
         </div>
 
-        {isAdmin && (
+        {(isAdmin || isAuthority) && (
             <div className="mt-4 flex flex-col gap-4">
               <div className="flex items-start gap-4">
                   <div className="flex-1 space-y-2">
@@ -362,16 +362,18 @@ export function UpdateCard({ update, onReply, onDelete, onInteraction }: UpdateC
                       Dispatch Alert
                   </Button>
               </div>
-              <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" onClick={() => handleFlagStatus('Fake')}>
-                    <Ban className="mr-2 h-4 w-4" />
-                    Flag as Fake
-                  </Button>
-                   <Button variant="outline" size="sm" onClick={() => handleFlagStatus('Verified')}>
-                    <CheckCircle className="mr-2 h-4 w-4" />
-                    Mark as Verified
-                  </Button>
-              </div>
+              {isAdmin && (
+                <div className="flex items-center gap-2">
+                    <Button variant="outline" size="sm" onClick={() => handleFlagStatus('Fake')}>
+                        <Ban className="mr-2 h-4 w-4" />
+                        Flag as Fake
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => handleFlagStatus('Verified')}>
+                        <CheckCircle className="mr-2 h-4 w-4" />
+                        Mark as Verified
+                    </Button>
+                </div>
+              )}
             </div>
         )}
       </CardContent>

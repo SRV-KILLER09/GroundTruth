@@ -18,7 +18,7 @@ interface User {
 }
 
 const authorityEmails = ['concernedauthority@gmail.com'];
-const adminEmails = ['vardaansaxena096@gmail.com', 'saranshwadhwa0102@gmail.com', ...authorityEmails];
+const adminEmails = ['vardaansaxena096@gmail.com', 'saranshwadhwa0102@gmail.com'];
 
 
 interface AuthContextType {
