@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { DisasterUpdate, DisasterUpdateReply } from "@/lib/mock-data";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -11,7 +11,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { db, updateUserAvatarInFirestore } from "@/lib/firebase";
-import { collection, query, where, onSnapshot, orderBy, doc, updateDoc, arrayUnion, deleteDoc, increment } from "firebase/firestore";
+import { collection, query, where, onSnapshot, orderBy, doc, updateDoc, arrayUnion, deleteDoc, increment, addDoc, serverTimestamp } from "firebase/firestore";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { mockUserActivity } from "@/lib/mock-data";
 import { useToast } from "@/hooks/use-toast";
@@ -20,6 +20,7 @@ import { auth } from "@/lib/firebase";
 
 export default function UserProfilePage() {
   const params = useParams();
+  const router = useRouter();
   const { user: currentUser } = useAuth();
   const { toast } = useToast();
   const username = params.username as string;
@@ -42,6 +43,21 @@ export default function UserProfilePage() {
 
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
             const updatesData: DisasterUpdate[] = [];
+            if (querySnapshot.empty && !userProfile) {
+                // If there are no posts, we need another way to get user data.
+                // We can query the 'users' collection.
+                const usersQuery = query(collection(db, "users"), where("username", "==", username.toLowerCase()));
+                getDocs(usersQuery).then(userSnapshot => {
+                    if (!userSnapshot.empty) {
+                        const userData = userSnapshot.docs[0].data();
+                        setUserProfile({
+                            name: userData.username,
+                            username: userData.username,
+                            avatarUrl: userData.photoURL
+                        });
+                    }
+                });
+            }
             querySnapshot.forEach((doc) => {
                 const data = doc.data();
                 if (!userProfile) {
@@ -84,20 +100,28 @@ export default function UserProfilePage() {
       });
   }
 
+  const handleStartDirectMessage = async () => {
+    // This is a placeholder for the real implementation
+    toast({
+      title: "Coming Soon!",
+      description: "Direct messaging will be implemented in a future update."
+    });
+  }
+
 
   if (loading) {
       return <LoadingSpinner />;
   }
 
-  if (!loading && updates.length === 0 && !userProfile) {
+  if (!loading && !userProfile) {
     return (
        <div className="w-full max-w-4xl mx-auto text-center">
              <Card>
                 <CardHeader>
-                    <CardTitle>User Not Found or No Posts</CardTitle>
+                    <CardTitle>User Not Found</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p>The user profile you are looking for does not exist or has not posted any updates.</p>
+                    <p>The user profile you are looking for does not exist.</p>
                 </CardContent>
             </Card>
         </div>
@@ -138,7 +162,7 @@ export default function UserProfilePage() {
                 <span className="font-medium text-sm">Honor Score</span>
               </div>
               {!isOwnProfile && (
-                <Button>
+                <Button onClick={handleStartDirectMessage}>
                   <Mail className="mr-2 h-4 w-4" />
                   Direct Message
                 </Button>

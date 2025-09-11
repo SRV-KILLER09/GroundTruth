@@ -23,6 +23,11 @@ export const translations: Translations = {
         hi: "एआई हेल्पडेस्क",
         bn: "এআই হেল্পডেস্ক"
     },
+    directMessages: {
+        en: "Direct Messages",
+        hi: "डायरेक्ट मैसेज",
+        bn: "সরাসরি বার্তা"
+    },
     notifications: {
         en: "Notifications",
         hi: "सूचनाएं",

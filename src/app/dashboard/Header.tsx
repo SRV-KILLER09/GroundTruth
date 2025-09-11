@@ -21,6 +21,7 @@ import { updateProfile } from "firebase/auth";
 import { useState } from "react";
 import { useLanguage, type Language } from "@/contexts/LanguageContext";
 import { UserSearch } from "@/components/dashboard/UserSearch";
+import Link from "next/link";
 
 
 export default function Header() {
@@ -85,9 +86,11 @@ export default function Header() {
       </Sheet>
       
       <div className="flex items-center gap-4 ml-auto">
-        <Button variant="outline" size="icon">
-            <Mail className="h-5 w-5"/>
-            <span className="sr-only">Direct Messages</span>
+        <Button variant="outline" size="icon" asChild>
+            <Link href="/dashboard/dm">
+              <Mail className="h-5 w-5"/>
+              <span className="sr-only">Direct Messages</span>
+            </Link>
         </Button>
 
         <UserSearch />

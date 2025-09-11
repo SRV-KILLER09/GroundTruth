@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Mountain, Home, Map, LifeBuoy, BarChart3, Shield, Rss, Tv, MessageSquare, Info, Users, Bell, Megaphone, Bot, Quote } from "lucide-react";
+import { Mountain, Home, Map, LifeBuoy, BarChart3, Shield, Rss, Tv, MessageSquare, Info, Users, Bell, Megaphone, Bot, Quote, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import Image from "next/image";
@@ -19,6 +19,7 @@ export default function Sidebar({ isMobile = false }: { isMobile?: boolean }) {
   const navLinks = [
     { href: "/dashboard", labelKey: "liveFeed", icon: <Tv className="h-5 w-5" />, admin: false },
     { href: "/dashboard/chat", labelKey: "communityChat", icon: <MessageSquare className="h-5 w-5" />, admin: false },
+    { href: "/dashboard/dm", labelKey: "directMessages", icon: <Mail className="h-5 w-5" />, admin: false },
     { href: "/dashboard/notifications", labelKey: "notifications", icon: <Bell className="h-5 w-5" />, admin: false },
     { href: "/dashboard/map", labelKey: "mapView", icon: <Map className="h-5 w-5" />, admin: false },
     { href: "/dashboard/reports", labelKey: "reports", icon: <BarChart3 className="h-5 w-5" />, admin: false },
@@ -58,7 +59,7 @@ export default function Sidebar({ isMobile = false }: { isMobile?: boolean }) {
                 href={link.href}
                 className={cn(
                     "flex items-center gap-3 rounded-lg px-3 py-2 transition-all",
-                    isActive 
+                    (isActive  || pathname.startsWith(link.href) && link.href !== '/dashboard')
                         ? "bg-accent text-accent-foreground" 
                         : "text-muted-foreground hover:text-foreground hover:bg-muted"
                 )}
